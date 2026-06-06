@@ -1,8 +1,8 @@
-# Evriel Systems — Cinematic Edition
+# Evriel Systems
 
 **Connecting Intelligence with Business**
 
-A cinematic, dark-themed React website for Evriel Systems — an AI systems integrator helping businesses deploy practical AI solutions.
+A modern React website for Evriel Systems — AI systems integration with industries, services, trust, and case studies sections.
 
 ## Getting Started
 
@@ -29,8 +29,6 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 npm run build
 ```
 
-The build output will be in the `dist/` folder.
-
 ### Preview Production Build
 
 ```bash
@@ -47,12 +45,12 @@ npm run preview
 ## Project Structure
 
 ```
-slow-creedit/
+low-credit/
 ├── public/
 │   └── favicon.svg
 ├── src/
-│   ├── App.jsx          # Main application component
-│   └── main.jsx         # React entry point
+│   ├── App.jsx
+│   └── main.jsx
 ├── index.html
 ├── package.json
 ├── vite.config.js
