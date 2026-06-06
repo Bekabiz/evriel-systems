@@ -1,17 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Mail, ArrowRight, ArrowUpRight, ChevronDown, ChevronUp, MapPin, Calendar, ArrowLeft, Cpu, GitBranch, Layers, Zap, Target, Search, BarChart3, Shield, Globe, Users, ExternalLink } from "lucide-react";
+import { Mail, Linkedin, ArrowRight, ArrowUpRight, ChevronDown, ChevronUp, MapPin, Calendar, ArrowLeft, Cpu, GitBranch, Layers, Zap, Target, Search, BarChart3, Shield, Globe, Users, ExternalLink, Minus, Plus } from "lucide-react";
 
-const Linkedin = ({ size = 24, ...props }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>
-  </svg>
-);
+const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+const SMOOTH = "cubic-bezier(0.45, 0, 0.15, 1)";
 
-/* ═══════════════ MOTION SYSTEM ═══════════════ */
-const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
-const SPRING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
-
-function useReveal(threshold = 0.12) {
+function useReveal(threshold = 0.1) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -27,9 +20,8 @@ function useReveal(threshold = 0.12) {
   return [ref, visible];
 }
 
-function useParallax(speed = 0.08) {
+function useParallax(speed = 0.05) {
   const ref = useRef(null);
-  const y = useRef(0);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -38,8 +30,7 @@ function useParallax(speed = 0.08) {
       raf = requestAnimationFrame(() => {
         const rect = el.getBoundingClientRect();
         const center = rect.top + rect.height / 2 - window.innerHeight / 2;
-        y.current = center * speed;
-        el.style.transform = `translate3d(0, ${y.current}px, 0)`;
+        el.style.transform = `translate3d(0, ${center * speed}px, 0)`;
       });
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -48,7 +39,7 @@ function useParallax(speed = 0.08) {
   return ref;
 }
 
-function useSmoothCounter(target, duration = 2000, active = false) {
+function useSmoothCounter(target, duration = 2200, active = false) {
   const [val, setVal] = useState(0);
   useEffect(() => {
     if (!active) return;
@@ -56,7 +47,7 @@ function useSmoothCounter(target, duration = 2000, active = false) {
     const step = (ts) => {
       if (!start) start = ts;
       const p = Math.min((ts - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
+      const eased = 1 - Math.pow(1 - p, 4);
       setVal(Math.round(eased * target));
       if (p < 1) requestAnimationFrame(step);
     };
@@ -65,82 +56,102 @@ function useSmoothCounter(target, duration = 2000, active = false) {
   return val;
 }
 
-/* ═══════════════ MAGNETIC BUTTON ═══════════════ */
-function MagneticWrap({ children, className = "", strength = 0.3 }) {
-  const ref = useRef(null);
-  const onMove = useCallback((e) => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const dx = (e.clientX - cx) * strength;
-    const dy = (e.clientY - cy) * strength;
-    el.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
-  }, [strength]);
-  const onLeave = useCallback(() => {
-    if (ref.current) ref.current.style.transform = "translate3d(0,0,0)";
+function useCursor() {
+  const [pos, setPos] = useState({ x: -100, y: -100 });
+  const [hovering, setHovering] = useState(false);
+  useEffect(() => {
+    const move = (e) => setPos({ x: e.clientX, y: e.clientY });
+    const over = (e) => { if (e.target.closest("[data-cursor]")) setHovering(true); };
+    const out = (e) => { if (e.target.closest("[data-cursor]")) setHovering(false); };
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseover", over);
+    window.addEventListener("mouseout", out);
+    return () => { window.removeEventListener("mousemove", move); window.removeEventListener("mouseover", over); window.removeEventListener("mouseout", out); };
   }, []);
+  return { pos, hovering };
+}
+
+function Reveal({ children, className = "", delay = 0, direction = "up" }) {
+  const [ref, visible] = useReveal(0.08);
+  const t = { up: "translateY(60px)", down: "translateY(-60px)", left: "translateX(60px)", right: "translateX(-60px)", scale: "scale(0.97)" };
   return (
-    <div ref={ref} className={className} onMouseMove={onMove} onMouseLeave={onLeave}
-      style={{ transition: `transform 0.4s ${EASE}`, willChange: "transform" }}>
-      {children}
-    </div>
+    <div ref={ref} className={className} style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? "translate3d(0,0,0) scale(1)" : t[direction],
+      transition: `opacity 1.1s ${EASE} ${delay}ms, transform 1.1s ${EASE} ${delay}ms`,
+    }}>{children}</div>
   );
 }
 
-/* ═══════════════ STAGGER CONTAINER ═══════════════ */
-function Stagger({ children, className = "", delay = 60 }) {
-  const [ref, visible] = useReveal(0.08);
+function Stagger({ children, className = "", delay = 80 }) {
+  const [ref, visible] = useReveal(0.06);
   return (
     <div ref={ref} className={className}>
       {Array.isArray(children) ? children.map((child, i) => (
         <div key={i} style={{
           opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(32px)",
-          transition: `opacity 0.7s ${EASE} ${i * delay}ms, transform 0.7s ${EASE} ${i * delay}ms`
+          transform: visible ? "translateY(0)" : "translateY(50px)",
+          transition: `opacity 1s ${EASE} ${i * delay}ms, transform 1s ${EASE} ${i * delay}ms`
         }}>{child}</div>
       )) : children}
     </div>
   );
 }
 
-/* ═══════════════ REVEAL WRAPPER ═══════════════ */
-function Reveal({ children, className = "", delay = 0, direction = "up" }) {
+function TextReveal({ children, className = "", delay = 0 }) {
   const [ref, visible] = useReveal(0.1);
-  const transforms = {
-    up: "translateY(40px)",
-    down: "translateY(-40px)",
-    left: "translateX(40px)",
-    right: "translateX(-40px)",
-    scale: "scale(0.95)",
-  };
   return (
-    <div ref={ref} className={className} style={{
-      opacity: visible ? 1 : 0,
-      transform: visible ? "translate3d(0,0,0) scale(1)" : transforms[direction],
-      transition: `opacity 0.8s ${EASE} ${delay}ms, transform 0.8s ${EASE} ${delay}ms`,
-    }}>{children}</div>
+    <div ref={ref} className={className} style={{ overflow: "hidden" }}>
+      <div style={{
+        transform: visible ? "translateY(0)" : "translateY(110%)",
+        transition: `transform 1s ${EASE} ${delay}ms`,
+      }}>{children}</div>
+    </div>
   );
 }
 
-/* ═══════════════ SHARED COMPONENTS ═══════════════ */
-function Section({ id, children, className = "" }) {
-  return <section id={id} className={`es-section ${className}`}>{children}</section>;
+function LineReveal({ delay = 0 }) {
+  const [ref, visible] = useReveal(0.1);
+  return (
+    <div ref={ref} style={{ overflow: "hidden" }}>
+      <div style={{
+        height: 1,
+        background: "var(--border)",
+        transform: visible ? "scaleX(1)" : "scaleX(0)",
+        transformOrigin: "left",
+        transition: `transform 1.2s ${EASE} ${delay}ms`,
+      }} />
+    </div>
+  );
 }
-function Label({ text }) { return <div className="es-label">{text}</div>; }
-function Title({ children }) { return <h2 className="es-title">{children}</h2>; }
-function Desc({ children }) { return <p className="es-desc">{children}</p>; }
-function Divider() { return <div className="es-divider"><div className="es-divider-line" /></div>; }
-function Tag({ t }) { return <span className="es-tag">{t}</span>; }
 
-const LogoMark = ({ size = 20 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2L3 7.5V16.5L12 22L21 16.5V7.5L12 2Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-    <path d="M12 8L7.5 10.5V15.5L12 18L16.5 15.5V10.5L12 8Z" stroke="currentColor" strokeWidth="0.8" opacity="0.5" strokeLinejoin="round" />
-    <circle cx="12" cy="13" r="1.5" fill="currentColor" opacity="0.4" />
+const LogoMark = ({ size = 32, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 4L6 14.5V33.5L24 44L42 33.5V14.5L24 4Z" stroke={color} strokeWidth="1" strokeLinejoin="round" />
+    <path d="M24 14L14 19.5V30.5L24 36L34 30.5V19.5L24 14Z" stroke={color} strokeWidth="0.7" strokeLinejoin="round" />
+    <line x1="24" y1="4" x2="24" y2="14" stroke={color} strokeWidth="0.5" opacity="0.4" />
+    <line x1="42" y1="14.5" x2="34" y2="19.5" stroke={color} strokeWidth="0.5" opacity="0.4" />
+    <line x1="42" y1="33.5" x2="34" y2="30.5" stroke={color} strokeWidth="0.5" opacity="0.4" />
+    <line x1="24" y1="44" x2="24" y2="36" stroke={color} strokeWidth="0.5" opacity="0.4" />
+    <line x1="6" y1="33.5" x2="14" y2="30.5" stroke={color} strokeWidth="0.5" opacity="0.4" />
+    <line x1="6" y1="14.5" x2="14" y2="19.5" stroke={color} strokeWidth="0.5" opacity="0.4" />
+    <circle cx="24" cy="4" r="2" fill={color} />
+    <circle cx="42" cy="14.5" r="2" fill={color} />
+    <circle cx="42" cy="33.5" r="2" fill={color} />
+    <circle cx="24" cy="44" r="2" fill={color} />
+    <circle cx="6" cy="33.5" r="2" fill={color} />
+    <circle cx="6" cy="14.5" r="2" fill={color} />
+    <circle cx="24" cy="25" r="2.5" fill={color} opacity="0.3" />
   </svg>
 );
+
+function Section({ id, children, className = "" }) {
+  return <section id={id} className={`ev-section ${className}`}>{children}</section>;
+}
+
+function SectionNumber({ n }) {
+  return <span className="ev-section-num">{n}</span>;
+}
 
 /* ═══════════════ NAVBAR ═══════════════ */
 function Nav({ page, setPage }) {
@@ -148,7 +159,7 @@ function Nav({ page, setPage }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 50);
+    const handler = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
@@ -158,7 +169,7 @@ function Nav({ page, setPage }) {
     setMobileOpen(false);
     if (page !== "home") {
       setPage("home");
-      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 150);
+      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 200);
     } else {
       document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     }
@@ -173,42 +184,37 @@ function Nav({ page, setPage }) {
   ];
 
   return (
-    <nav className={`es-nav${scrolled ? " es-nav--scrolled" : ""}`}>
-      <div className="es-nav-inner">
-        <a onClick={() => goPage("home")} className="es-logo" style={{ cursor: "pointer" }}>
-          <div className="es-logo-icon"><LogoMark size={16} /></div>
-          <div>
-            <div className="es-logo-name">Evriel</div>
-            <div className="es-logo-sub">Systems</div>
+    <nav className={`ev-nav${scrolled ? " ev-nav--scrolled" : ""}`}>
+      <div className="ev-nav-inner">
+        <a onClick={() => goPage("home")} className="ev-logo" style={{ cursor: "pointer" }} data-cursor>
+          <LogoMark size={22} />
+          <div className="ev-logo-text">
+            <span className="ev-logo-name">EVRIEL</span>
+            <span className="ev-logo-sub">SYSTEMS</span>
           </div>
         </a>
 
-        <div className="es-nav-links">
+        <div className="ev-nav-links">
           {links.map((l) => (
-            <a key={l.label} onClick={l.action} className={`es-nav-link${l.active ? " active" : ""}`}>{l.label}</a>
+            <a key={l.label} onClick={l.action} className={`ev-nav-link${l.active ? " active" : ""}`} data-cursor>{l.label}</a>
           ))}
         </div>
 
-        <MagneticWrap>
-          <a onClick={() => goSection("contact")} className="es-nav-cta">
-            Get in Touch <ArrowUpRight size={11} strokeWidth={2} />
-          </a>
-        </MagneticWrap>
+        <a onClick={() => goSection("contact")} className="ev-nav-cta" data-cursor>
+          Contact
+        </a>
 
-        <button className="es-mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
-          <span className={mobileOpen ? "open" : ""} />
+        <button className="ev-mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
           <span className={mobileOpen ? "open" : ""} />
           <span className={mobileOpen ? "open" : ""} />
         </button>
       </div>
 
-      {mobileOpen && (
-        <div className="es-mobile-menu">
-          {[...links, { label: "Contact", action: () => goSection("contact") }].map((l) => (
-            <a key={l.label} onClick={l.action} className="es-mobile-link">{l.label}</a>
-          ))}
-        </div>
-      )}
+      <div className={`ev-mobile-menu${mobileOpen ? " open" : ""}`}>
+        {[...links, { label: "Contact", action: () => goSection("contact") }].map((l) => (
+          <a key={l.label} onClick={l.action} className="ev-mobile-link">{l.label}</a>
+        ))}
+      </div>
     </nav>
   );
 }
@@ -216,129 +222,149 @@ function Nav({ page, setPage }) {
 /* ═══════════════ HERO ═══════════════ */
 function Hero() {
   const [entered, setEntered] = useState(false);
-  const parallaxRef = useParallax(0.04);
+  const parallaxRef = useParallax(0.03);
 
-  useEffect(() => { setTimeout(() => setEntered(true), 100); }, []);
+  useEffect(() => { setTimeout(() => setEntered(true), 200); }, []);
 
   return (
-    <section id="hero" className="es-hero">
-      <div className="es-hero-glow" />
-      <div className="es-hero-grid" ref={parallaxRef} />
+    <section id="hero" className="ev-hero">
+      <div className="ev-hero-bg" ref={parallaxRef}>
+        <LogoMark size={320} color="rgba(0,0,0,0.03)" />
+      </div>
 
-      <div className={`es-hero-content${entered ? " entered" : ""}`}>
-        <div className="es-hero-badge">
-          <div className="es-hero-pulse" />
-          <span>AI SYSTEMS INTEGRATOR</span>
+      <div className={`ev-hero-content${entered ? " entered" : ""}`}>
+        <div className="ev-hero-eyebrow">
+          <div className="ev-hero-dot" />
+          <span>AI Systems Integrator</span>
         </div>
 
-        <h1 className="es-h1">
-          <span className="es-h1-line es-h1-line--1">EVRIEL</span>
-          <span className="es-h1-line es-h1-line--2">SYSTEMS</span>
+        <h1 className="ev-h1">
+          <span className="ev-h1-main">Evriel</span>
+          <span className="ev-h1-sub">systems</span>
         </h1>
 
-        <p className="es-hero-tagline">Connecting AI with Business</p>
+        <p className="ev-hero-tagline">Connecting Intelligence with Business</p>
 
-        <p className="es-hero-desc">
+        <p className="ev-hero-desc">
           We help businesses identify opportunities, streamline operations, and deploy
           practical AI systems that create measurable business value.
         </p>
 
-        <div className="es-hero-actions">
-          <MagneticWrap>
-            <a href="#work" className="es-btn es-btn--primary">
-              View Our Work <ArrowRight size={14} strokeWidth={2} />
-            </a>
-          </MagneticWrap>
-          <MagneticWrap>
-            <a href="#contact" className="es-btn es-btn--outline">Get in Touch</a>
-          </MagneticWrap>
+        <div className="ev-hero-actions">
+          <a href="#work" className="ev-btn ev-btn--dark" data-cursor>
+            View Our Work <ArrowRight size={14} strokeWidth={1.5} />
+          </a>
+          <a href="#contact" className="ev-btn ev-btn--ghost" data-cursor>
+            Get in Touch
+          </a>
         </div>
       </div>
 
-      <div className={`es-hero-marquee${entered ? " entered" : ""}`}>
-        <div className="es-marquee-track">
-          {[...Array(2)].map((_, k) => (
-            <div key={k} className="es-marquee-inner">
-              {["AI Integration", "Workflow Automation", "Custom Systems", "Digital Transformation", "Operations", "Business Strategy", "Intelligent Tools", "Process Design"].map((t, i) => (
-                <span key={i} className="es-marquee-item">{t}<span className="es-marquee-dot" /></span>
-              ))}
-            </div>
-          ))}
+      <div className={`ev-hero-bottom${entered ? " entered" : ""}`}>
+        <div className="ev-hero-line" />
+        <div className="ev-hero-scroll">
+          <span>Scroll</span>
+          <div className="ev-scroll-bar"><div className="ev-scroll-progress" /></div>
         </div>
-      </div>
-
-      <div className={`es-scroll-hint${entered ? " entered" : ""}`}>
-        <span>SCROLL</span>
-        <div className="es-scroll-line"><div className="es-scroll-dot" /></div>
       </div>
     </section>
+  );
+}
+
+/* ═══════════════ MARQUEE ═══════════════ */
+function Marquee() {
+  const items = ["AI Integration", "Workflow Automation", "Custom Systems", "Digital Transformation", "Business Strategy", "Intelligent Tools", "Process Design", "Operations"];
+  return (
+    <div className="ev-marquee-wrap">
+      <div className="ev-marquee-track">
+        {[0, 1].map(k => (
+          <div key={k} className="ev-marquee-inner">
+            {items.map((t, i) => (
+              <span key={i} className="ev-marquee-item">{t}<span className="ev-marquee-sep">/</span></span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
 /* ═══════════════ ABOUT ═══════════════ */
 function About() {
   const [ref, visible] = useReveal();
-  const stat1 = useSmoothCounter(4, 1800, visible);
+  const stat1 = useSmoothCounter(4, 2000, visible);
 
   return (
     <Section id="about">
-      <div className="es-about-grid">
+      <div className="ev-about-top">
         <Reveal>
-          <Label text="About" />
-          <Title>Most businesses don't<br />have an AI problem</Title>
-        </Reveal>
-        <Reveal delay={150}>
-          <p className="es-body">Most businesses don't have an AI problem. They have an operations problem.</p>
-          <p className="es-body es-body--muted">Information is scattered. Processes are manual. Teams spend hours on repetitive tasks. Decisions rely on disconnected systems.</p>
-          <p className="es-body es-body--muted">Evriel Systems helps businesses identify where technology can create measurable value, then designs practical solutions that solve those problems. From AI-powered workflows and intelligent automation to custom internal platforms and digital transformation initiatives, every solution is built around one goal: creating real business outcomes.</p>
-          <p className="es-body es-body--muted">Founded by Bereket Teshome, Evriel Systems operates at the intersection of artificial intelligence, operations, and business strategy, helping organizations transform complexity into clarity.</p>
+          <SectionNumber n="01" />
+          <h2 className="ev-heading-lg">Most businesses don't have an AI problem</h2>
         </Reveal>
       </div>
 
-      <div ref={ref} className="es-stats">
-        <div className="es-stat">
-          <span className="es-stat-value">Multiple</span>
-          <span className="es-stat-label">AI Products in Production</span>
-        </div>
-        <div className="es-stat-sep" />
-        <div className="es-stat">
-          <span className="es-stat-value">{stat1}+</span>
-          <span className="es-stat-label">Countries</span>
-        </div>
-        <div className="es-stat-sep" />
-        <div className="es-stat">
-          <span className="es-stat-value">Real</span>
-          <span className="es-stat-label">Clients, Real Systems</span>
-        </div>
+      <div className="ev-about-grid">
+        <Reveal delay={100}>
+          <p className="ev-body-lg">They have an operations problem.</p>
+        </Reveal>
+        <Reveal delay={200}>
+          <p className="ev-body">Information is scattered. Processes are manual. Teams spend hours on repetitive tasks. Decisions rely on disconnected systems.</p>
+          <p className="ev-body ev-body--muted">Evriel Systems helps businesses identify where technology can create measurable value, then designs practical solutions that solve those problems. From AI-powered workflows and intelligent automation to custom internal platforms and digital transformation initiatives, every solution is built around one goal: creating real business outcomes.</p>
+          <p className="ev-body ev-body--muted">Founded by Bereket Teshome, Evriel Systems operates at the intersection of artificial intelligence, operations, and business strategy, helping organizations transform complexity into clarity.</p>
+        </Reveal>
+      </div>
+
+      <LineReveal delay={100} />
+
+      <div ref={ref} className="ev-stats">
+        <Reveal delay={0}>
+          <div className="ev-stat">
+            <span className="ev-stat-value">Multiple</span>
+            <span className="ev-stat-label">AI Products in Production</span>
+          </div>
+        </Reveal>
+        <Reveal delay={100}>
+          <div className="ev-stat">
+            <span className="ev-stat-value">{stat1}+</span>
+            <span className="ev-stat-label">Countries</span>
+          </div>
+        </Reveal>
+        <Reveal delay={200}>
+          <div className="ev-stat">
+            <span className="ev-stat-value">Real</span>
+            <span className="ev-stat-label">Clients, Real Systems</span>
+          </div>
+        </Reveal>
       </div>
     </Section>
   );
 }
 
-/* ═══════════════ HOW WE WORK ═══════════════ */
+/* ═══════════════ PROCESS ═══════════════ */
 function Process() {
   const steps = [
-    { n: "01", t: "Business Discovery", d: "We begin by understanding how your business operates, how decisions are made, and where time and resources are being lost.", icon: <Search size={20} strokeWidth={1.5} /> },
-    { n: "02", t: "Opportunity Mapping", d: "We identify operational bottlenecks, communication gaps, repetitive tasks, and areas where technology can create measurable value.", icon: <Target size={20} strokeWidth={1.5} /> },
-    { n: "03", t: "Solution Design", d: "Not every challenge requires AI. Sometimes the answer is a better workflow. Sometimes it is automation. Sometimes it is a custom platform.", icon: <Layers size={20} strokeWidth={1.5} /> },
-    { n: "04", t: "Build and Deploy", d: "We implement practical systems that work within your business rather than forcing your business to adapt to the technology.", icon: <Zap size={20} strokeWidth={1.5} /> },
-    { n: "05", t: "Continuous Improvement", d: "We measure results, optimize performance, and evolve systems as your business grows.", icon: <BarChart3 size={20} strokeWidth={1.5} /> },
+    { n: "01", t: "Business Discovery", d: "We begin by understanding how your business operates, how decisions are made, and where time and resources are being lost." },
+    { n: "02", t: "Opportunity Mapping", d: "We identify operational bottlenecks, communication gaps, repetitive tasks, and areas where technology can create measurable value." },
+    { n: "03", t: "Solution Design", d: "Not every challenge requires AI. Sometimes the answer is a better workflow. Sometimes it is automation. Sometimes it is a custom platform." },
+    { n: "04", t: "Build & Deploy", d: "We implement practical systems that work within your business rather than forcing your business to adapt to the technology." },
+    { n: "05", t: "Continuous Improvement", d: "We measure results, optimize performance, and evolve systems as your business grows." },
   ];
 
   return (
     <Section id="process">
-      <Reveal><Label text="Our Process" /><Title>How we work</Title></Reveal>
-      <div className="es-steps">
+      <Reveal>
+        <SectionNumber n="02" />
+        <h2 className="ev-heading-lg">How we work</h2>
+      </Reveal>
+
+      <div className="ev-steps">
         {steps.map((s, i) => (
-          <Reveal key={i} delay={i * 80}>
-            <div className="es-step">
-              <div className="es-step-left">
-                <div className="es-step-icon">{s.icon}</div>
-                <span className="es-step-num">{s.n}</span>
-              </div>
-              <div className="es-step-body">
-                <h3 className="es-step-title">{s.t}</h3>
-                <p className="es-step-desc">{s.d}</p>
+          <Reveal key={i} delay={i * 60}>
+            <div className="ev-step">
+              <span className="ev-step-num">{s.n}</span>
+              <div className="ev-step-body">
+                <h3 className="ev-step-title">{s.t}</h3>
+                <p className="ev-step-desc">{s.d}</p>
               </div>
             </div>
           </Reveal>
@@ -350,40 +376,44 @@ function Process() {
 
 /* ═══════════════ SERVICES (Home) ═══════════════ */
 const serviceData = [
-  { icon: <Cpu size={22} strokeWidth={1.5} />, t: "AI Integration", d: "We identify where AI can create measurable value and integrate intelligent systems directly into existing business operations.", tg: ["AI", "Automation", "APIs"] },
-  { icon: <GitBranch size={22} strokeWidth={1.5} />, t: "Workflow Automation", d: "We eliminate repetitive tasks, reduce operational friction, and build workflows that scale.", tg: ["Workflow", "Efficiency", "Systems"] },
-  { icon: <Shield size={22} strokeWidth={1.5} />, t: "Custom AI Systems", d: "Every business is different. We design and deploy custom AI tools tailored to specific operational needs, processes, and goals.", tg: ["Custom Tools", "Platforms", "SaaS"] },
-  { icon: <Globe size={22} strokeWidth={1.5} />, t: "Digital Transformation", d: "We help businesses modernize their online presence, communication systems, recruitment processes, and internal operations.", tg: ["LinkedIn", "Web", "Content", "Recruitment"] },
+  { t: "AI Integration", d: "We identify where AI can create measurable value and integrate intelligent systems directly into existing business operations.", tg: ["AI", "Automation", "APIs"] },
+  { t: "Workflow Automation", d: "We eliminate repetitive tasks, reduce operational friction, and build workflows that scale.", tg: ["Workflow", "Efficiency", "Systems"] },
+  { t: "Custom AI Systems", d: "Every business is different. We design and deploy custom AI tools tailored to specific operational needs, processes, and goals.", tg: ["Custom Tools", "Platforms", "SaaS"] },
+  { t: "Digital Transformation", d: "We help businesses modernize their online presence, communication systems, recruitment processes, and internal operations.", tg: ["LinkedIn", "Web", "Content", "Recruitment"] },
 ];
 
 function ServicesHome({ setPage }) {
   return (
     <Section id="services">
-      <div className="es-services-header">
+      <div className="ev-services-header">
         <Reveal>
-          <Label text="What We Do" />
-          <Title>Smarter systems,<br />built with purpose</Title>
+          <SectionNumber n="03" />
+          <h2 className="ev-heading-lg">What we do</h2>
         </Reveal>
         <Reveal delay={100}>
-          <a onClick={() => { setPage("services"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="es-link-arrow" style={{ cursor: "pointer" }}>
-            All Services <ArrowRight size={13} strokeWidth={2} />
+          <a onClick={() => { setPage("services"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="ev-text-link" style={{ cursor: "pointer" }} data-cursor>
+            All Services <ArrowRight size={12} strokeWidth={1.5} />
           </a>
         </Reveal>
       </div>
 
-      <Stagger className="es-services-grid" delay={80}>
+      <div className="ev-services-list">
         {serviceData.map((s, i) => (
-          <MagneticWrap key={i} strength={0.15}>
-            <div className="es-card es-service-card">
-              <div className="es-card-border" />
-              <div className="es-service-icon">{s.icon}</div>
-              <h3 className="es-service-title">{s.t}</h3>
-              <p className="es-service-desc">{s.d}</p>
-              <div className="es-tags">{s.tg.map((t, j) => <Tag key={j} t={t} />)}</div>
+          <Reveal key={i} delay={i * 80}>
+            <div className="ev-service-row" data-cursor>
+              <div className="ev-service-row-num">0{i + 1}</div>
+              <div className="ev-service-row-content">
+                <h3 className="ev-service-row-title">{s.t}</h3>
+                <p className="ev-service-row-desc">{s.d}</p>
+              </div>
+              <div className="ev-service-row-tags">
+                {s.tg.map((t, j) => <span key={j} className="ev-tag">{t}</span>)}
+              </div>
+              <ArrowUpRight size={16} strokeWidth={1} className="ev-service-row-arrow" />
             </div>
-          </MagneticWrap>
+          </Reveal>
         ))}
-      </Stagger>
+      </div>
     </Section>
   );
 }
@@ -400,36 +430,37 @@ function CaseCard({ cs, i }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <Reveal delay={i * 70}>
-      <div className={`es-card es-case${open ? " es-case--open" : ""}`} onClick={() => setOpen(!open)} style={{ cursor: "pointer" }}>
-        <div className="es-card-border" />
-        <div className="es-case-header">
-          <div style={{ flex: 1 }}>
-            <span className="es-case-tag">{cs.tag}</span>
-            <h3 className="es-case-title">{cs.title}</h3>
-            <p className="es-case-hook">{cs.hook}</p>
+    <Reveal delay={i * 60}>
+      <div className={`ev-case${open ? " ev-case--open" : ""}`} onClick={() => setOpen(!open)} style={{ cursor: "pointer" }} data-cursor>
+        <div className="ev-case-header">
+          <div className="ev-case-left">
+            <span className="ev-case-tag">{cs.tag}</span>
+            <h3 className="ev-case-title">{cs.title}</h3>
           </div>
-          <div className="es-case-toggle">
-            {open ? <ChevronUp size={16} strokeWidth={1.5} /> : <ChevronDown size={16} strokeWidth={1.5} />}
+          <div className="ev-case-right">
+            <p className="ev-case-hook">{cs.hook}</p>
+            <div className="ev-case-toggle">
+              {open ? <Minus size={16} strokeWidth={1} /> : <Plus size={16} strokeWidth={1} />}
+            </div>
           </div>
         </div>
-        <div className={`es-case-body${open ? " open" : ""}`}>
-          <div className="es-case-columns">
+        <div className={`ev-case-body${open ? " open" : ""}`}>
+          <div className="ev-case-columns">
             <div>
-              <span className="es-case-label">The Challenge</span>
-              <p className="es-case-text">{cs.ch}</p>
+              <span className="ev-case-label">The Challenge</span>
+              <p className="ev-case-text">{cs.ch}</p>
             </div>
             <div>
-              <span className="es-case-label">What We Built</span>
-              <p className="es-case-text">{cs.sol}</p>
+              <span className="ev-case-label">What We Built</span>
+              <p className="ev-case-text">{cs.sol}</p>
             </div>
           </div>
-          <div className="es-case-results">
-            <span className="es-case-label">Results</span>
-            <div className="es-results-list">
+          <div className="ev-case-results">
+            <span className="ev-case-label">Results</span>
+            <div className="ev-results-grid">
               {cs.res.map((r, j) => (
-                <div key={j} className="es-result-item">
-                  <div className="es-result-dot" />
+                <div key={j} className="ev-result-item">
+                  <span className="ev-result-dash">—</span>
                   <span>{r}</span>
                 </div>
               ))}
@@ -444,9 +475,12 @@ function CaseCard({ cs, i }) {
 function CaseStudies() {
   return (
     <Section id="work">
-      <Reveal><Label text="Selected Work" /><Title>Projects that speak<br />for themselves</Title></Reveal>
-      <Reveal delay={80}><Desc>Real challenges, real systems, measurable results</Desc></Reveal>
-      <div className="es-cases">{cases.map((c, i) => <CaseCard key={i} cs={c} i={i} />)}</div>
+      <Reveal>
+        <SectionNumber n="04" />
+        <h2 className="ev-heading-lg">Selected Work</h2>
+      </Reveal>
+      <Reveal delay={80}><p className="ev-subtitle">Real challenges, real systems, measurable results</p></Reveal>
+      <div className="ev-cases">{cases.map((c, i) => <CaseCard key={i} cs={c} i={i} />)}</div>
     </Section>
   );
 }
@@ -461,31 +495,29 @@ function Experience() {
 
   return (
     <Section id="experience">
-      <Reveal><Label text="Experience" /><Title>Where we've worked</Title></Reveal>
-      <Stagger className="es-exp-list" delay={100}>
+      <Reveal>
+        <SectionNumber n="05" />
+        <h2 className="ev-heading-lg">Experience</h2>
+      </Reveal>
+
+      <div className="ev-exp-list">
         {exp.map((e, i) => (
-          <MagneticWrap key={i} strength={0.12}>
-            <div className="es-card es-exp-card">
-              <div className="es-card-border" />
-              <div className="es-exp-num">0{i + 1}</div>
-              <div className="es-exp-main">
-                <div className="es-exp-header">
-                  <div>
-                    <h3 className="es-exp-company">{e.co}</h3>
-                    <p className="es-exp-role">{e.role}</p>
-                  </div>
-                  <div className="es-exp-meta">
-                    <span className="es-exp-meta-item"><MapPin size={11} strokeWidth={1.5} />{e.loc}</span>
-                    <span className="es-exp-meta-item"><Calendar size={11} strokeWidth={1.5} />{e.yr}</span>
-                  </div>
-                </div>
-                <p className="es-exp-desc">{e.d}</p>
-                <div className="es-tags">{e.tg.map((t, j) => <Tag key={j} t={t} />)}</div>
+          <Reveal key={i} delay={i * 80}>
+            <div className="ev-exp-row">
+              <div className="ev-exp-year">{e.yr}</div>
+              <div className="ev-exp-main">
+                <h3 className="ev-exp-company">{e.co}</h3>
+                <p className="ev-exp-role">{e.role}</p>
+                <p className="ev-exp-desc">{e.d}</p>
+                <div className="ev-tags">{e.tg.map((t, j) => <span key={j} className="ev-tag">{t}</span>)}</div>
+              </div>
+              <div className="ev-exp-meta">
+                <span className="ev-exp-meta-item"><MapPin size={11} strokeWidth={1} />{e.loc}</span>
               </div>
             </div>
-          </MagneticWrap>
+          </Reveal>
         ))}
-      </Stagger>
+      </div>
     </Section>
   );
 }
@@ -493,33 +525,27 @@ function Experience() {
 /* ═══════════════ CONTACT ═══════════════ */
 function Contact() {
   return (
-    <Section id="contact" className="es-contact-section">
-      <div className="es-contact-glow" />
+    <Section id="contact" className="ev-contact-section">
       <Reveal>
-        <div className="es-contact-box">
-          <Label text="Contact" />
-          <Title>Let's Build Something</Title>
-          <Desc>Have an idea, a broken workflow, or a business that needs AI? Let's talk.</Desc>
+        <div className="ev-contact-inner">
+          <SectionNumber n="06" />
+          <h2 className="ev-heading-xl">Let's Build<br />Something</h2>
+          <p className="ev-contact-desc">Have an idea, a broken workflow, or a business that needs AI? Let's talk.</p>
 
-          <div className="es-contact-email">
-            <Mail size={16} strokeWidth={1.5} />
-            <a href="mailto:bereket@evrielsystems.com" className="es-contact-email-text">bereket@evrielsystems.com</a>
+          <div className="ev-contact-email-row">
+            <a href="mailto:contact@evrielsystems.com" className="ev-contact-email" data-cursor>contact@evrielsystems.com</a>
           </div>
 
-          <div className="es-contact-actions">
-            <MagneticWrap>
-              <a href="mailto:bereket@evrielsystems.com" className="es-btn es-btn--primary">
-                <Mail size={14} strokeWidth={2} /> Send Email
-              </a>
-            </MagneticWrap>
-            <MagneticWrap>
-              <a href="https://www.linkedin.com/in/bereket-teshome-b71247194" target="_blank" rel="noopener noreferrer" className="es-btn es-btn--outline">
-                <Linkedin size={14} strokeWidth={2} /> LinkedIn
-              </a>
-            </MagneticWrap>
+          <div className="ev-contact-actions">
+            <a href="mailto:contact@evrielsystems.com" className="ev-btn ev-btn--dark" data-cursor>
+              <Mail size={14} strokeWidth={1.5} /> Send Email
+            </a>
+            <a href="https://www.linkedin.com/in/bereket-teshome-b71247194" target="_blank" rel="noopener noreferrer" className="ev-btn ev-btn--ghost" data-cursor>
+              <Linkedin size={14} strokeWidth={1.5} /> LinkedIn
+            </a>
           </div>
 
-          <p className="es-contact-location">Based in Italy. Worked internationally.</p>
+          <p className="ev-contact-location">Based in Italy — Working internationally</p>
         </div>
       </Reveal>
     </Section>
@@ -529,14 +555,18 @@ function Contact() {
 /* ═══════════════ FOOTER ═══════════════ */
 function Footer() {
   return (
-    <footer className="es-footer">
-      <div className="es-footer-left">
-        <div className="es-logo-icon" style={{ width: 28, height: 28 }}><LogoMark size={13} /></div>
-        <span>Evriel Systems</span>
-      </div>
-      <div className="es-footer-right">
-        <p>&copy; 2026 Evriel Systems</p>
-        <p className="es-footer-tagline">Built with purpose.</p>
+    <footer className="ev-footer">
+      <div className="ev-footer-inner">
+        <div className="ev-footer-left">
+          <LogoMark size={18} />
+          <span className="ev-footer-name">Evriel Systems</span>
+        </div>
+        <div className="ev-footer-center">
+          <p className="ev-footer-tagline">Connecting Intelligence with Business</p>
+        </div>
+        <div className="ev-footer-right">
+          <p>&copy; 2026 Evriel Systems</p>
+        </div>
       </div>
     </footer>
   );
@@ -545,47 +575,46 @@ function Footer() {
 /* ═══════════════ SERVICES PAGE ═══════════════ */
 function ServicesPage({ setPage }) {
   const fullServices = [
-    { icon: <Cpu size={24} strokeWidth={1.5} />, t: "AI Integration", intro: "We identify where AI can create measurable value and integrate intelligent systems directly into existing business operations.", pts: ["Operational analysis to find high-value AI opportunities", "Integration of intelligent systems into existing tools", "Document and communication processing", "Decision-support and data structuring", "Production deployment within your infrastructure"], tg: ["AI", "Automation", "APIs"] },
-    { icon: <GitBranch size={24} strokeWidth={1.5} />, t: "Workflow Automation", intro: "We eliminate repetitive tasks, reduce operational friction, and build workflows that scale.", pts: ["Mapping of manual and repetitive processes", "Automated handoffs between teams and tools", "Approval and review workflow design", "Reduction of operational bottlenecks", "Scalable systems that grow with the business"], tg: ["Workflow", "Efficiency", "Systems"] },
-    { icon: <Shield size={24} strokeWidth={1.5} />, t: "Custom AI Systems", intro: "Every business is different. We design and deploy custom AI tools tailored to specific operational needs, processes, and goals.", pts: ["Tailored tools built around your operations", "Internal platforms and dashboards", "Industry-specific intelligent systems", "End-to-end design and deployment", "Ongoing refinement as needs evolve"], tg: ["Custom Tools", "Platforms", "SaaS"] },
-    { icon: <Globe size={24} strokeWidth={1.5} />, t: "Digital Transformation", intro: "We help businesses modernize their online presence, communication systems, recruitment processes, and internal operations.", pts: ["Professional online presence and positioning", "Communication and content systems", "Recruitment and talent processes", "Internal operations modernization", "Brand and market positioning"], tg: ["LinkedIn", "Web", "Content", "Recruitment"] },
+    { t: "AI Integration", intro: "We identify where AI can create measurable value and integrate intelligent systems directly into existing business operations.", pts: ["Operational analysis to find high-value AI opportunities", "Integration of intelligent systems into existing tools", "Document and communication processing", "Decision-support and data structuring", "Production deployment within your infrastructure"], tg: ["AI", "Automation", "APIs"] },
+    { t: "Workflow Automation", intro: "We eliminate repetitive tasks, reduce operational friction, and build workflows that scale.", pts: ["Mapping of manual and repetitive processes", "Automated handoffs between teams and tools", "Approval and review workflow design", "Reduction of operational bottlenecks", "Scalable systems that grow with the business"], tg: ["Workflow", "Efficiency", "Systems"] },
+    { t: "Custom AI Systems", intro: "Every business is different. We design and deploy custom AI tools tailored to specific operational needs, processes, and goals.", pts: ["Tailored tools built around your operations", "Internal platforms and dashboards", "Industry-specific intelligent systems", "End-to-end design and deployment", "Ongoing refinement as needs evolve"], tg: ["Custom Tools", "Platforms", "SaaS"] },
+    { t: "Digital Transformation", intro: "We help businesses modernize their online presence, communication systems, recruitment processes, and internal operations.", pts: ["Professional online presence and positioning", "Communication and content systems", "Recruitment and talent processes", "Internal operations modernization", "Brand and market positioning"], tg: ["LinkedIn", "Web", "Content", "Recruitment"] },
   ];
 
   return (
     <div style={{ position: "relative", zIndex: 2 }}>
-      <div className="es-page-header">
-        <a onClick={() => { setPage("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="es-back" style={{ cursor: "pointer" }}>
-          <ArrowLeft size={13} strokeWidth={2} /> Back to Home
+      <div className="ev-page-header">
+        <a onClick={() => { setPage("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="ev-back" style={{ cursor: "pointer" }} data-cursor>
+          <ArrowLeft size={14} strokeWidth={1.5} /> Back
         </a>
-        <Label text="Services" />
-        <Title>What we offer</Title>
-        <Desc>Practical AI integration and business transformation services</Desc>
+        <SectionNumber n="Services" />
+        <h2 className="ev-heading-lg">What we offer</h2>
+        <p className="ev-subtitle">Practical AI integration and business transformation</p>
       </div>
 
       {fullServices.map((s, i) => (
         <Reveal key={i} delay={i * 60}>
-          <div className="es-section es-service-full">
-            <div className="es-sf-grid">
+          <div className="ev-section ev-sf-section">
+            <div className="ev-sf-grid">
               <div>
-                <div className="es-sf-icon">{s.icon}</div>
-                <h3 className="es-sf-title">{s.t}</h3>
-                <p className="es-sf-intro">{s.intro}</p>
-                <div className="es-tags">{s.tg.map((t, j) => <Tag key={j} t={t} />)}</div>
+                <span className="ev-sf-num">0{i + 1}</span>
+                <h3 className="ev-sf-title">{s.t}</h3>
+                <p className="ev-sf-intro">{s.intro}</p>
+                <div className="ev-tags">{s.tg.map((t, j) => <span key={j} className="ev-tag">{t}</span>)}</div>
               </div>
-              <div className="es-card es-sf-card">
-                <div className="es-card-border" />
-                <span className="es-case-label">What's Included</span>
-                <div className="es-sf-points">
+              <div className="ev-sf-card">
+                <span className="ev-sf-card-label">What's Included</span>
+                <div className="ev-sf-points">
                   {s.pts.map((p, j) => (
-                    <div key={j} className="es-sf-point">
-                      <span className="es-sf-dash">—</span>
+                    <div key={j} className="ev-sf-point">
+                      <span className="ev-sf-dash">—</span>
                       <span>{p}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-            {i < fullServices.length - 1 && <Divider />}
+            {i < fullServices.length - 1 && <LineReveal delay={200} />}
           </div>
         </Reveal>
       ))}
@@ -604,27 +633,26 @@ function InsightsPage({ setPage }) {
 
   return (
     <div style={{ position: "relative", zIndex: 2 }}>
-      <div className="es-page-header">
-        <a onClick={() => { setPage("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="es-back" style={{ cursor: "pointer" }}>
-          <ArrowLeft size={13} strokeWidth={2} /> Back to Home
+      <div className="ev-page-header">
+        <a onClick={() => { setPage("home"); window.scrollTo({ top: 0, behavior: "smooth" }); }} className="ev-back" style={{ cursor: "pointer" }} data-cursor>
+          <ArrowLeft size={14} strokeWidth={1.5} /> Back
         </a>
-        <Label text="Insights" />
-        <Title>Thoughts on AI &amp; Business</Title>
-        <Desc>Ideas and perspectives on building practical systems</Desc>
+        <SectionNumber n="Insights" />
+        <h2 className="ev-heading-lg">Thoughts on AI & Business</h2>
+        <p className="ev-subtitle">Ideas and perspectives on building practical systems</p>
       </div>
 
-      <Stagger className="es-insights-grid es-section" delay={90}>
+      <Stagger className="ev-insights-grid ev-section" delay={100}>
         {articles.map((a, i) => (
-          <MagneticWrap key={i} strength={0.12}>
-            <div className="es-card es-insight-card">
-              <div className="es-card-border" />
-              <span className="es-insight-year">{a.y}</span>
-              <h3 className="es-insight-title">{a.t}</h3>
-              <p className="es-insight-desc">{a.d}</p>
-              <div className="es-tags">{a.tg.map((t, j) => <Tag key={j} t={t} />)}</div>
-              <div className="es-insight-arrow"><ArrowUpRight size={16} strokeWidth={1.5} /></div>
+          <div key={i} className="ev-insight-row" data-cursor>
+            <span className="ev-insight-year">{a.y}</span>
+            <div className="ev-insight-main">
+              <h3 className="ev-insight-title">{a.t}</h3>
+              <p className="ev-insight-desc">{a.d}</p>
+              <div className="ev-tags">{a.tg.map((t, j) => <span key={j} className="ev-tag">{t}</span>)}</div>
             </div>
-          </MagneticWrap>
+            <ArrowUpRight size={16} strokeWidth={1} className="ev-insight-arrow" />
+          </div>
         ))}
       </Stagger>
     </div>
@@ -636,17 +664,12 @@ function Home({ setPage }) {
   return (
     <>
       <Hero />
-      <Divider />
+      <Marquee />
       <About />
-      <Divider />
       <Process />
-      <Divider />
       <ServicesHome setPage={setPage} />
-      <Divider />
       <CaseStudies />
-      <Divider />
       <Experience />
-      <Divider />
       <Contact />
       <Footer />
     </>
@@ -656,211 +679,187 @@ function Home({ setPage }) {
 /* ═══════════════ APP ═══════════════ */
 export default function App() {
   const [page, setPage] = useState("home");
+  const { pos, hovering } = useCursor();
 
   return (
     <>
       <style>{`
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap');
 
 :root {
-  --bg: #060608;
-  --bg-elevated: #0c0c10;
-  --surface: #111116;
-  --surface-hover: #16161c;
-  --text-primary: #f0f0f3;
-  --text-secondary: #a8a8b3;
-  --text-tertiary: #6e6e7a;
-  --text-quaternary: #4a4a54;
-  --accent: #4d7cff;
-  --accent-soft: rgba(77, 124, 255, 0.12);
-  --accent-text: rgba(77, 124, 255, 0.85);
-  --border: rgba(255, 255, 255, 0.06);
-  --border-hover: rgba(255, 255, 255, 0.1);
-  --border-accent: rgba(77, 124, 255, 0.2);
-  --heading: 'Playfair Display', Georgia, serif;
+  --bg: #ffffff;
+  --surface: #fafafa;
+  --surface-hover: #f5f5f5;
+  --black: #000000;
+  --text-primary: #000000;
+  --text-secondary: #555555;
+  --text-tertiary: #888888;
+  --text-muted: #aaaaaa;
+  --platinum: #D9D9D9;
+  --border: #e8e8e8;
+  --border-hover: #d0d0d0;
+  --heading: 'Instrument Serif', Georgia, serif;
   --body: 'Inter', -apple-system, system-ui, sans-serif;
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-body { background: var(--bg); color: var(--text-primary); font-family: var(--body); overflow-x: hidden; }
+body { background: var(--bg); color: var(--text-primary); font-family: var(--body); overflow-x: hidden; cursor: default; }
 a { text-decoration: none; color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
-/* ═══ CARD SYSTEM ═══ */
-.es-card {
-  position: relative;
-  background: var(--surface);
-  border-radius: 16px;
-  overflow: hidden;
-  transition: background 0.4s var(--ease), box-shadow 0.4s var(--ease);
-}
-.es-card:hover {
-  background: var(--surface-hover);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-}
-.es-card-border {
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  border: 1px solid var(--border);
+/* ═══ CUSTOM CURSOR ═══ */
+.ev-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--black);
   pointer-events: none;
-  transition: border-color 0.4s var(--ease);
+  z-index: 9999;
+  transition: width 0.4s var(--ease), height 0.4s var(--ease), margin 0.4s var(--ease), opacity 0.3s;
+  mix-blend-mode: difference;
 }
-.es-card:hover .es-card-border { border-color: var(--border-hover); }
+.ev-cursor--hover {
+  width: 48px;
+  height: 48px;
+  margin: -18px 0 0 -18px;
+  border-color: #fff;
+}
+@media (max-width: 768px) { .ev-cursor { display: none; } }
 
 /* ═══ NAVBAR ═══ */
-.es-nav {
+.ev-nav {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  padding: 18px 0;
-  transition: all 0.5s var(--ease);
+  padding: 24px 0;
+  transition: all 0.6s var(--ease);
 }
-.es-nav--scrolled {
-  padding: 10px 0;
-  background: rgba(6, 6, 8, 0.92);
-  backdrop-filter: blur(24px) saturate(1.3);
+.ev-nav--scrolled {
+  padding: 14px 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
 }
-.es-nav-inner {
-  max-width: 1200px;
+.ev-nav-inner {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 48px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.es-logo {
+.ev-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
-.es-logo-icon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border-hover);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
-  color: var(--accent-text);
-  transition: border-color 0.3s var(--ease), background 0.3s var(--ease);
-}
-.es-logo:hover .es-logo-icon { border-color: var(--border-accent); background: var(--accent-soft); }
-.es-logo-name {
-  font-family: var(--heading);
-  font-size: 17px;
-  font-weight: 600;
+.ev-logo-text { display: flex; flex-direction: column; }
+.ev-logo-name {
+  font-family: var(--body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
   color: var(--text-primary);
-  letter-spacing: 0.04em;
-  line-height: 1.1;
+  line-height: 1;
 }
-.es-logo-sub {
+.ev-logo-sub {
   font-family: var(--body);
   font-size: 8px;
-  color: var(--text-quaternary);
-  letter-spacing: 0.3em;
+  letter-spacing: 0.45em;
+  color: var(--text-tertiary);
   font-weight: 400;
   text-transform: uppercase;
+  margin-top: 2px;
 }
-.es-nav-links {
+.ev-nav-links {
   display: flex;
-  gap: 2px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border);
-  border-radius: 100px;
-  padding: 3px;
+  gap: 0;
 }
-.es-nav-link {
+.ev-nav-link {
   font-family: var(--body);
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--text-tertiary);
-  padding: 7px 18px;
-  border-radius: 100px;
-  transition: all 0.25s var(--ease);
+  padding: 8px 20px;
+  transition: color 0.3s var(--ease);
   cursor: pointer;
   font-weight: 400;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.04em;
 }
-.es-nav-link:hover, .es-nav-link.active {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.06);
-}
-.es-nav-cta {
+.ev-nav-link:hover, .ev-nav-link.active { color: var(--text-primary); }
+.ev-nav-cta {
   font-family: var(--body);
-  font-size: 12.5px;
-  padding: 8px 22px;
-  border: 1px solid var(--border-hover);
-  border-radius: 100px;
-  color: var(--text-secondary);
-  transition: all 0.3s var(--ease);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  font-size: 12px;
+  padding: 10px 28px;
+  border: 1px solid var(--black);
+  color: var(--black);
+  transition: all 0.4s var(--ease);
   cursor: pointer;
   font-weight: 400;
+  letter-spacing: 0.04em;
 }
-.es-nav-cta:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.18);
-  color: var(--text-primary);
+.ev-nav-cta:hover {
+  background: var(--black);
+  color: var(--bg);
 }
 
 /* Mobile Nav */
-.es-mobile-toggle {
+.ev-mobile-toggle {
   display: none;
   background: none;
   border: none;
-  padding: 8px;
+  padding: 10px;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
   cursor: pointer;
 }
-.es-mobile-toggle span {
-  width: 20px;
-  height: 1.5px;
-  background: var(--text-secondary);
+.ev-mobile-toggle span {
+  width: 22px;
+  height: 1px;
+  background: var(--black);
   display: block;
-  transition: all 0.3s var(--ease);
+  transition: all 0.4s var(--ease);
   transform-origin: center;
 }
-.es-mobile-toggle span.open:nth-child(1) { transform: rotate(45deg) translate(4px, 5px); }
-.es-mobile-toggle span.open:nth-child(2) { opacity: 0; }
-.es-mobile-toggle span.open:nth-child(3) { transform: rotate(-45deg) translate(4px, -5px); }
-.es-mobile-menu {
-  padding: 20px 32px 28px;
+.ev-mobile-toggle span.open:nth-child(1) { transform: rotate(45deg) translate(2px, 4px); }
+.ev-mobile-toggle span.open:nth-child(2) { transform: rotate(-45deg) translate(2px, -4px); }
+.ev-mobile-menu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s var(--ease);
+  padding: 0 48px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  background: rgba(6, 6, 8, 0.97);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
+  background: var(--bg);
 }
-.es-mobile-link {
+.ev-mobile-menu.open { max-height: 320px; padding: 16px 48px 32px; border-top: 1px solid var(--border); }
+.ev-mobile-link {
   font-family: var(--body);
-  font-size: 15px;
-  color: var(--text-secondary);
+  font-size: 14px;
+  color: var(--text-tertiary);
   cursor: pointer;
-  padding: 10px 0;
+  padding: 12px 0;
   transition: color 0.2s;
+  letter-spacing: 0.02em;
 }
-.es-mobile-link:hover { color: var(--text-primary); }
+.ev-mobile-link:hover { color: var(--text-primary); }
 @media (max-width: 768px) {
-  .es-nav-links, .es-nav-cta { display: none !important; }
-  .es-mobile-toggle { display: flex !important; }
+  .ev-nav-links, .ev-nav-cta { display: none !important; }
+  .ev-mobile-toggle { display: flex !important; }
+  .ev-nav-inner { padding: 0 24px; }
 }
 
 /* ═══ HERO ═══ */
-.es-hero {
+.ev-hero {
   position: relative;
   min-height: 100vh;
   display: flex;
@@ -868,424 +867,395 @@ a { text-decoration: none; color: inherit; }
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 140px 24px 0;
+  padding: 160px 24px 80px;
   overflow: hidden;
 }
-.es-hero-glow {
+.ev-hero-bg {
   position: absolute;
-  top: -15%;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  width: 1000px;
-  height: 700px;
-  background: radial-gradient(ellipse 45% 45% at 50% 40%, rgba(77, 124, 255, 0.08), rgba(40, 60, 120, 0.04) 50%, transparent 72%);
+  transform: translate(-50%, -50%);
   pointer-events: none;
-  filter: blur(30px);
+  opacity: 0.5;
 }
-.es-hero-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
-  background-size: 80px 80px;
-  mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.3) 10%, transparent 50%);
-  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.3) 10%, transparent 50%);
-}
-.es-hero-content {
+.ev-hero-content {
   position: relative;
   z-index: 2;
-  max-width: 800px;
+  max-width: 900px;
   opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 1s var(--ease), transform 1.2s var(--ease);
+  transform: translateY(30px);
+  transition: opacity 1.4s var(--ease), transform 1.6s var(--ease);
 }
-.es-hero-content.entered { opacity: 1; transform: translateY(0); }
+.ev-hero-content.entered { opacity: 1; transform: translateY(0); }
 
-.es-hero-badge {
+.ev-hero-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 20px;
-  border-radius: 100px;
-  margin-bottom: 32px;
-  border: 1px solid var(--border-hover);
-  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 48px;
 }
-.es-hero-pulse {
-  width: 6px;
-  height: 6px;
+.ev-hero-dot {
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 14px rgba(77, 124, 255, 0.5);
-  animation: esPulse 3s ease-in-out infinite;
+  background: var(--black);
+  animation: evPulse 3s ease-in-out infinite;
 }
-@keyframes esPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.6); }
+@keyframes evPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
 }
-.es-hero-badge span {
+.ev-hero-eyebrow span {
   font-family: var(--body);
   font-size: 10px;
-  color: var(--text-secondary);
-  letter-spacing: 0.22em;
-  font-weight: 500;
-}
-.es-h1 { margin: 0; line-height: 0.88; }
-.es-h1-line {
-  display: block;
-  font-family: var(--heading);
-  letter-spacing: 0.02em;
-}
-.es-h1-line--1 {
-  font-size: clamp(72px, 14vw, 160px);
-  font-weight: 500;
-  background: linear-gradient(180deg, #ffffff 20%, #7a7a8a 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.es-h1-line--2 {
-  font-size: clamp(12px, 2.2vw, 20px);
-  font-weight: 400;
-  letter-spacing: 0.65em;
   color: var(--text-tertiary);
-  font-family: var(--body);
-  margin-top: 6px;
+  letter-spacing: 0.3em;
+  font-weight: 400;
+  text-transform: uppercase;
 }
-.es-hero-tagline {
+.ev-h1 {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.ev-h1-main {
   font-family: var(--heading);
-  font-size: clamp(18px, 2.6vw, 26px);
+  font-size: clamp(72px, 14vw, 180px);
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+}
+.ev-h1-sub {
+  font-family: var(--body);
+  font-size: clamp(11px, 1.8vw, 16px);
+  font-weight: 300;
+  letter-spacing: 0.55em;
+  color: var(--text-tertiary);
+  text-transform: lowercase;
+  margin-top: 8px;
+}
+.ev-hero-tagline {
+  font-family: var(--heading);
+  font-size: clamp(16px, 2.2vw, 22px);
   font-style: italic;
-  color: rgba(77, 124, 255, 0.7);
-  margin: 28px 0 0;
+  color: var(--text-secondary);
+  margin: 40px 0 0;
   font-weight: 400;
 }
-.es-hero-desc {
+.ev-hero-desc {
   font-family: var(--body);
-  font-size: clamp(14px, 1.4vw, 15.5px);
-  line-height: 1.85;
-  color: var(--text-secondary);
+  font-size: clamp(13px, 1.2vw, 15px);
+  line-height: 1.9;
+  color: var(--text-tertiary);
   font-weight: 300;
-  margin: 20px auto 0;
-  max-width: 540px;
+  margin: 24px auto 0;
+  max-width: 480px;
 }
-.es-hero-actions {
+.ev-hero-actions {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 48px;
   flex-wrap: wrap;
 }
 
 /* Buttons */
-.es-btn {
+.ev-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 14px 30px;
-  border-radius: 100px;
+  gap: 10px;
+  padding: 15px 36px;
   font-family: var(--body);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  transition: all 0.35s var(--ease);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  transition: all 0.5s var(--ease);
   cursor: pointer;
   border: none;
 }
-.es-btn--primary {
-  background: #fff;
-  color: #060608;
+.ev-btn--dark {
+  background: var(--black);
+  color: var(--bg);
 }
-.es-btn--primary:hover {
+.ev-btn--dark:hover {
+  background: #222;
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
 }
-.es-btn--outline {
+.ev-btn--ghost {
   background: transparent;
-  border: 1px solid var(--border-hover);
+  border: 1px solid var(--border);
   color: var(--text-secondary);
 }
-.es-btn--outline:hover {
-  border-color: rgba(255, 255, 255, 0.22);
+.ev-btn--ghost:hover {
+  border-color: var(--black);
   color: var(--text-primary);
   transform: translateY(-2px);
 }
 
-/* Marquee */
-.es-hero-marquee {
-  position: relative;
-  z-index: 2;
-  width: 100vw;
-  margin-top: 72px;
-  overflow: hidden;
+/* Hero Bottom */
+.ev-hero-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 48px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
   opacity: 0;
-  transition: opacity 1.2s ease 0.8s;
-  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  transition: opacity 1.4s ease 1s;
 }
-.es-hero-marquee.entered { opacity: 0.4; }
-.es-marquee-track {
+.ev-hero-bottom.entered { opacity: 1; }
+.ev-hero-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  margin-right: 24px;
+}
+.ev-hero-scroll {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ev-hero-scroll span {
+  font-family: var(--body);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.ev-scroll-bar {
+  width: 40px;
+  height: 1px;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.ev-scroll-progress {
+  width: 20px;
+  height: 1px;
+  background: var(--black);
+  position: absolute;
+  top: 0;
+  left: -20px;
+  animation: evScroll 3s ease-in-out infinite;
+}
+@keyframes evScroll { 0% { left: -20px; } 100% { left: 40px; } }
+@media (max-width: 768px) {
+  .ev-hero-bottom { display: none; }
+  .ev-hero { padding-bottom: 60px; }
+}
+
+/* ═══ MARQUEE ═══ */
+.ev-marquee-wrap {
+  overflow: hidden;
+  padding: 32px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.ev-marquee-track {
   display: flex;
   width: max-content;
-  animation: esMarquee 50s linear infinite;
+  animation: evMarquee 40s linear infinite;
 }
-.es-marquee-inner { display: flex; }
-.es-marquee-item {
+.ev-marquee-inner { display: flex; }
+.ev-marquee-item {
   font-family: var(--body);
-  font-size: 13px;
-  color: var(--text-tertiary);
+  font-size: 12px;
+  color: var(--text-muted);
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 300;
 }
-.es-marquee-dot {
-  display: inline-block;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--accent-text);
-  margin: 0 28px;
-  opacity: 0.5;
+.ev-marquee-sep {
+  margin: 0 32px;
+  color: var(--platinum);
+  font-weight: 300;
 }
-@keyframes esMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-/* Scroll Indicator */
-.es-scroll-hint {
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  opacity: 0;
-  transition: opacity 1.2s ease 1.2s;
-  z-index: 3;
-}
-.es-scroll-hint.entered { opacity: 0.35; }
-.es-scroll-hint span {
-  font-family: var(--body);
-  font-size: 8px;
-  letter-spacing: 0.4em;
-  color: var(--text-quaternary);
-}
-.es-scroll-line {
-  width: 1px;
-  height: 30px;
-  background: var(--border-hover);
-  position: relative;
-  overflow: hidden;
-}
-.es-scroll-dot {
-  width: 1px;
-  height: 10px;
-  background: var(--accent);
-  position: absolute;
-  top: -10px;
-  animation: esScrollDot 3s ease-in-out infinite;
-}
-@keyframes esScrollDot { 0% { top: -10px; } 100% { top: 30px; } }
-@media (max-width: 768px) {
-  .es-scroll-hint, .es-hero-marquee { display: none; }
-  .es-hero { padding-bottom: 60px; }
-}
+@keyframes evMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
 /* ═══ SECTIONS ═══ */
-.es-section {
-  padding: clamp(80px, 10vw, 130px) 24px;
-  max-width: 1200px;
+.ev-section {
+  padding: clamp(100px, 12vw, 160px) 48px;
+  max-width: 1400px;
   margin: 0 auto;
   position: relative;
   z-index: 2;
 }
-.es-label {
+.ev-section-num {
   font-family: var(--body);
   font-size: 10px;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--accent-text);
-  font-weight: 500;
-  margin-bottom: 18px;
+  color: var(--text-muted);
+  font-weight: 400;
+  display: block;
+  margin-bottom: 24px;
 }
-.es-title {
+.ev-heading-lg {
   font-family: var(--heading);
-  font-size: clamp(34px, 5vw, 56px);
+  font-size: clamp(36px, 5.5vw, 64px);
   font-weight: 400;
   color: var(--text-primary);
-  margin: 0 0 16px;
-  line-height: 1.06;
-  letter-spacing: 0.005em;
+  margin: 0 0 24px;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
 }
-.es-desc {
+.ev-heading-xl {
+  font-family: var(--heading);
+  font-size: clamp(48px, 8vw, 96px);
+  font-weight: 400;
+  color: var(--text-primary);
+  margin: 0 0 24px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.ev-subtitle {
   font-family: var(--body);
-  font-size: 14.5px;
+  font-size: 14px;
   color: var(--text-tertiary);
   font-weight: 300;
-  margin: 0 0 48px;
-  max-width: 460px;
+  margin: 0 0 64px;
   line-height: 1.8;
+  letter-spacing: 0.01em;
 }
-.es-divider {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-  position: relative;
-  z-index: 2;
-}
-.es-divider-line {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border-hover), transparent);
-}
-
-/* Tags */
-.es-tag {
-  font-family: var(--body);
-  font-size: 10px;
-  color: var(--text-tertiary);
-  padding: 4px 12px;
-  border-radius: 100px;
-  border: 1px solid var(--border);
-  background: transparent;
-  letter-spacing: 0.03em;
+.ev-body-lg {
+  font-family: var(--heading);
+  font-size: clamp(24px, 3vw, 32px);
   font-weight: 400;
-  white-space: nowrap;
+  font-style: italic;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0 0 24px;
 }
-.es-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-.es-link-arrow {
+.ev-body {
   font-family: var(--body);
-  font-size: 13px;
-  color: var(--text-tertiary);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: color 0.25s;
-  cursor: pointer;
-}
-.es-link-arrow:hover { color: var(--text-primary); }
-
-/* ═══ ABOUT ═══ */
-.es-about-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  align-items: start;
-}
-.es-body {
-  font-family: var(--body);
-  font-size: 15px;
-  line-height: 1.9;
+  font-size: 14px;
+  line-height: 2;
   color: var(--text-secondary);
   font-weight: 300;
-  margin: 0 0 18px;
+  margin: 0 0 16px;
 }
-.es-body--muted { color: var(--text-tertiary); }
-
-.es-stats {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 32px;
-  margin-top: 60px;
-  padding-top: 48px;
-  border-top: 1px solid var(--border);
-}
-.es-stat { text-align: center; }
-.es-stat-value {
-  font-family: var(--heading);
-  font-size: 28px;
-  font-weight: 500;
-  color: var(--text-primary);
-  display: block;
-  letter-spacing: 0.02em;
-}
-.es-stat-label {
+.ev-body--muted { color: var(--text-tertiary); }
+.ev-text-link {
   font-family: var(--body);
   font-size: 12px;
   color: var(--text-tertiary);
-  font-weight: 300;
-  margin-top: 4px;
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.3s;
+  letter-spacing: 0.04em;
 }
-.es-stat-sep {
-  width: 1px;
-  height: 40px;
-  background: var(--border-hover);
-}
-@media (max-width: 768px) {
-  .es-about-grid { grid-template-columns: 1fr; gap: 28px; }
-  .es-stats { flex-direction: column; gap: 24px; }
-  .es-stat-sep { width: 40px; height: 1px; }
-}
+.ev-text-link:hover { color: var(--text-primary); }
 
-/* ═══ PROCESS / STEPS ═══ */
-.es-steps {
-  display: flex;
-  flex-direction: column;
-  margin-top: 24px;
+/* Tags */
+.ev-tag {
+  font-family: var(--body);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  background: transparent;
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  white-space: nowrap;
 }
-.es-step {
+.ev-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 16px; }
+
+/* ═══ ABOUT ═══ */
+.ev-about-top { margin-bottom: 64px; }
+.ev-about-grid {
   display: grid;
-  grid-template-columns: 100px 1fr;
-  gap: 36px;
-  padding: 36px 0;
-  border-top: 1px solid var(--border);
-  align-items: start;
-  transition: background 0.3s var(--ease);
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  margin-bottom: 80px;
 }
-.es-step:last-child { border-bottom: 1px solid var(--border); }
-.es-step:hover { background: rgba(255, 255, 255, 0.01); }
-.es-step-left {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+.ev-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+  padding-top: 64px;
 }
-.es-step-icon {
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  background: var(--accent-soft);
-  border: 1px solid var(--border-accent);
-  color: var(--accent);
-  transition: all 0.3s var(--ease);
+.ev-stat { text-align: left; }
+.ev-stat-value {
+  font-family: var(--heading);
+  font-size: 36px;
+  font-weight: 400;
+  color: var(--text-primary);
+  display: block;
+  letter-spacing: -0.01em;
 }
-.es-step:hover .es-step-icon { background: rgba(77, 124, 255, 0.18); }
-.es-step-num {
+.ev-stat-label {
   font-family: var(--body);
   font-size: 11px;
-  color: var(--text-quaternary);
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 300;
+  margin-top: 8px;
+  display: block;
+  letter-spacing: 0.03em;
 }
-.es-step-title {
-  font-family: var(--heading);
-  font-size: clamp(22px, 2.6vw, 28px);
-  font-weight: 500;
-  color: var(--text-primary);
-  margin: 0 0 10px;
+@media (max-width: 768px) {
+  .ev-about-grid { grid-template-columns: 1fr; gap: 32px; }
+  .ev-stats { grid-template-columns: 1fr; gap: 32px; }
+  .ev-section { padding-left: 24px; padding-right: 24px; }
 }
-.es-step-desc {
+
+/* ═══ PROCESS ═══ */
+.ev-steps {
+  display: flex;
+  flex-direction: column;
+  margin-top: 48px;
+}
+.ev-step {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 40px;
+  padding: 40px 0;
+  border-top: 1px solid var(--border);
+  align-items: start;
+  transition: background 0.4s var(--ease);
+}
+.ev-step:last-child { border-bottom: 1px solid var(--border); }
+.ev-step-num {
   font-family: var(--body);
-  font-size: 14.5px;
-  line-height: 1.8;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  padding-top: 4px;
+}
+.ev-step-title {
+  font-family: var(--heading);
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+}
+.ev-step-desc {
+  font-family: var(--body);
+  font-size: 14px;
+  line-height: 1.9;
   color: var(--text-tertiary);
   font-weight: 300;
   margin: 0;
-  max-width: 600px;
+  max-width: 560px;
 }
 @media (max-width: 768px) {
-  .es-step { grid-template-columns: 1fr; gap: 12px; padding: 28px 0; }
-  .es-step-left { flex-direction: row; justify-content: flex-start; }
+  .ev-step { grid-template-columns: 1fr; gap: 8px; }
 }
 
-/* ═══ SERVICES GRID ═══ */
-.es-services-header {
+/* ═══ SERVICES ═══ */
+.ev-services-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
@@ -1293,435 +1263,454 @@ a { text-decoration: none; color: inherit; }
   gap: 16px;
   margin-bottom: 48px;
 }
-.es-services-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.es-service-card {
-  padding: 40px 36px;
+.ev-services-list {
   display: flex;
   flex-direction: column;
-  height: 100%;
 }
-.es-service-icon {
-  width: 50px;
-  height: 50px;
-  display: flex;
+.ev-service-row {
+  display: grid;
+  grid-template-columns: 60px 1fr auto 40px;
+  gap: 32px;
   align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  background: var(--accent-soft);
-  border: 1px solid var(--border-accent);
-  color: var(--accent);
-  margin-bottom: 28px;
-  transition: all 0.3s var(--ease);
+  padding: 36px 0;
+  border-top: 1px solid var(--border);
+  transition: all 0.4s var(--ease);
+  cursor: pointer;
 }
-.es-service-card:hover .es-service-icon { background: rgba(77, 124, 255, 0.18); }
-.es-service-title {
-  font-family: var(--heading);
-  font-size: 25px;
-  font-weight: 500;
-  color: var(--text-primary);
-  margin: 0 0 12px;
-}
-.es-service-desc {
+.ev-service-row:last-child { border-bottom: 1px solid var(--border); }
+.ev-service-row:hover { padding-left: 12px; }
+.ev-service-row-num {
   font-family: var(--body);
-  font-size: 14px;
-  line-height: 1.78;
-  color: var(--text-secondary);
-  font-weight: 300;
-  margin: 0 0 24px;
-  flex: 1;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
 }
-@media (max-width: 768px) { .es-services-grid { grid-template-columns: 1fr; } }
-
-/* ═══ CASES ═══ */
-.es-cases { display: flex; flex-direction: column; gap: 12px; }
-.es-case { padding: 28px 32px; }
-.es-case--open { background: var(--surface-hover) !important; }
-.es-case-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-}
-.es-case-tag {
-  font-family: var(--body);
-  font-size: 9.5px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--accent-text);
-  font-weight: 600;
-  display: block;
-  margin-bottom: 10px;
-}
-.es-case-title {
+.ev-service-row-title {
   font-family: var(--heading);
-  font-size: clamp(22px, 3vw, 30px);
-  font-weight: 500;
+  font-size: clamp(22px, 2.8vw, 30px);
+  font-weight: 400;
   color: var(--text-primary);
   margin: 0 0 6px;
 }
-.es-case-hook {
+.ev-service-row-desc {
   font-family: var(--body);
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-weight: 300;
-  font-style: italic;
-  margin: 0;
-}
-.es-case-toggle {
+  font-size: 13px;
   color: var(--text-tertiary);
-  flex-shrink: 0;
-  margin-top: 4px;
-  transition: color 0.2s;
+  font-weight: 300;
+  margin: 0;
+  max-width: 400px;
+  line-height: 1.7;
 }
-.es-case:hover .es-case-toggle { color: var(--text-secondary); }
-.es-case-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.6s var(--ease);
+.ev-service-row-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.ev-service-row-arrow {
+  color: var(--text-muted);
+  transition: all 0.4s var(--ease);
 }
-.es-case-body.open { max-height: 700px; }
-.es-case-columns {
+.ev-service-row:hover .ev-service-row-arrow {
+  color: var(--text-primary);
+  transform: translate(2px, -2px);
+}
+@media (max-width: 768px) {
+  .ev-service-row { grid-template-columns: 1fr; gap: 8px; padding: 28px 0; }
+  .ev-service-row-num { display: none; }
+  .ev-service-row-arrow { display: none; }
+}
+
+/* ═══ CASES ═══ */
+.ev-cases { display: flex; flex-direction: column; }
+.ev-case {
+  padding: 36px 0;
+  border-top: 1px solid var(--border);
+  transition: all 0.3s var(--ease);
+}
+.ev-case:last-child { border-bottom: 1px solid var(--border); }
+.ev-case--open { background: var(--surface); padding: 36px 32px; margin: 0 -32px; }
+.ev-case-header {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  padding-top: 24px;
-  margin-top: 22px;
-  border-top: 1px solid var(--border);
+  gap: 40px;
+  align-items: start;
 }
-.es-case-label {
+.ev-case-tag {
   font-family: var(--body);
-  font-size: 9.5px;
-  letter-spacing: 0.2em;
+  font-size: 9px;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--accent-text);
-  font-weight: 600;
+  color: var(--text-muted);
+  font-weight: 400;
   display: block;
   margin-bottom: 12px;
 }
-.es-case-text {
-  font-family: var(--body);
-  font-size: 13.5px;
-  line-height: 1.8;
-  color: var(--text-secondary);
-  font-weight: 300;
-  margin: 0;
-}
-.es-case-results { margin-top: 24px; }
-.es-results-list { display: flex; flex-direction: column; }
-.es-result-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-family: var(--body);
-  font-size: 13.5px;
-  line-height: 1.55;
-  color: var(--text-secondary);
-  font-weight: 300;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
-}
-.es-result-item:last-child { border-bottom: none; }
-.es-result-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--accent);
-  flex-shrink: 0;
-  opacity: 0.6;
-}
-@media (max-width: 768px) { .es-case-columns { grid-template-columns: 1fr; gap: 20px; } }
-
-/* ═══ EXPERIENCE ═══ */
-.es-exp-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 36px;
-}
-.es-exp-card {
-  padding: 32px;
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
-}
-.es-exp-num {
+.ev-case-title {
   font-family: var(--heading);
-  font-size: 26px;
-  color: rgba(77, 124, 255, 0.25);
-  font-weight: 500;
-  line-height: 1;
-  flex-shrink: 0;
-  padding-top: 2px;
-}
-.es-exp-main { flex: 1; }
-.es-exp-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.es-exp-company {
-  font-family: var(--heading);
-  font-size: 23px;
-  font-weight: 500;
+  font-size: clamp(24px, 3.5vw, 36px);
+  font-weight: 400;
   color: var(--text-primary);
   margin: 0;
 }
-.es-exp-role {
+.ev-case-right {
+  display: flex;
+  align-items: start;
+  gap: 24px;
+}
+.ev-case-hook {
   font-family: var(--body);
   font-size: 13px;
-  color: var(--accent-text);
-  margin: 5px 0 0;
-  font-weight: 400;
-}
-.es-exp-meta { display: flex; gap: 14px; flex-wrap: wrap; }
-.es-exp-meta-item {
-  font-family: var(--body);
-  font-size: 11px;
   color: var(--text-tertiary);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.es-exp-desc {
-  font-family: var(--body);
-  font-size: 14px;
-  line-height: 1.78;
-  color: var(--text-secondary);
   font-weight: 300;
-  margin: 14px 0 0;
-}
-@media (max-width: 768px) {
-  .es-exp-card { gap: 16px; padding: 24px; }
-  .es-exp-num { font-size: 20px; }
-}
-
-/* ═══ CONTACT ═══ */
-.es-contact-section { text-align: center; }
-.es-contact-section .es-label { display: inline-block; }
-.es-contact-section .es-title,
-.es-contact-section .es-desc { margin-left: auto; margin-right: auto; }
-.es-contact-glow {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 300px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(77, 124, 255, 0.06), transparent 65%);
-  pointer-events: none;
-  filter: blur(50px);
-}
-.es-contact-box {
-  position: relative;
-  z-index: 2;
-  padding: 64px 44px;
-  background: linear-gradient(168deg, rgba(17, 17, 22, 0.85), rgba(10, 10, 14, 0.8));
-  border: 1px solid var(--border-hover);
-  border-radius: 24px;
-}
-.es-contact-email {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 28px;
-  padding: 10px 24px;
-  border-radius: 100px;
-  background: var(--accent-soft);
-  border: 1px solid var(--border-accent);
-  color: var(--accent);
-}
-.es-contact-email-text {
-  font-family: var(--body);
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  transition: color 0.2s;
-}
-.es-contact-email:hover .es-contact-email-text { color: var(--text-primary); }
-.es-contact-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-.es-contact-location {
-  font-family: var(--body);
-  font-size: 12px;
-  color: var(--text-quaternary);
-  margin-top: 28px;
-  font-weight: 300;
-}
-
-/* ═══ FOOTER ═══ */
-.es-footer {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 36px 32px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  position: relative;
-  z-index: 2;
-  border-top: 1px solid var(--border);
-}
-.es-footer-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--heading);
-  font-size: 15px;
-  color: var(--text-secondary);
-  letter-spacing: 0.04em;
-}
-.es-footer-left .es-logo-icon { color: var(--accent-text); }
-.es-footer-right { text-align: right; }
-.es-footer-right p {
-  font-family: var(--body);
-  font-size: 11px;
-  color: var(--text-quaternary);
-  font-weight: 300;
-  margin: 0;
-}
-.es-footer-tagline {
-  font-family: var(--heading) !important;
-  font-size: 12px !important;
-  color: var(--accent-text) !important;
   font-style: italic;
-  margin-top: 3px !important;
+  margin: 0;
+  flex: 1;
+  line-height: 1.7;
 }
-
-/* ═══ SUB PAGES ═══ */
-.es-page-header {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 130px 24px 0;
-  position: relative;
-  z-index: 2;
+.ev-case-toggle {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: color 0.3s;
 }
-.es-back {
-  font-family: var(--body);
-  font-size: 12.5px;
-  color: var(--text-tertiary);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 32px;
-  transition: color 0.25s;
-  cursor: pointer;
+.ev-case:hover .ev-case-toggle { color: var(--text-primary); }
+.ev-case-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.7s var(--ease);
 }
-.es-back:hover { color: var(--text-primary); }
-.es-service-full { padding-top: 56px !important; padding-bottom: 56px !important; }
-.es-sf-grid {
+.ev-case-body.open { max-height: 800px; }
+.ev-case-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 48px;
-  align-items: start;
+  padding-top: 32px;
+  margin-top: 32px;
+  border-top: 1px solid var(--border);
 }
-.es-sf-icon {
-  width: 54px;
-  height: 54px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  background: var(--accent-soft);
-  border: 1px solid var(--border-accent);
-  color: var(--accent);
-  margin-bottom: 22px;
-}
-.es-sf-title {
-  font-family: var(--heading);
-  font-size: 28px;
-  font-weight: 500;
-  color: var(--text-primary);
-  margin: 0 0 12px;
-}
-.es-sf-intro {
+.ev-case-label {
   font-family: var(--body);
-  font-size: 14.5px;
-  line-height: 1.8;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 400;
+  display: block;
+  margin-bottom: 14px;
+}
+.ev-case-text {
+  font-family: var(--body);
+  font-size: 13px;
+  line-height: 1.9;
   color: var(--text-secondary);
   font-weight: 300;
-  margin: 0 0 18px;
+  margin: 0;
 }
-.es-sf-card { padding: 36px; }
-.es-sf-points {
+.ev-case-results { margin-top: 32px; }
+.ev-results-grid { display: flex; flex-direction: column; }
+.ev-result-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  font-weight: 300;
+  padding: 10px 0;
+}
+.ev-result-dash { color: var(--text-muted); flex-shrink: 0; font-size: 11px; }
+@media (max-width: 768px) {
+  .ev-case-header { grid-template-columns: 1fr; gap: 12px; }
+  .ev-case-columns { grid-template-columns: 1fr; gap: 24px; }
+  .ev-case-right { flex-direction: column; gap: 12px; }
+}
+
+/* ═══ EXPERIENCE ═══ */
+.ev-exp-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 48px;
+}
+.ev-exp-row {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 40px;
+  align-items: start;
+  padding: 36px 0;
+  border-top: 1px solid var(--border);
+}
+.ev-exp-row:last-child { border-bottom: 1px solid var(--border); }
+.ev-exp-year {
+  font-family: var(--body);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  padding-top: 4px;
+}
+.ev-exp-company {
+  font-family: var(--heading);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--text-primary);
+  margin: 0;
+}
+.ev-exp-role {
+  font-family: var(--body);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin: 6px 0 0;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+}
+.ev-exp-desc {
+  font-family: var(--body);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-tertiary);
+  font-weight: 300;
+  margin: 14px 0 0;
+}
+.ev-exp-meta { display: flex; gap: 14px; flex-wrap: wrap; padding-top: 4px; }
+.ev-exp-meta-item {
+  font-family: var(--body);
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+@media (max-width: 768px) {
+  .ev-exp-row { grid-template-columns: 1fr; gap: 8px; }
+}
+
+/* ═══ CONTACT ═══ */
+.ev-contact-section { text-align: center; }
+.ev-contact-inner {
+  max-width: 700px;
+  margin: 0 auto;
+}
+.ev-contact-section .ev-section-num { display: inline-block; }
+.ev-contact-desc {
+  font-family: var(--body);
+  font-size: 14px;
+  color: var(--text-tertiary);
+  font-weight: 300;
+  margin: 0 0 40px;
+  line-height: 1.9;
+}
+.ev-contact-email-row { margin-bottom: 40px; }
+.ev-contact-email {
+  font-family: var(--body);
+  font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  transition: border-color 0.3s;
+}
+.ev-contact-email:hover { border-color: var(--black); }
+.ev-contact-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.ev-contact-location {
+  font-family: var(--body);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 40px;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+}
+
+/* ═══ FOOTER ═══ */
+.ev-footer {
+  border-top: 1px solid var(--border);
+}
+.ev-footer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 36px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.ev-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ev-footer-name {
+  font-family: var(--body);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.12em;
+  font-weight: 400;
+}
+.ev-footer-center { }
+.ev-footer-tagline {
+  font-family: var(--heading);
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-style: italic;
+  margin: 0;
+}
+.ev-footer-right p {
+  font-family: var(--body);
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 300;
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+@media (max-width: 768px) {
+  .ev-footer-inner { padding: 28px 24px; flex-direction: column; text-align: center; }
+}
+
+/* ═══ SUB PAGES ═══ */
+.ev-page-header {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 140px 48px 0;
+  position: relative;
+  z-index: 2;
+}
+.ev-back {
+  font-family: var(--body);
+  font-size: 12px;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 40px;
+  transition: color 0.3s;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+.ev-back:hover { color: var(--text-primary); }
+
+.ev-sf-section { padding-top: 64px !important; padding-bottom: 64px !important; }
+.ev-sf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+.ev-sf-num {
+  font-family: var(--body);
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  display: block;
+  margin-bottom: 16px;
+}
+.ev-sf-title {
+  font-family: var(--heading);
+  font-size: 30px;
+  font-weight: 400;
+  color: var(--text-primary);
+  margin: 0 0 14px;
+}
+.ev-sf-intro {
+  font-family: var(--body);
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--text-tertiary);
+  font-weight: 300;
+  margin: 0 0 16px;
+}
+.ev-sf-card {
+  padding: 40px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.ev-sf-card-label {
+  font-family: var(--body);
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 400;
+  display: block;
+  margin-bottom: 24px;
+}
+.ev-sf-points {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 8px;
 }
-.es-sf-point {
+.ev-sf-point {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 14px;
   font-family: var(--body);
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--text-secondary);
   font-weight: 300;
   line-height: 1.6;
 }
-.es-sf-dash { color: var(--accent-text); flex-shrink: 0; }
-@media (max-width: 768px) { .es-sf-grid { grid-template-columns: 1fr; gap: 24px; } }
+.ev-sf-dash { color: var(--text-muted); flex-shrink: 0; }
+@media (max-width: 768px) {
+  .ev-sf-grid { grid-template-columns: 1fr; gap: 28px; }
+  .ev-page-header { padding-left: 24px; padding-right: 24px; }
+}
 
-/* Insights Page */
-.es-insights-grid {
+/* Insights */
+.ev-insights-grid {
+  display: flex;
+  flex-direction: column;
+}
+.ev-insight-row {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-}
-.es-insight-card {
-  padding: 34px 30px;
-  position: relative;
+  grid-template-columns: 80px 1fr 40px;
+  gap: 40px;
+  align-items: center;
+  padding: 36px 0;
+  border-top: 1px solid var(--border);
   cursor: pointer;
+  transition: all 0.4s var(--ease);
 }
-.es-insight-year {
+.ev-insight-row:last-child { border-bottom: 1px solid var(--border); }
+.ev-insight-row:hover { padding-left: 12px; }
+.ev-insight-year {
   font-family: var(--body);
-  font-size: 10.5px;
-  color: var(--accent-text);
-  letter-spacing: 0.1em;
-  font-weight: 400;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
 }
-.es-insight-title {
+.ev-insight-title {
   font-family: var(--heading);
-  font-size: 22px;
-  font-weight: 500;
+  font-size: 24px;
+  font-weight: 400;
   color: var(--text-primary);
-  margin: 12px 0;
-  line-height: 1.28;
-  padding-right: 32px;
+  margin: 0 0 6px;
 }
-.es-insight-desc {
+.ev-insight-desc {
   font-family: var(--body);
-  font-size: 13.5px;
-  line-height: 1.78;
-  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-tertiary);
   font-weight: 300;
-  margin: 0 0 18px;
+  margin: 0;
 }
-.es-insight-arrow {
-  position: absolute;
-  top: 32px;
-  right: 28px;
-  color: var(--text-quaternary);
-  transition: all 0.3s var(--ease);
+.ev-insight-arrow {
+  color: var(--text-muted);
+  transition: all 0.4s var(--ease);
 }
-.es-insight-card:hover .es-insight-arrow {
-  color: var(--accent);
+.ev-insight-row:hover .ev-insight-arrow {
+  color: var(--text-primary);
   transform: translate(2px, -2px);
 }
-@media (max-width: 768px) { .es-insights-grid { grid-template-columns: 1fr; } }
+@media (max-width: 768px) {
+  .ev-insight-row { grid-template-columns: 1fr; gap: 8px; }
+  .ev-insight-year { display: none; }
+  .ev-insight-arrow { display: none; }
+}
       `}</style>
+
+      <div className={`ev-cursor${hovering ? " ev-cursor--hover" : ""}`}
+        style={{ transform: `translate(${pos.x - 6}px, ${pos.y - 6}px)` }} />
 
       <Nav page={page} setPage={setPage} />
       {page === "home" && <Home setPage={setPage} />}
