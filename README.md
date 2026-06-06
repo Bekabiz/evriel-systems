@@ -1,8 +1,8 @@
-# Evriel Systems
+# Evriel Systems — Cinematic Edition
 
 **Connecting Intelligence with Business**
 
-A modern React website for Evriel Systems — an AI systems integrator helping businesses identify opportunities, streamline operations, and deploy practical AI systems.
+A cinematic, dark-themed React website for Evriel Systems — an AI systems integrator helping businesses deploy practical AI solutions.
 
 ## Getting Started
 
@@ -47,7 +47,7 @@ npm run preview
 ## Project Structure
 
 ```
-evriel-systems/
+slow-creedit/
 ├── public/
 │   └── favicon.svg
 ├── src/
