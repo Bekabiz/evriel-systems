@@ -1,11 +1,8 @@
-// This file goes in your project at: api/contact.js
-// Vercel automatically turns files in the /api folder into serverless functions
-
-const { Resend } = require("resend");
+import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -38,4 +35,4 @@ module.exports = async function handler(req, res) {
     console.error("Contact form error:", error);
     return res.status(500).json({ error: "Failed to send message" });
   }
-};
+}
