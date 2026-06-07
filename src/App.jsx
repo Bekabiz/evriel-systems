@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Mail, ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Building2, Factory, Plane, ShoppingCart, Ship, Briefcase, Megaphone, Globe, Heart, GraduationCap, Rocket, Zap, BarChart3, Cpu, RefreshCw, Lock, Eye, Shield, CheckCircle2 } from "lucide-react";
+import { Mail, ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Workflow, LineChart, Network, Compass, Lock, Eye, Shield, CheckCircle2, Languages, Target } from "lucide-react";
 
 const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 
@@ -27,17 +27,6 @@ function useParallax(speed = 0.05) {
     return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
   }, [speed]);
   return ref;
-}
-
-function useSmoothCounter(target, dur = 2000, active = false) {
-  const [v, setV] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    let s = null;
-    const step = (t) => { if (!s) s = t; const p = Math.min((t - s) / dur, 1); setV(Math.round((1 - Math.pow(1 - p, 4)) * target)); if (p < 1) requestAnimationFrame(step); };
-    requestAnimationFrame(step);
-  }, [target, dur, active]);
-  return v;
 }
 
 function Reveal({ children, className = "", style = {}, delay = 0, direction = "up" }) {
@@ -106,7 +95,7 @@ function Hero() {
     <section className="ev-hero">
       <div className="ev-hero__bg"><div className="ev-hero__grid" ref={gRef}/><div className="ev-hero__rad"/><div className="ev-hero__ghost"><LogoMark size={700} color="rgba(255,255,255,0.02)" spin/></div></div>
       <div className="ev-hero__body">
-        <div style={{overflow:"hidden"}}><div className="ev-hero__eyebrow" style={a(150)}>AI · Automation · Digital Transformation</div></div>
+        <div style={{overflow:"hidden"}}><div className="ev-hero__eyebrow" style={a(150)}>AI • Automation • Intelligent Systems</div></div>
         <div style={{overflow:"hidden"}}>
           <div style={a(300)} className="ev-hero__brand">
             <LogoMark size={90} color="#fff"/>
@@ -117,12 +106,12 @@ function Hero() {
             </div>
           </div>
         </div>
-        <div style={{overflow:"hidden"}}><h2 className="ev-hero__h2" style={a(500)}>Helping Organizations Thrive in the<br/>Age of <em>Intelligent Systems</em></h2></div>
-        <div style={{overflow:"hidden"}}><p className="ev-hero__sub" style={a(680)}>The future belongs to organizations that can adapt, automate,<br className="dbr"/>and make smarter decisions.</p></div>
+        <div style={{overflow:"hidden"}}><h2 className="ev-hero__h2" style={a(500)}>Connecting Intelligence<br/>with <em>Business</em></h2></div>
+        <div style={{overflow:"hidden"}}><p className="ev-hero__sub" style={a(680)}>Helping organizations leverage AI, automation, and intelligent systems<br className="dbr"/>to improve efficiency, make better decisions, and build sustainable<br className="dbr"/>competitive advantages.</p></div>
         <div style={{overflow:"hidden"}}>
           <div className="ev-hero__ctas" style={a(860)}>
             <a href="#services" className="ev-btn ev-btn--w" onClick={e=>{e.preventDefault();document.getElementById("services")?.scrollIntoView({behavior:"smooth"})}}>Explore Solutions <ArrowRight size={17}/></a>
-            <a href="#contact" className="ev-btn ev-btn--gh" onClick={e=>{e.preventDefault();document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}}>Schedule a Consultation</a>
+            <a href="#contact" className="ev-btn ev-btn--gh" onClick={e=>{e.preventDefault();document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}}>Let's Discuss Your Project</a>
           </div>
         </div>
       </div>
@@ -141,11 +130,15 @@ function Marquee() {
 }
 
 /* ═══ ABOUT ═══ */
+const ABOUT_FEATS = [
+  { t:"AI-Driven", s:"Innovation", d:"Practical applications of AI for real business challenges." },
+  { t:"Multi-Industry", s:"Expertise", d:"Solutions designed for diverse operational environments." },
+  { t:"24/7", s:"Intelligence", d:"Continuous support through automation and intelligent systems." },
+  { t:"Future-Ready", s:"Growth", d:"Built to adapt, scale, and evolve with your organization." },
+];
+
 function About() {
   const [ref, vis] = useReveal(0.08);
-  const c1 = useSmoothCounter(50, 2000, vis);
-  const c2 = useSmoothCounter(11, 2000, vis);
-  const c3 = useSmoothCounter(200, 2000, vis);
   return (
     <section id="about" className="ev-about" ref={ref}>
       <div className="ev-about__wrap">
@@ -153,17 +146,16 @@ function About() {
           <Reveal><div className="ev-label">01 <span>About</span></div></Reveal>
           <Reveal delay={100}><h2 className="ev-about__h">Intelligence<br/>With <em>Purpose</em></h2></Reveal>
           <Reveal delay={180}>
-            <p className="ev-about__lead">Evriel Systems was founded on a simple belief:</p>
-            <p className="ev-about__quote">Technology should solve real problems.</p>
-            <p className="ev-about__p">The challenge is not accessing technology. <strong>The challenge is implementing it correctly.</strong> We design intelligent systems that connect people, processes, information, and technology into unified operational environments.</p>
+            <p className="ev-about__lead">Every organization faces unique challenges.</p>
+            <p className="ev-about__quote">Our role is to understand those challenges and design practical systems that improve how people work, collaborate, and make decisions.</p>
+            <p className="ev-about__p">Artificial Intelligence is transforming industries and creating new opportunities to operate more efficiently, make smarter decisions, and remain competitive. <strong>The challenge is not accessing AI — it is implementing it correctly.</strong></p>
+            <p className="ev-about__p">Evriel Systems helps organizations integrate AI, automation, and intelligent technologies into practical business systems that create measurable value — connecting people, processes, information, and technology into solutions built for efficiency, growth, and long-term success.</p>
           </Reveal>
-          <Reveal delay={260}>
-            <div className="ev-about__stats">
-              <div className="ev-stat"><span className="ev-stat__n">{c1}+</span><span className="ev-stat__l">Projects Delivered</span></div>
-              <div className="ev-stat"><span className="ev-stat__n">{c2}</span><span className="ev-stat__l">Industries Served</span></div>
-              <div className="ev-stat"><span className="ev-stat__n">{c3}M+</span><span className="ev-stat__l">Data Points Processed</span></div>
-            </div>
-          </Reveal>
+          <Stagger className="ev-about__stats" delay={90}>
+            {ABOUT_FEATS.map((f,i)=>
+              <div key={i} className="ev-afeat"><span className="ev-afeat__n">{f.t}<br/>{f.s}</span><p className="ev-afeat__d">{f.d}</p></div>
+            )}
+          </Stagger>
         </div>
         <div className="ev-about__right">
           <Reveal direction="scale" delay={200}>
@@ -183,19 +175,52 @@ function About() {
   );
 }
 
+/* ═══ OUTCOMES ═══ */
+const OUTCOMES = [
+  { t:"AI-Powered Efficiency", d:"Reduce repetitive work and streamline operations through intelligent automation." },
+  { t:"Smarter Decision-Making", d:"Use AI, data, and business intelligence to support informed decisions." },
+  { t:"Operational Visibility", d:"Connect systems, information, and workflows to improve transparency and control." },
+  { t:"Growth & Competitiveness", d:"Leverage intelligent technologies to adapt, innovate, and stay ahead." },
+  { t:"Digital Transformation", d:"Build modern operational foundations that support long-term success." },
+];
+
+function Outcomes() {
+  const pRef = useParallax(0.018);
+  return (
+    <section className="ev-out-sec">
+      <div className="ev-out__glow" ref={pRef}/>
+      <div className="ev-out__wrap">
+        <Reveal><div className="ev-label ev-label--l">— <span>What We Help Improve</span></div></Reveal>
+        <div className="ev-out__grid">
+          {OUTCOMES.map((o,i)=>(
+            <Reveal key={i} delay={i*90} direction={i%2?"right":"left"}>
+              <div className="ev-out">
+                <span className="ev-out__ix">0{i+1}</span>
+                <h3 className="ev-out__t">{o.t}</h3>
+                <p className="ev-out__d">{o.d}</p>
+                <div className="ev-out__ln"/>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ═══ INDUSTRIES ═══ */
 const INDS = [
-  { icon:<Building2 size={28}/>, name:"Construction &\nEngineering", desc:"Digital project monitoring, documentation systems, reporting automation." },
-  { icon:<Factory size={28}/>, name:"Manufacturing &\nIndustrial", desc:"Workflow optimization, operational analytics, predictive monitoring." },
-  { icon:<Plane size={28}/>, name:"Tourism &\nHospitality", desc:"Guest management, operational automation, business analytics." },
-  { icon:<ShoppingCart size={28}/>, name:"Retail &\nCommerce", desc:"Customer intelligence, inventory visibility, process automation." },
-  { icon:<Ship size={28}/>, name:"Import &\nExport", desc:"Trade documentation, workflow automation, operational coordination." },
-  { icon:<Briefcase size={28}/>, name:"Professional\nServices", desc:"Knowledge systems, workflow optimization, AI-assisted operations." },
-  { icon:<Megaphone size={28}/>, name:"Marketing\n& SEO", desc:"Content intelligence, domain qualification, opportunity discovery." },
-  { icon:<Globe size={28}/>, name:"European\nProjects", desc:"Project management support, reporting, knowledge management." },
-  { icon:<Heart size={28}/>, name:"NGOs &\nAssociations", desc:"Operational efficiency, communication systems, data management." },
-  { icon:<GraduationCap size={28}/>, name:"Education &\nTraining", desc:"Knowledge systems, digital learning support, admin automation." },
-  { icon:<Rocket size={28}/>, name:"Startups\n& SMEs", desc:"Scalable systems for growth and operational maturity." },
+  { name:"Construction & Engineering", desc:"Digital project monitoring, documentation systems, and reporting automation built for complex, multi-stakeholder environments." },
+  { name:"Manufacturing & Industrial", desc:"Workflow optimization, operational analytics, and predictive monitoring that improve consistency at scale." },
+  { name:"Tourism & Hospitality", desc:"Guest management, operational automation, and business analytics that elevate the experience and the bottom line." },
+  { name:"Retail & Commerce", desc:"Customer intelligence, inventory visibility, and process automation across the full commercial journey." },
+  { name:"Import & Export", desc:"Trade documentation, workflow automation, and operational coordination across borders and partners." },
+  { name:"Professional Services", desc:"Knowledge systems, workflow optimization, and AI-assisted operations that free experts to focus on expertise." },
+  { name:"Marketing & SEO", desc:"Content intelligence, domain qualification, and opportunity discovery powered by AI-driven analysis." },
+  { name:"European Projects", desc:"Project management support, reporting, and knowledge management for complex funding environments." },
+  { name:"NGOs & Associations", desc:"Operational efficiency, communication systems, and data management aligned with mission-driven work." },
+  { name:"Education & Training", desc:"Knowledge systems, digital learning support, and administrative automation that support people first." },
+  { name:"Startups & SMEs", desc:"Scalable systems designed to support growth and operational maturity at every stage." },
 ];
 
 function Industries() {
@@ -205,19 +230,17 @@ function Industries() {
       <div className="ev-ind__wrap">
         <Reveal><div className="ev-label ev-label--l">02 <span>Industries</span></div></Reveal>
         <Reveal delay={80}><h2 className="ev-ind__h">Industries We <em>Support</em></h2></Reveal>
-        <div className="ev-ind-scroll">
-          <div className="ev-ind-grid">
-            {INDS.map((d,i)=>(
-              <Reveal key={i} delay={i*50} direction="scale">
-                <div className={`ev-ind${hov===i?" ev-ind--on":""}`} onMouseEnter={()=>setHov(i)} onMouseLeave={()=>setHov(null)}>
-                  <div className="ev-ind__ic">{d.icon}</div>
-                  <h3 className="ev-ind__nm">{d.name}</h3>
-                  <p className="ev-ind__ds">{d.desc}</p>
-                  <div className="ev-ind__glow"/>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+        <div className="ev-ind-list">
+          {INDS.map((d,i)=>(
+            <Reveal key={i} delay={i*50}>
+              <div className={`ev-ind${hov===i?" ev-ind--on":""}`} onMouseEnter={()=>setHov(i)} onMouseLeave={()=>setHov(null)}>
+                <span className="ev-ind__ix">0{i+1}</span>
+                <h3 className="ev-ind__nm">{d.name}</h3>
+                <p className="ev-ind__ds">{d.desc}</p>
+                <ArrowUpRight size={22} className="ev-ind__ar"/>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
@@ -226,10 +249,10 @@ function Industries() {
 
 /* ═══ SERVICES ═══ */
 const SVCS = [
-  { n:"01",ic:<Zap size={28}/>,t:"AI Automation",d:"Reduce repetitive work and improve operational efficiency through intelligent automation.",a:["Email automation","Workflow automation","Internal process automation","AI-powered assistants","Customer communication systems"] },
-  { n:"02",ic:<BarChart3 size={28}/>,t:"Business Intelligence",d:"Transform business information into actionable insights.",a:["Reporting dashboards","Operational analytics","Decision support systems","Data visualization","Performance monitoring"] },
-  { n:"03",ic:<Cpu size={28}/>,t:"Intelligent Systems",d:"Custom-built solutions designed around the unique needs of each organization.",a:["Industry-specific platforms","Knowledge management","AI-powered operational tools","Intelligent information systems"] },
-  { n:"04",ic:<RefreshCw size={28}/>,t:"Digital Transformation",d:"Support organizations as they modernize operations and adopt emerging technologies.",a:["Process redesign","Digital strategy","Technology integration","Operational modernization"] },
+  { n:"01",ic:<Workflow size={26}/>,t:"AI Automation",d:"Reduce repetitive work and improve operational efficiency through intelligent automation.",a:["Email automation","Workflow automation","Internal process automation","AI-powered assistants","Customer communication systems"] },
+  { n:"02",ic:<LineChart size={26}/>,t:"Business Intelligence",d:"Transform business information into actionable insights.",a:["Reporting dashboards","Operational analytics","Decision support systems","Data visualization","Performance monitoring"] },
+  { n:"03",ic:<Network size={26}/>,t:"Intelligent Systems",d:"Custom-built solutions designed around the unique needs of each organization.",a:["Industry-specific platforms","Knowledge management","AI-powered operational tools","Intelligent information systems"] },
+  { n:"04",ic:<Compass size={26}/>,t:"Digital Transformation",d:"Support organizations as they modernize operations and adopt emerging technologies.",a:["Process redesign","Digital strategy","Technology integration","Operational modernization"] },
 ];
 
 function Services() {
@@ -238,6 +261,7 @@ function Services() {
       <div className="ev-svc__wrap">
         <Reveal><div className="ev-label">03 <span>Services</span></div></Reveal>
         <Reveal delay={80}><h2 className="ev-svc__h">What We <em>Deliver</em></h2></Reveal>
+        <Reveal delay={140}><p className="ev-svc__intro">We help organizations turn emerging technologies into practical business advantages.</p></Reveal>
         {SVCS.map((s,i)=>(
           <Reveal key={i} delay={i*90}>
             <div className="ev-svc">
@@ -255,12 +279,12 @@ function Services() {
 
 /* ═══ PROJECTS ═══ */
 const PROJS = [
-  { t:"Domain Intelligence Platform",d:"An AI-powered system that automates identification, evaluation, and qualification of SEO and partnership opportunities.",c:["Domain analysis","Relevance scoring","Niche classification","Workflow automation"],tl:"Reducing manual research while improving decision quality." },
-  { t:"AI Workforce Management Assistant",d:"A business-trained AI assistant supporting employees through organization-specific knowledge and operational guidance.",c:["Internal support","Employee onboarding","Process guidance","Knowledge retrieval"],tl:"Functions as a continuously available digital team member." },
-  { t:"European Project Intelligence",d:"An intelligent assistant designed to simplify the management of European projects.",c:["Documentation support","Reporting assistance","Compliance guidance","Stakeholder access"],tl:"Helping teams navigate complex project environments." },
-  { t:"Engineering Project Monitoring",d:"A user-friendly platform designed to support engineering and construction projects.",c:["AutoCAD integration","Site monitoring","Reporting workflows","Communication management"],tl:"Improved visibility across the entire project lifecycle." },
-  { t:"Intelligent Email Operations",d:"An advanced communication system trained on organizational knowledge and business processes.",c:["Intelligent responses","Workflow execution","Brand-consistent comms"],tl:"Acts as an intelligent extension of the organization." },
-  { t:"GIS & Spatial Intelligence",d:"A geographic intelligence system supporting planning and operational decision-making.",c:["Mapping","Infrastructure analysis","Location intelligence","Spatial visualization"],tl:"Useful across engineering, logistics, and planning." },
+  { t:"Domain Intel",d:"An AI-powered system that automates identification, evaluation, and qualification of SEO and partnership opportunities.",c:["Domain analysis","Relevance scoring","Niche classification","Workflow automation"],tl:"Helping teams reduce manual research, improve decision quality, and identify opportunities faster through AI-powered analysis." },
+  { t:"Workforce AI",d:"A business-trained AI assistant supporting employees through organization-specific knowledge and operational guidance.",c:["Internal support","Employee onboarding","Process guidance","Knowledge retrieval"],tl:"Helping teams onboard faster, reduce repetitive questions, and access guidance the moment it's needed." },
+  { t:"EU Project Assistant",d:"An intelligent assistant designed to simplify the management of European projects.",c:["Documentation support","Reporting assistance","Compliance guidance","Stakeholder access"],tl:"Helping teams navigate complex funding environments, reduce administrative load, and stay aligned with compliance requirements." },
+  { t:"Project Vision",d:"A user-friendly platform designed to support engineering and construction projects.",c:["AutoCAD integration","Site monitoring","Reporting workflows","Communication management"],tl:"Helping teams gain real-time visibility, reduce delays, and keep every stakeholder aligned across the project lifecycle." },
+  { t:"Email Intelligence",d:"An advanced communication system trained on organizational knowledge and business processes.",c:["Intelligent responses","Workflow execution","Brand-consistent comms"],tl:"Helping teams respond faster, maintain consistency, and free up time for higher-value conversations." },
+  { t:"GIS Intelligence",d:"A geographic intelligence system supporting planning and operational decision-making.",c:["Mapping","Infrastructure analysis","Location intelligence","Spatial visualization"],tl:"Helping teams visualize complexity, plan with confidence, and make location-driven decisions faster." },
 ];
 
 function Projects() {
@@ -300,6 +324,7 @@ function Process() {
       <div className="ev-proc__wrap">
         <Reveal><div className="ev-label ev-label--l">05 <span>Process</span></div></Reveal>
         <Reveal delay={80}><h2 className="ev-proc__h">How We <em>Work</em></h2></Reveal>
+        <Reveal delay={140}><p className="ev-proc__intro">Every organization is different. Our process is designed to understand your specific challenges before recommending technology.</p></Reveal>
         <div className="ev-proc__grid">
           {PROCS.map((s,i)=>(
             <Reveal key={i} delay={i*100}>
@@ -307,6 +332,54 @@ function Process() {
             </Reveal>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══ BORDERS ═══ */
+function Borders() {
+  const pRef = useParallax(0.03);
+  return (
+    <section className="ev-bdr-sec">
+      <div className="ev-bdr__orb" ref={pRef}><LogoMark size={520} color="rgba(255,255,255,0.022)" spin/></div>
+      <div className="ev-bdr__wrap">
+        <Reveal><div className="ev-label ev-label--l">— <span>Working Across Borders</span></div></Reveal>
+        <Reveal delay={100}><h2 className="ev-bdr__h">Built for a <em>Connected</em> World</h2></Reveal>
+        <Reveal delay={180}>
+          <p className="ev-bdr__p">Business challenges rarely stop at national boundaries. Evriel Systems supports organizations operating across different industries, markets, and regions.</p>
+          <p className="ev-bdr__p">We understand the importance of clear communication, cultural awareness, and practical solutions that work in diverse environments.</p>
+        </Reveal>
+        <Reveal delay={260}>
+          <div className="ev-bdr__tag"><Languages size={16}/><span>Projects and communications can be conducted in multiple languages depending on client requirements.</span></div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ═══ WHY ═══ */
+const WHY = [
+  { t:"Practical Solutions", d:"Focused on real business outcomes." },
+  { t:"Intelligent Systems", d:"Built around your organization's needs." },
+  { t:"Long-Term Thinking", d:"Designed to support sustainable growth and adaptability." },
+];
+
+function Why() {
+  return (
+    <section className="ev-why-sec">
+      <div className="ev-why__wrap">
+        <Reveal><div className="ev-label ev-label--l">— <span>Why Evriel Systems</span></div></Reveal>
+        <Reveal delay={100}><h2 className="ev-why__h">Clarity, Not <em>Complexity</em></h2></Reveal>
+        <Reveal delay={180}>
+          <p className="ev-why__lead">Technology should create clarity, not complexity. Our approach combines business understanding, intelligent technology, and practical implementation to help organizations improve operations, make better decisions, and adapt to a rapidly changing world.</p>
+          <p className="ev-why__lead ev-why__lead--sub">We focus on solutions that deliver measurable value rather than technology for technology's sake.</p>
+        </Reveal>
+        <Stagger className="ev-why__grid" delay={100}>
+          {WHY.map((w,i)=>
+            <div key={i} className="ev-why__card"><Target size={20}/><h3>{w.t}</h3><p>{w.d}</p></div>
+          )}
+        </Stagger>
       </div>
     </section>
   );
@@ -321,6 +394,7 @@ function Trust() {
           <Reveal><div className="ev-label">06 <span>Trust & Security</span></div></Reveal>
           <Reveal delay={80}><h2 className="ev-trust__h">Your Data Remains <em>Yours</em></h2></Reveal>
           <Reveal delay={160}><p className="ev-trust__p">We believe trust is the foundation of every intelligent system. Client information is used exclusively for the development, operation, and improvement of the agreed solution.</p></Reveal>
+          <Reveal delay={220}><div className="ev-trust__note"><Lock size={16}/><p><strong>Your data remains your property.</strong> Client information is never used for unrelated purposes, unauthorized training, or external development activities.</p></div></Reveal>
         </div>
         <Stagger className="ev-trust__r" delay={110}>
           {[{ic:<Lock size={20}/>,t:"Confidentiality",d:"Your information stays protected at every stage."},{ic:<Eye size={20}/>,t:"Transparency",d:"Clear communication about how data is used."},{ic:<Shield size={20}/>,t:"Responsible AI",d:"Ethical implementation at the core."},{ic:<CheckCircle2 size={20}/>,t:"Security-First",d:"Built from the ground up with security as priority."}].map((x,i)=>
@@ -339,7 +413,7 @@ function Statement() {
     <section className="ev-stmt">
       <div className="ev-stmt__bg" ref={p}><LogoMark size={420} color="rgba(255,255,255,0.025)"/></div>
       <div className="ev-stmt__body">
-        <Reveal><h2 className="ev-stmt__h">The future belongs to<br/>organizations that think<br/><em>intelligently.</em></h2></Reveal>
+        <Reveal><h2 className="ev-stmt__h">The future belongs to<br/>organizations that can adapt,<br/>innovate, and act <em>intelligently.</em></h2></Reveal>
         <Reveal delay={180}><a href="#contact" className="ev-btn ev-btn--w ev-btn--lg" onClick={e=>{e.preventDefault();document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}}>Start a Conversation <ArrowRight size={18}/></a></Reveal>
       </div>
     </section>
@@ -357,7 +431,7 @@ function Contact() {
         <div className="ev-contact__l">
           <Reveal><div className="ev-label ev-label--l">07 <span>Contact</span></div></Reveal>
           <Reveal delay={80}><h2 className="ev-contact__h">Let's Discuss<br/>Your <em>Project</em></h2></Reveal>
-          <Reveal delay={160}><p className="ev-contact__sub">Every organization faces different challenges.</p><p className="ev-contact__p">Tell us about your goals and we'll explore the most effective solution together.</p></Reveal>
+          <Reveal delay={160}><p className="ev-contact__p">Whether you have a clear project in mind or are simply exploring possibilities, we'd be happy to learn more about your organization and discuss how intelligent systems can support your goals.</p></Reveal>
           <Stagger className="ev-contact__info" delay={100}>
             <div><div className="ev-contact__bl">Email</div><a href="mailto:contact@evrielsystems.com" className="ev-contact__bv">contact@evrielsystems.com</a></div>
             <div><div className="ev-contact__bl">Website</div><a href="https://evrielsystems.com" className="ev-contact__bv" target="_blank" rel="noopener noreferrer">evrielsystems.com</a></div>
@@ -518,8 +592,11 @@ em{font-family:var(--sf);font-style:italic}
 .ev-about__quote{font-family:var(--sf);font-size:24px;font-style:italic;color:var(--pt);margin-bottom:24px;line-height:1.35}
 .ev-about__p{font-size:15px;line-height:1.78;color:rgba(255,255,255,0.4);margin-bottom:14px;max-width:500px}
 .ev-about__p strong{color:rgba(255,255,255,0.8);font-weight:600}
-.ev-about__stats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:32px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06)}
-.ev-stat{text-align:center}.ev-stat__n{display:block;font-family:var(--sf);font-size:36px;color:#fff;line-height:1}.ev-stat__l{display:block;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-top:6px}
+.ev-about__stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:36px;padding-top:28px;border-top:1px solid rgba(255,255,255,0.06)}
+.ev-afeat{padding:20px;border:1px solid rgba(255,255,255,0.05);transition:all 0.4s ${EASE}}
+.ev-afeat:hover{border-color:rgba(255,255,255,0.14);background:rgba(255,255,255,0.02);transform:translateY(-3px)}
+.ev-afeat__n{display:block;font-family:var(--sf);font-size:19px;color:var(--pt);line-height:1.25;margin-bottom:8px}
+.ev-afeat__d{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.35)}
 .ev-about__right{padding:120px 48px 100px 48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;position:relative}
 .ev-about__right::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(255,255,255,0.03),transparent 70%);pointer-events:none}
 .ev-about__logo-area{position:relative;width:300px;height:300px;display:flex;align-items:center;justify-content:center}
@@ -538,21 +615,37 @@ em{font-family:var(--sf);font-style:italic}
 .ev-ind__wrap{max-width:1440px;margin:0 auto;padding:0 48px;position:relative;z-index:2}
 .ev-ind__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:56px}
 .ev-ind__h em{color:var(--pt)}
-.ev-ind-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.ev-ind{padding:36px 28px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:2px;transition:all 0.5s ${EASE};position:relative;overflow:hidden}
-.ev-ind--on,.ev-ind:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.1);transform:translateY(-4px)}
-.ev-ind__ic{color:var(--pt);margin-bottom:18px;transition:transform 0.4s ${EASE}}
-.ev-ind:hover .ev-ind__ic{transform:scale(1.2)}
-.ev-ind__nm{font-family:var(--sf);font-size:18px;font-weight:400;color:#fff;margin-bottom:10px;line-height:1.3;white-space:pre-line}
-.ev-ind__ds{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.3)}
-.ev-ind__glow{position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(217,217,217,0.04),transparent 60%);opacity:0;transition:opacity 0.5s;pointer-events:none}
-.ev-ind:hover .ev-ind__glow{opacity:1}
+.ev-ind-list{display:flex;flex-direction:column}
+.ev-ind{display:grid;grid-template-columns:60px 1fr 2fr 40px;gap:32px;align-items:center;padding:34px 8px;border-top:1px solid rgba(255,255,255,0.06);transition:all 0.45s ${EASE};position:relative;cursor:default}
+.ev-ind:last-child{border-bottom:1px solid rgba(255,255,255,0.06)}
+.ev-ind--on,.ev-ind:hover{padding-left:24px;background:rgba(255,255,255,0.025)}
+.ev-ind__ix{font-family:var(--sf);font-size:15px;color:rgba(255,255,255,0.18);letter-spacing:0.05em}
+.ev-ind__nm{font-family:var(--sf);font-size:clamp(22px,2.6vw,32px);font-weight:400;color:#fff;line-height:1.2;transition:color 0.4s ${EASE}}
+.ev-ind--on .ev-ind__nm,.ev-ind:hover .ev-ind__nm{color:var(--pt)}
+.ev-ind__ds{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.32);max-width:480px}
+.ev-ind__ar{color:rgba(255,255,255,0.15);justify-self:end;transition:all 0.4s ${EASE};opacity:0;transform:translate(-8px,8px)}
+.ev-ind--on .ev-ind__ar,.ev-ind:hover .ev-ind__ar{opacity:1;transform:translate(0,0);color:var(--pt)}
+
+/* Outcomes */
+.ev-out-sec{background:linear-gradient(to bottom,var(--bk),var(--dk));padding:120px 0;position:relative;overflow:hidden}
+.ev-out__glow{position:absolute;top:10%;right:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(217,217,217,0.04),transparent 65%);pointer-events:none}
+.ev-out__wrap{max-width:1100px;margin:0 auto;padding:0 48px;position:relative;z-index:2}
+.ev-out__grid{display:flex;flex-direction:column;margin-top:36px}
+.ev-out{display:grid;grid-template-columns:60px 1fr 1.4fr;gap:32px;align-items:center;padding:30px 8px;border-top:1px solid rgba(255,255,255,0.06);position:relative;transition:padding-left 0.4s ${EASE}}
+.ev-out:last-child{border-bottom:1px solid rgba(255,255,255,0.06)}
+.ev-out:hover{padding-left:18px}
+.ev-out__ix{font-family:var(--sf);font-size:14px;color:rgba(255,255,255,0.18)}
+.ev-out__t{font-family:var(--sf);font-size:clamp(20px,2.4vw,28px);font-weight:400;color:#fff}
+.ev-out__d{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.34)}
+.ev-out__ln{position:absolute;left:0;bottom:-1px;width:0;height:1px;background:var(--pt);transition:width 0.6s ${EASE}}
+.ev-out:hover .ev-out__ln{width:100%}
 
 /* Services: subtle dark background flowing into next */
 .ev-svc-sec{background:linear-gradient(to bottom,var(--bk),#131313,var(--bk));padding:140px 0;position:relative}
 .ev-svc__wrap{max-width:1440px;margin:0 auto;padding:0 48px}
-.ev-svc__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:56px}
+.ev-svc__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:18px}
 .ev-svc__h em{color:var(--pt)}
+.ev-svc__intro{font-family:var(--sf);font-size:18px;font-style:italic;color:var(--pt);margin-bottom:40px;max-width:560px;line-height:1.5}
 .ev-svc{display:grid;grid-template-columns:90px 1fr 1fr;gap:36px;padding:40px 0;border-top:1px solid rgba(255,255,255,0.06);position:relative;transition:padding-left 0.4s ${EASE};align-items:start}
 .ev-svc:last-child{border-bottom:1px solid rgba(255,255,255,0.06)}
 .ev-svc:hover{padding-left:14px}
@@ -591,8 +684,9 @@ em{font-family:var(--sf);font-style:italic}
 /* Process: subtle light on dark */
 .ev-proc-sec{background:linear-gradient(to bottom,var(--mg),var(--dk),var(--bk));padding:140px 0}
 .ev-proc__wrap{max-width:1440px;margin:0 auto;padding:0 48px}
-.ev-proc__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:56px}
+.ev-proc__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:18px}
 .ev-proc__h em{color:var(--pt)}
+.ev-proc__intro{font-size:15px;line-height:1.7;color:rgba(255,255,255,0.35);max-width:560px;margin-bottom:56px}
 .ev-proc__grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative}
 .ev-proc__grid::before{content:'';position:absolute;top:20px;left:0;right:0;height:1px;background:rgba(255,255,255,0.06)}
 .ev-proc__card{padding:0 24px 36px;border-right:1px solid rgba(255,255,255,0.04);transition:background 0.4s}
@@ -604,12 +698,40 @@ em{font-family:var(--sf);font-style:italic}
 .ev-proc__ct{font-family:var(--sf);font-size:20px;font-weight:400;color:#fff;margin-bottom:10px}
 .ev-proc__cd{font-size:13px;line-height:1.65;color:rgba(255,255,255,0.35)}
 
+/* Borders */
+.ev-bdr-sec{background:linear-gradient(to bottom,var(--bk),var(--dk),var(--mg));padding:140px 0;position:relative;overflow:hidden}
+.ev-bdr__orb{position:absolute;top:50%;right:-8%;transform:translateY(-50%)}
+.ev-bdr__wrap{max-width:760px;margin:0 auto;padding:0 48px;position:relative;z-index:2;text-align:center}
+.ev-bdr__h{font-family:var(--sf);font-size:clamp(36px,4.4vw,60px);font-weight:400;color:#fff;line-height:1.1;margin-bottom:28px}
+.ev-bdr__h em{color:var(--pt)}
+.ev-bdr__p{font-size:15px;line-height:1.8;color:rgba(255,255,255,0.4);margin-bottom:14px}
+.ev-bdr__tag{display:inline-flex;align-items:center;gap:12px;margin-top:22px;padding:16px 26px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:rgba(255,255,255,0.5);font-size:13px;line-height:1.6;text-align:left}
+.ev-bdr__tag svg{color:var(--pt);flex-shrink:0}
+
+/* Why */
+.ev-why-sec{background:linear-gradient(to bottom,var(--mg),var(--bk));padding:140px 0}
+.ev-why__wrap{max-width:1100px;margin:0 auto;padding:0 48px}
+.ev-why__h{font-family:var(--sf);font-size:clamp(38px,4.4vw,62px);font-weight:400;color:#fff;line-height:1.1;margin-bottom:24px}
+.ev-why__h em{color:var(--pt)}
+.ev-why__lead{font-size:15px;line-height:1.8;color:rgba(255,255,255,0.4);max-width:680px;margin-bottom:10px}
+.ev-why__lead--sub{color:rgba(255,255,255,0.3);font-style:italic;font-family:var(--sf);font-size:16px}
+.ev-why__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
+.ev-why__card{padding:30px 26px;border:1px solid rgba(255,255,255,0.06);transition:all 0.4s ${EASE}}
+.ev-why__card:hover{border-color:rgba(255,255,255,0.16);background:rgba(255,255,255,0.025);transform:translateY(-4px)}
+.ev-why__card svg{color:var(--pt);margin-bottom:18px}
+.ev-why__card h3{font-family:var(--sf);font-size:19px;color:#fff;margin-bottom:8px;font-weight:400}
+.ev-why__card p{font-size:13px;line-height:1.6;color:rgba(255,255,255,0.32)}
+
 /* Trust: flowing */
 .ev-trust-sec{background:linear-gradient(to bottom,var(--bk),#0D0D0D);padding:140px 0}
 .ev-trust__wrap{max-width:1440px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
 .ev-trust__h{font-family:var(--sf);font-size:clamp(38px,4.2vw,62px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:24px}
 .ev-trust__h em{color:var(--pt)}
 .ev-trust__p{font-size:15px;line-height:1.75;color:rgba(255,255,255,0.35);margin-bottom:12px}
+.ev-trust__note{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:18px 20px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02)}
+.ev-trust__note svg{color:var(--pt);flex-shrink:0;margin-top:2px}
+.ev-trust__note p{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.4)}
+.ev-trust__note p strong{color:#fff;font-weight:600}
 .ev-trust__r{display:flex;flex-direction:column;gap:14px}
 .ev-trust__card{display:flex;gap:14px;padding:20px 18px;border:1px solid rgba(255,255,255,0.05);transition:all 0.4s ${EASE}}
 .ev-trust__card:hover{border-color:rgba(255,255,255,0.12);background:rgba(255,255,255,0.02)}
@@ -705,7 +827,12 @@ em{font-family:var(--sf);font-style:italic}
   .ev-about__wrap{grid-template-columns:1fr}
   .ev-about__left{padding:100px 40px 48px}
   .ev-about__right{padding:48px 40px}
-  .ev-ind-grid{grid-template-columns:repeat(3,1fr)}
+  .ev-ind{grid-template-columns:44px 1fr;row-gap:8px}
+  .ev-ind__ds{grid-column:2/3;max-width:none}
+  .ev-ind__ar{display:none}
+  .ev-out{grid-template-columns:44px 1fr;row-gap:6px}
+  .ev-out__d{grid-column:2/3}
+  .ev-why__grid{grid-template-columns:1fr 1fr}
   .ev-svc{grid-template-columns:70px 1fr;gap:20px}
   .ev-svc__r{grid-column:1/-1;padding-left:70px}
   .ev-trust__wrap{grid-template-columns:1fr;gap:40px}
@@ -727,11 +854,15 @@ em{font-family:var(--sf);font-style:italic}
   .ev-about__right{padding:36px 20px}
   .ev-about__logo-area{width:220px;height:220px}
   .ev-about__ring--1{width:180px;height:180px}.ev-about__ring--2{width:210px;height:210px}.ev-about__ring--3{width:220px;height:220px}
-  .ev-about__stats{grid-template-columns:repeat(3,1fr);gap:12px}
-  .ev-stat__n{font-size:28px}
-  .ev-ind__wrap,.ev-svc__wrap,.ev-proj__wrap,.ev-proc__wrap,.ev-trust__wrap,.ev-contact__wrap,.ev-footer__in{padding:0 20px}
-  .ev-ind-grid{grid-template-columns:1fr 1fr;gap:10px}
-  .ev-ind__h,.ev-svc__h,.ev-proj__h,.ev-proc__h,.ev-trust__h,.ev-contact__h{font-size:clamp(34px,8vw,48px)}
+  .ev-about__stats{grid-template-columns:1fr 1fr;gap:10px}
+  .ev-ind__wrap,.ev-svc__wrap,.ev-proj__wrap,.ev-proc__wrap,.ev-trust__wrap,.ev-contact__wrap,.ev-footer__in,.ev-out__wrap,.ev-bdr__wrap,.ev-why__wrap{padding:0 20px}
+  .ev-ind__h,.ev-svc__h,.ev-proj__h,.ev-proc__h,.ev-trust__h,.ev-contact__h,.ev-bdr__h,.ev-why__h{font-size:clamp(34px,8vw,48px)}
+  .ev-out{grid-template-columns:1fr;text-align:left}
+  .ev-out__d{grid-column:auto}
+  .ev-ind{grid-template-columns:1fr;text-align:left}
+  .ev-ind__ds{grid-column:auto}
+  .ev-why__grid{grid-template-columns:1fr}
+  .ev-about__stats{grid-template-columns:1fr 1fr}
   .ev-svc{grid-template-columns:1fr;gap:14px;padding:28px 0}
   .ev-svc__l{flex-direction:row;align-items:center;gap:10px}
   .ev-svc__gn{font-size:32px}
@@ -761,7 +892,7 @@ em{font-family:var(--sf);font-style:italic}
       `}</style>
 
       <Nav page={page} setPage={setPage}/>
-      {page==="home"&&<><Hero/><Marquee/><About/><Industries/><Services/><Projects/><Process/><Trust/><Statement/><Contact/></>}
+      {page==="home"&&<><Hero/><Marquee/><About/><Outcomes/><Industries/><Services/><Projects/><Process/><Borders/><Why/><Trust/><Statement/><Contact/></>}
       {page==="insights"&&<InsightsHome setPage={setPage} setSlug={setSlug}/>}
       {page==="article"&&<ArticlePage slug={slug} setPage={setPage} setSlug={setSlug}/>}
       <Footer setPage={setPage}/>
