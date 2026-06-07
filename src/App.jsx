@@ -171,7 +171,7 @@ function Hero() {
           </div>
         </div>
         <div style={{overflow:"hidden"}}><h2 className="ev-hero__h2" style={a(500)}>Connecting Intelligence<br/>with <em>Business</em></h2></div>
-        <div style={{overflow:"hidden"}}><p className="ev-hero__sub" style={a(680)}>Helping organizations leverage AI, automation, and intelligent systems<br className="dbr"/>to improve efficiency, make better decisions, and build sustainable<br className="dbr"/>competitive advantages.</p></div>
+        <div style={{overflow:"hidden"}}><p className="ev-hero__sub" style={a(680)}>Helping organizations leverage AI, automation, and intelligent systems <br className="dbr"/>to improve efficiency, make better decisions, and build sustainable <br className="dbr"/>competitive advantages.</p></div>
         <div style={{overflow:"hidden"}}>
           <div className="ev-hero__ctas" style={a(860)}>
             <a href="#services" className="ev-btn ev-btn--w" onClick={e=>{e.preventDefault();document.getElementById("services")?.scrollIntoView({behavior:"smooth"})}}>Explore Solutions <ArrowRight size={17}/></a>
@@ -316,10 +316,10 @@ function Industries() {
 
 /* SERVICES */
 const SVCS = [
-  { n:"01",ic:<Atom size={26}/>,t:"AI Automation",d:"Reduce repetitive work and improve operational efficiency through intelligent automation.",a:["Email automation","Workflow automation","Internal process automation","AI-powered assistants","Customer communication systems"] },
-  { n:"02",ic:<Radar size={26}/>,t:"Business Intelligence",d:"Transform business information into actionable insights.",a:["Reporting dashboards","Operational analytics","Decision support systems","Data visualization","Performance monitoring"] },
-  { n:"03",ic:<Boxes size={26}/>,t:"Intelligent Systems",d:"Custom-built solutions designed around the unique needs of each organization.",a:["Industry-specific platforms","Knowledge management","AI-powered operational tools","Intelligent information systems"] },
-  { n:"04",ic:<Waypoints size={26}/>,t:"Digital Transformation",d:"Support organizations as they modernize operations and adopt emerging technologies.",a:["Process redesign","Digital strategy","Technology integration","Operational modernization"] },
+  { n:"01",t:"AI Automation",d:"Reduce repetitive work and improve operational efficiency through intelligent automation.",a:["Email automation","Workflow automation","Internal process automation","AI-powered assistants","Customer communication systems"] },
+  { n:"02",t:"Business Intelligence",d:"Transform business information into actionable insights.",a:["Reporting dashboards","Operational analytics","Decision support systems","Data visualization","Performance monitoring"] },
+  { n:"03",t:"Intelligent Systems",d:"Custom-built solutions designed around the unique needs of each organization.",a:["Industry-specific platforms","Knowledge management","AI-powered operational tools","Intelligent information systems"] },
+  { n:"04",t:"Digital Transformation",d:"Support organizations as they modernize operations and adopt emerging technologies.",a:["Process redesign","Digital strategy","Technology integration","Operational modernization"] },
 ];
 
 function Services() {
@@ -332,7 +332,7 @@ function Services() {
         {SVCS.map((s,i)=>(
           <Reveal key={i} delay={i*90}>
             <div className="ev-svc">
-              <div className="ev-svc__l"><span className="ev-svc__gn">{s.n}</span>{s.ic}</div>
+              <div className="ev-svc__l"><span className="ev-svc__gn">{s.n}</span></div>
               <div className="ev-svc__m"><h3 className="ev-svc__t">{s.t}</h3><p className="ev-svc__d">{s.d}</p></div>
               <div className="ev-svc__r"><div className="ev-svc__al">Applications</div><ul>{s.a.map((x,j)=><li key={j}>{x}</li>)}</ul></div>
               <div className="ev-svc__bar"/>

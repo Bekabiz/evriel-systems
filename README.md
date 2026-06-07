@@ -1,17 +1,3 @@
-# Evriel Systems — V7
+# Evriel Systems
 
-## Getting Started
-```bash
-npm install
-npm run dev
-```
-Open http://localhost:5173
-
-## Build
-```bash
-npm run build
-```
-
-React 18 + Vite + Lucide React
-
-© 2026 Evriel Systems.
+AI, Automation & Intelligent Systems — evrielsystems.com
