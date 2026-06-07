@@ -1,26 +1,17 @@
-# Evriel Systems — V6
-
-**Connecting Intelligence with Business**
+# Evriel Systems — V7
 
 ## Getting Started
-
 ```bash
 npm install
 npm run dev
 ```
-
-Open [http://localhost:5173](http://localhost:5173)
+Open http://localhost:5173
 
 ## Build
-
 ```bash
 npm run build
 ```
 
-## Tech Stack
+React 18 + Vite + Lucide React
 
-- React 18 + Vite
-- Lucide React icons
-- Google Fonts — Inter + Instrument Serif
-
-© 2026 Evriel Systems. All rights reserved.
+© 2026 Evriel Systems.

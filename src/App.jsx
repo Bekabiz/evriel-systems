@@ -40,7 +40,57 @@ function Stagger({ children, className = "", style = {}, delay = 110 }) {
   return <div ref={ref} className={className} style={style}>{Array.isArray(children) ? children.map((c, i) => <div key={i} style={{ opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(60px)", transition: `opacity 1.1s ${EASE} ${i * delay}ms, transform 1.1s ${EASE} ${i * delay}ms` }}>{c}</div>) : children}</div>;
 }
 
-/* ═══ LOGO ═══ */
+/* SEO meta tags + JSON-LD */
+function useSEO() {
+  useEffect(() => {
+    document.title = "Evriel Systems — AI, Automation & Intelligent Systems";
+    const metas = [
+      { name: "description", content: "Evriel Systems helps organizations integrate AI, automation, and intelligent technologies into practical business systems. Based in Europe. Working across Europe." },
+      { name: "keywords", content: "AI consulting, business automation, intelligent systems, digital transformation, AI integration, European projects" },
+      { name: "author", content: "Evriel Systems" },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Evriel Systems — AI, Automation & Intelligent Systems" },
+      { property: "og:description", content: "Helping organizations integrate AI, automation, and intelligent technologies into practical business systems." },
+      { property: "og:url", content: "https://evrielsystems.com" },
+      { property: "og:image", content: "https://evrielsystems.com/og-image.jpg" },
+      { property: "og:site_name", content: "Evriel Systems" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Evriel Systems — AI, Automation & Intelligent Systems" },
+      { name: "twitter:description", content: "Helping organizations integrate AI, automation, and intelligent technologies into practical business systems." },
+      { name: "twitter:image", content: "https://evrielsystems.com/og-image.jpg" },
+    ];
+    const els = [];
+    metas.forEach(m => {
+      const el = document.createElement("meta");
+      if (m.name) el.setAttribute("name", m.name);
+      if (m.property) el.setAttribute("property", m.property);
+      el.setAttribute("content", m.content);
+      document.head.appendChild(el);
+      els.push(el);
+    });
+    let canon = document.querySelector('link[rel="canonical"]');
+    if (!canon) { canon = document.createElement("link"); canon.setAttribute("rel", "canonical"); document.head.appendChild(canon); els.push(canon); }
+    canon.setAttribute("href", "https://evrielsystems.com");
+    const ld = document.createElement("script");
+    ld.type = "application/ld+json";
+    ld.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Evriel Systems",
+      url: "https://evrielsystems.com",
+      description: "European AI, automation, and intelligent systems consultancy helping organizations integrate emerging technologies into practical business solutions.",
+      founder: { "@type": "Person", name: "Bereket Teshome" },
+      address: { "@type": "PostalAddress", addressRegion: "Europe" },
+      email: "contact@evrielsystems.com",
+      sameAs: []
+    });
+    document.head.appendChild(ld);
+    els.push(ld);
+    return () => els.forEach(el => el.remove());
+  }, []);
+}
+
+/* LOGO */
 const LogoMark = ({ size = 48, color = "currentColor", spin = false }) => (
   <svg width={size} height={size} viewBox="0 0 200 200" fill="none" style={spin ? { animation: "logospin 80s linear infinite" } : {}}>
     {[[180,100,140,169.3],[140,169.3,60,169.3],[60,169.3,20,100],[20,100,60,30.7],[60,30.7,140,30.7],[140,30.7,180,100]].map(([x1,y1,x2,y2],i)=>
@@ -57,7 +107,21 @@ const LogoMark = ({ size = 48, color = "currentColor", spin = false }) => (
   </svg>
 );
 
-/* ═══ NAV ═══ */
+/* COOKIE CONSENT */
+function CookieConsent({ setPage }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => { if (!localStorage.getItem("ev_cookie_ok")) setShow(true); }, []);
+  if (!show) return null;
+  const accept = () => { localStorage.setItem("ev_cookie_ok", "1"); setShow(false); };
+  return (
+    <div className="ev-cookie">
+      <p>We use essential cookies to ensure our website functions properly. We do not use tracking or advertising cookies. By continuing to use this site, you agree to our <a href="#" onClick={e=>{e.preventDefault();setPage("privacy");window.scrollTo({top:0,behavior:"smooth"})}}>Privacy Policy</a>.</p>
+      <button className="ev-cookie__btn" onClick={accept}>Accept & Close</button>
+    </div>
+  );
+}
+
+/* NAV */
 function Nav({ page, setPage }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -85,7 +149,7 @@ function Nav({ page, setPage }) {
   );
 }
 
-/* ═══ HERO ═══ */
+/* HERO */
 function Hero() {
   const [on, setOn] = useState(false);
   const gRef = useParallax(0.025);
@@ -95,7 +159,7 @@ function Hero() {
     <section className="ev-hero">
       <div className="ev-hero__bg"><div className="ev-hero__grid" ref={gRef}/><div className="ev-hero__rad"/><div className="ev-hero__ghost"><LogoMark size={700} color="rgba(255,255,255,0.02)" spin/></div></div>
       <div className="ev-hero__body">
-        <div style={{overflow:"hidden"}}><div className="ev-hero__eyebrow" style={a(150)}>AI • Automation • Intelligent Systems</div></div>
+        <div style={{overflow:"hidden"}}><div className="ev-hero__eyebrow" style={a(150)}>AI &bull; Automation &bull; Intelligent Systems</div></div>
         <div style={{overflow:"hidden"}}>
           <div style={a(300)} className="ev-hero__brand">
             <LogoMark size={90} color="#fff"/>
@@ -122,14 +186,14 @@ function Hero() {
   );
 }
 
-/* ═══ MARQUEE ═══ */
+/* MARQUEE */
 function Marquee() {
   const items = ["AI Integration","Digital Transformation","Business Intelligence","Workflow Automation","Intelligent Systems","Data Analytics","Industry Solutions","Operational Excellence"];
   const r = items.map((t,i)=><span key={i} className="ev-mq__i"><span className="ev-mq__dot"/>{t}</span>);
   return <div className="ev-mq"><div className="ev-mq__track">{r}{r}{r}{r}</div></div>;
 }
 
-/* ═══ ABOUT ═══ */
+/* ABOUT */
 const ABOUT_FEATS = [
   { t:"AI-Driven", s:"Innovation", d:"Practical applications of AI for real business challenges." },
   { t:"Multi-Industry", s:"Expertise", d:"Solutions designed for diverse operational environments." },
@@ -149,7 +213,10 @@ function About() {
             <p className="ev-about__lead">Every organization faces unique challenges.</p>
             <p className="ev-about__quote">Our role is to understand those challenges and design practical systems that improve how people work, collaborate, and make decisions.</p>
             <p className="ev-about__p">Artificial Intelligence is transforming industries and creating new opportunities to operate more efficiently, make smarter decisions, and remain competitive. <strong>The challenge is not accessing AI. It is implementing it correctly.</strong></p>
-            <p className="ev-about__p">Evriel Systems helps organizations integrate AI, automation, and intelligent technologies into practical business systems that create measurable value, connecting people, processes, information, and technology into solutions built for efficiency, growth, and long-term success.</p>
+            <p className="ev-about__p">Founded by Bereket Teshome, Evriel Systems was shaped by experience across business, marketing, European projects, and digital transformation initiatives in Poland, Spain, Italy, and Greece.</p>
+            <p className="ev-about__p">Through these experiences, a common challenge became clear: many organizations struggle to transform emerging technologies into practical business value.</p>
+            <p className="ev-about__p">Working across industries has shown that while technologies change rapidly, the underlying challenges often remain the same: disconnected information, inefficient workflows, and missed opportunities for better decision-making.</p>
+            <p className="ev-about__p">Evriel Systems was created to help bridge that gap through AI, automation, and intelligent systems that connect people, processes, information, and technology into solutions built for efficiency, growth, and long-term success.</p>
           </Reveal>
           <Stagger className="ev-about__stats" delay={90}>
             {ABOUT_FEATS.map((f,i)=>
@@ -175,7 +242,7 @@ function About() {
   );
 }
 
-/* ═══ OUTCOMES ═══ */
+/* OUTCOMES */
 const OUTCOMES = [
   { t:"AI-Powered Efficiency", d:"Reduce repetitive work and streamline operations through intelligent automation." },
   { t:"Smarter Decision-Making", d:"Use AI, data, and business intelligence to support informed decisions." },
@@ -208,7 +275,7 @@ function Outcomes() {
   );
 }
 
-/* ═══ INDUSTRIES ═══ */
+/* INDUSTRIES */
 const INDS = [
   { name:"Construction & Engineering", desc:"Digital project monitoring, documentation systems, and reporting automation built for complex, multi-stakeholder environments." },
   { name:"Manufacturing & Industrial", desc:"Workflow optimization, operational analytics, and predictive monitoring that improve consistency at scale." },
@@ -234,7 +301,7 @@ function Industries() {
           {INDS.map((d,i)=>(
             <Reveal key={i} delay={i*50}>
               <div className={`ev-ind${hov===i?" ev-ind--on":""}`} onMouseEnter={()=>setHov(i)} onMouseLeave={()=>setHov(null)}>
-                <span className="ev-ind__ix">0{i+1}</span>
+                <span className="ev-ind__ix">{String(i+1).padStart(2,"0")}</span>
                 <h3 className="ev-ind__nm">{d.name}</h3>
                 <p className="ev-ind__ds">{d.desc}</p>
                 <ArrowUpRight size={22} className="ev-ind__ar"/>
@@ -247,7 +314,7 @@ function Industries() {
   );
 }
 
-/* ═══ SERVICES ═══ */
+/* SERVICES */
 const SVCS = [
   { n:"01",ic:<Atom size={26}/>,t:"AI Automation",d:"Reduce repetitive work and improve operational efficiency through intelligent automation.",a:["Email automation","Workflow automation","Internal process automation","AI-powered assistants","Customer communication systems"] },
   { n:"02",ic:<Radar size={26}/>,t:"Business Intelligence",d:"Transform business information into actionable insights.",a:["Reporting dashboards","Operational analytics","Decision support systems","Data visualization","Performance monitoring"] },
@@ -277,29 +344,98 @@ function Services() {
   );
 }
 
-/* ═══ PROJECTS ═══ */
+/* PROJECTS */
 const PROJS = [
-  { t:"Domain Intel",d:"An AI-powered system that automates identification, evaluation, and qualification of SEO and partnership opportunities.",c:["Domain analysis","Relevance scoring","Niche classification","Workflow automation"],tl:"Helping teams reduce manual research, improve decision quality, and identify opportunities faster through AI-powered analysis." },
-  { t:"Workforce AI",d:"A business-trained AI assistant supporting employees through organization-specific knowledge and operational guidance.",c:["Internal support","Employee onboarding","Process guidance","Knowledge retrieval"],tl:"Helping teams onboard faster, reduce repetitive questions, and access guidance the moment it's needed." },
-  { t:"EU Project Assistant",d:"An intelligent assistant designed to simplify the management of European projects.",c:["Documentation support","Reporting assistance","Compliance guidance","Stakeholder access"],tl:"Helping teams navigate complex funding environments, reduce administrative load, and stay aligned with compliance requirements." },
-  { t:"Project Vision",d:"A user-friendly platform designed to support engineering and construction projects.",c:["AutoCAD integration","Site monitoring","Reporting workflows","Communication management"],tl:"Helping teams gain real-time visibility, reduce delays, and keep every stakeholder aligned across the project lifecycle." },
-  { t:"Email Intelligence",d:"An advanced communication system trained on organizational knowledge and business processes.",c:["Intelligent responses","Workflow execution","Brand-consistent comms"],tl:"Helping teams respond faster, maintain consistency, and free up time for higher-value conversations." },
-  { t:"GIS Intelligence",d:"A geographic intelligence system supporting planning and operational decision-making.",c:["Mapping","Infrastructure analysis","Location intelligence","Spatial visualization"],tl:"Helping teams visualize complexity, plan with confidence, and make location-driven decisions faster." },
+  { t:"AI Business Integration",badge:null,d:"Supporting the transition from traditional operations to AI-enhanced business systems.",c:["AI-assisted communication","Email classification","Response generation","Digital transformation roadmap"],tl:"Designed and implemented an AI-powered communication system for a civil engineering firm, expanding into a broader digital transformation initiative.",
+    detail:{
+      challenge:"A civil engineering firm with established operational processes wanted to modernize communication workflows, improve efficiency, and explore how AI could support future business growth.",
+      solution:"Designed and implemented an AI-powered communication system capable of classifying emails, identifying urgency levels, and generating professional draft responses. The project expanded into a broader digital transformation initiative covering communication workflows, recruitment strategy, digital presence, and future business development opportunities.",
+      results:["AI-assisted communication workflows","Email classification and prioritization","Professional response generation","Digital transformation roadmap","Foundation for future intelligent business systems"]
+    }
+  },
+  { t:"Funding Intelligence",badge:null,d:"Opportunity discovery for European projects and funding programs.",c:["Funding discovery","Call monitoring","Eligibility analysis","Opportunity matching"],tl:"An intelligent system that monitors funding opportunities, analyzes eligibility requirements, and helps organizations identify relevant European project calls.",
+    detail:{
+      challenge:"Organizations often spend significant time searching through funding portals, tender databases, and project calls to identify relevant opportunities.",
+      solution:"Developed an intelligent system that monitors funding opportunities, analyzes eligibility requirements, and helps organizations identify relevant European project calls more efficiently.",
+      results:["Reduced manual search effort","Faster opportunity identification","Improved visibility of relevant funding calls","Enhanced project development workflows"]
+    }
+  },
+  { t:"Workforce AI",badge:null,d:"Intelligent workforce management platform.",c:["GPS attendance","Employee verification","Workforce analytics","Mobile management"],tl:"A platform combining workforce tracking, location verification, employee management, and operational analytics into a unified system.",
+    detail:{
+      challenge:"Organizations operating across multiple locations often face difficulties tracking attendance, workforce activity, compliance, and operational visibility. Manual processes can lead to inefficiencies, reporting challenges, and limited real-time oversight.",
+      solution:"Developed an intelligent workforce management platform designed to improve workforce visibility, attendance verification, and operational control through digital tools and automation. The platform combines workforce tracking, location verification, employee management, and operational analytics into a unified system accessible through mobile and web interfaces.",
+      results:["GPS-based attendance verification","Employee check-in and check-out management","Selfie authentication and identity verification","Workforce analytics and reporting","Administrative dashboards","Mobile payment and payroll integration support","Operational compliance monitoring"]
+    }
+  },
+  { t:"Domain Intel",badge:null,d:"AI-powered domain intelligence and opportunity discovery.",c:["Domain qualification","Opportunity discovery","SEO intelligence","Decision support"],tl:"An intelligent platform that analyzes, compares, and qualifies domains while providing contextual insights into relevance, authority, and opportunity potential.",
+    detail:{
+      challenge:"SEO professionals spend significant time evaluating websites, identifying opportunities, and determining which domains provide the greatest strategic value.",
+      solution:"Developed an intelligent platform that analyzes, compares, and qualifies domains while providing contextual insights into relevance, authority, and opportunity potential.",
+      results:["AI-powered domain qualification","Opportunity discovery engine","SEO intelligence workflows","Decision-support capabilities","Reduced manual research requirements","Faster identification of high-value opportunities"]
+    }
+  },
+  { t:"Project Vision",badge:"In Development",d:"Construction intelligence platform (in development).",c:["Voice memo transcription","Site photo intelligence","Document management","AI-powered reporting"],tl:"An AI-powered construction intelligence platform designed to bring together project communication, documentation, and operational updates into a unified environment.",
+    detail:{
+      challenge:"Project Vision is an AI-powered construction intelligence platform currently under development. The platform is designed to bring together project communication, voice notes, site photographs, engineering documentation, AutoCAD exports, and operational updates into a unified project environment.",
+      solution:null,
+      results:["Voice memo transcription and analysis","Site photo intelligence and progress tracking","Project timeline generation","Document and drawing management","Email integration and project knowledge capture","AI-powered project insights and reporting"],
+      vision:"The objective is to provide engineering and construction teams with a single source of truth for project information, enabling better visibility, faster decision-making, and improved operational coordination throughout the project lifecycle."
+    }
+  },
 ];
 
 function Projects() {
   const [active, setActive] = useState(null);
+  const [expanded, setExpanded] = useState({});
+  const togDetail = (i, e) => { e.stopPropagation(); setExpanded(prev => ({...prev, [i]: !prev[i]})); };
   return (
     <section id="projects" className="ev-proj-sec">
       <div className="ev-proj__wrap">
-        <Reveal><div className="ev-label ev-label--l">04 <span>Featured Projects</span></div></Reveal>
-        <Reveal delay={80}><h2 className="ev-proj__h">Proven <em>Solutions</em></h2></Reveal>
+        <Reveal><div className="ev-label ev-label--l">04 <span>Solutions, Products & Case Studies</span></div></Reveal>
+        <Reveal delay={80}><h2 className="ev-proj__h">Solutions, Products<br/>& <em>Case Studies</em></h2></Reveal>
         {PROJS.map((p,i)=>(
           <Reveal key={i} delay={i*60}>
-            <div className={`ev-prj${active===i?" ev-prj--o":""}`} onClick={()=>setActive(active===i?null:i)}>
-              <div className="ev-prj__hd"><div className="ev-prj__hl"><span className="ev-prj__ix">0{i+1}</span><h3 className="ev-prj__t">{p.t}</h3></div><span className="ev-prj__tog">{active===i?<Minus size={18}/>:<Plus size={18}/>}</span></div>
-              <div style={{maxHeight:active===i?500:0,opacity:active===i?1:0,overflow:"hidden",transition:`max-height 0.6s ${EASE}, opacity 0.4s ${EASE}`}}>
-                <div className="ev-prj__bd"><p>{p.d}</p><div className="ev-prj__caps">{p.c.map((x,j)=><span key={j} className="ev-prj__cap">{x}</span>)}</div><p className="ev-prj__tl">{p.tl}</p></div>
+            <div className={`ev-prj${active===i?" ev-prj--o":""}`} onClick={()=>{setActive(active===i?null:i);if(active===i)setExpanded(prev=>({...prev,[i]:false}))}}>
+              <div className="ev-prj__hd">
+                <div className="ev-prj__hl">
+                  <span className="ev-prj__ix">0{i+1}</span>
+                  <h3 className="ev-prj__t">{p.t}</h3>
+                  {p.badge&&<span className="ev-prj__badge">{p.badge}</span>}
+                </div>
+                <span className="ev-prj__tog">{active===i?<Minus size={18}/>:<Plus size={18}/>}</span>
+              </div>
+              <div style={{maxHeight:active===i?(expanded[i]?2000:500):0,opacity:active===i?1:0,overflow:"hidden",transition:`max-height 0.7s ${EASE}, opacity 0.4s ${EASE}`}}>
+                <div className="ev-prj__bd">
+                  <p>{p.d}</p>
+                  <div className="ev-prj__caps">{p.c.map((x,j)=><span key={j} className="ev-prj__cap">{x}</span>)}</div>
+                  <p className="ev-prj__tl">{p.tl}</p>
+                  {!expanded[i] && <button className="ev-prj__more" onClick={(e)=>togDetail(i,e)}>Read More <ArrowRight size={13}/></button>}
+                  {expanded[i] && (
+                    <div className="ev-prj__detail">
+                      <div className="ev-prj__detail-sec">
+                        <h4>{p.detail.solution ? "Challenge" : "Overview"}</h4>
+                        <p>{p.detail.challenge}</p>
+                      </div>
+                      {p.detail.solution && (
+                        <div className="ev-prj__detail-sec">
+                          <h4>Solution</h4>
+                          <p>{p.detail.solution}</p>
+                        </div>
+                      )}
+                      <div className="ev-prj__detail-sec">
+                        <h4>{p.detail.solution ? "Results" : "Key Capabilities"}</h4>
+                        <ul>{p.detail.results.map((r,j)=><li key={j}>{r}</li>)}</ul>
+                      </div>
+                      {p.detail.vision && (
+                        <div className="ev-prj__detail-sec">
+                          <h4>Vision</h4>
+                          <p>{p.detail.vision}</p>
+                        </div>
+                      )}
+                      <button className="ev-prj__more" onClick={(e)=>togDetail(i,e)}>Show Less</button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </Reveal>
@@ -309,7 +445,7 @@ function Projects() {
   );
 }
 
-/* ═══ PROCESS ═══ */
+/* PROCESS */
 const PROCS = [
   { t:"Discovery",d:"We learn how your organization operates. We identify objectives, challenges, workflows, and opportunities." },
   { t:"Assessment",d:"We analyze operational inefficiencies and identify where intelligent systems create measurable value." },
@@ -337,7 +473,7 @@ function Process() {
   );
 }
 
-/* ═══ BORDERS ═══ */
+/* BORDERS */
 function Borders() {
   const pRef = useParallax(0.03);
   return (
@@ -358,7 +494,7 @@ function Borders() {
   );
 }
 
-/* ═══ WHY ═══ */
+/* WHY */
 const WHY = [
   { t:"Practical Solutions", d:"Focused on real business outcomes." },
   { t:"Intelligent Systems", d:"Built around your organization's needs." },
@@ -385,7 +521,7 @@ function Why() {
   );
 }
 
-/* ═══ TRUST ═══ */
+/* TRUST */
 function Trust() {
   return (
     <section id="trust" className="ev-trust-sec">
@@ -406,7 +542,7 @@ function Trust() {
   );
 }
 
-/* ═══ STATEMENT ═══ */
+/* STATEMENT */
 function Statement() {
   const p = useParallax(0.02);
   return (
@@ -420,11 +556,25 @@ function Statement() {
   );
 }
 
-/* ═══ CONTACT ═══ */
+/* CONTACT */
 function Contact() {
   const [f, setF] = useState({name:"",company:"",email:"",phone:"",language:"English",industry:"",interests:[],challenge:""});
   const [sent, setSent] = useState(false);
+  const [err, setErr] = useState(null);
+  const [sending, setSending] = useState(false);
   const tog = (v) => setF(p=>({...p,interests:p.interests.includes(v)?p.interests.filter(x=>x!==v):[...p.interests,v]}));
+  const submit = async (e) => {
+    e.preventDefault();
+    setSending(true);
+    setErr(null);
+    try {
+      const res = await fetch("/api/contact", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(f) });
+      if (!res.ok) throw new Error();
+      setSent(true);
+    } catch {
+      setErr("Something went wrong. Please email us directly at contact@evrielsystems.com");
+    } finally { setSending(false); }
+  };
   return (
     <section id="contact" className="ev-contact-sec">
       <div className="ev-contact__wrap">
@@ -442,14 +592,15 @@ function Contact() {
             <Reveal><div className="ev-sent"><CheckCircle2 size={44}/><h3>Message Received</h3><p>Thank you. We'll respond within 24 hours.</p><button className="ev-btn ev-btn--w" style={{marginTop:20}} onClick={()=>setSent(false)}>Send Another</button></div></Reveal>
           ) : (
             <Reveal direction="right">
-              <form className="ev-form" onSubmit={e=>{e.preventDefault();setSent(true)}}>
+              <form className="ev-form" onSubmit={submit}>
                 <div className="ev-form__r"><div className="ev-f"><label>Name</label><input placeholder="Your full name" value={f.name} onChange={e=>setF(p=>({...p,name:e.target.value}))}/></div><div className="ev-f"><label>Company</label><input placeholder="Organization" value={f.company} onChange={e=>setF(p=>({...p,company:e.target.value}))}/></div></div>
                 <div className="ev-form__r"><div className="ev-f"><label>Email</label><input type="email" placeholder="your@email.com" value={f.email} onChange={e=>setF(p=>({...p,email:e.target.value}))}/></div><div className="ev-f"><label>Phone <span className="opt">(Optional)</span></label><input placeholder="+1 000 000 0000" value={f.phone} onChange={e=>setF(p=>({...p,phone:e.target.value}))}/></div></div>
                 <div className="ev-f"><label>Preferred Language</label><div className="ev-radios">{["English","Italian","Spanish","Greek","Polish","French","German","Other"].map(l=><label key={l} className={`ev-rad${f.language===l?" ev-rad--on":""}`}><input type="radio" name="lang" checked={f.language===l} onChange={()=>setF(p=>({...p,language:l}))} style={{display:"none"}}/>{l}</label>)}</div></div>
                 <div className="ev-f"><label>Industry</label><select className="ev-sel" value={f.industry} onChange={e=>setF(p=>({...p,industry:e.target.value}))}><option value="">Select your industry</option>{["Construction & Engineering","Manufacturing","Tourism & Hospitality","Retail & Commerce","Import & Export","Marketing & SEO","European Projects","NGO & Associations","Professional Services","Startup / SME","Education & Training","Other"].map(x=><option key={x}>{x}</option>)}</select></div>
                 <div className="ev-f"><label>What are you interested in?</label><div className="ev-checks">{["AI Automation","Business Intelligence","Digital Transformation","Custom Business Systems","European Project Solutions","Not Sure Yet"].map(x=><label key={x} className={`ev-chk${f.interests.includes(x)?" ev-chk--on":""}`} onClick={()=>tog(x)}><span className="ev-chk__b">{f.interests.includes(x)&&<CheckCircle2 size={12}/>}</span>{x}</label>)}</div></div>
                 <div className="ev-f"><label>Tell us about your challenge</label><textarea rows={5} placeholder="Describe your project, challenge, or business objective..." value={f.challenge} onChange={e=>setF(p=>({...p,challenge:e.target.value}))}/></div>
-                <button type="submit" className="ev-btn ev-btn--w ev-btn--lg" style={{width:"100%",justifyContent:"center",marginTop:4}}>Start the Conversation <ArrowRight size={17}/></button>
+                {err && <p className="ev-form__err">{err}</p>}
+                <button type="submit" className="ev-btn ev-btn--w ev-btn--lg" style={{width:"100%",justifyContent:"center",marginTop:4}} disabled={sending}>{sending ? "Sending..." : "Start the Conversation"} {!sending && <ArrowRight size={17}/>}</button>
               </form>
             </Reveal>
           )}
@@ -459,7 +610,7 @@ function Contact() {
   );
 }
 
-/* ═══ FOOTER ═══ */
+/* FOOTER */
 function Footer({setPage}) {
   return (
     <footer className="ev-footer">
@@ -472,13 +623,19 @@ function Footer({setPage}) {
           <p style={{fontSize:12,color:"rgba(255,255,255,0.2)",fontStyle:"italic",fontFamily:"var(--sf)"}}>Connecting Intelligence with Business</p>
         </div>
         <div className="ev-footer__line"/>
-        <div className="ev-footer__bot"><span>&copy; {new Date().getFullYear()} Evriel Systems</span><span>contact@evrielsystems.com</span></div>
+        <div className="ev-footer__bot">
+          <span>&copy; {new Date().getFullYear()} Evriel Systems</span>
+          <div style={{display:"flex",gap:20,alignItems:"center"}}>
+            <a href="#" onClick={e=>{e.preventDefault();setPage("privacy");window.scrollTo({top:0,behavior:"smooth"})}} className="ev-footer__link">Privacy Policy</a>
+            <span>contact@evrielsystems.com</span>
+          </div>
+        </div>
       </div>
     </footer>
   );
 }
 
-/* ═══ ARTICLES ═══ */
+/* ARTICLES */
 const ARTS = [
   { slug:"ai-beyond-chatbots",tag:"AI Strategy",date:"Nov 2024",title:"AI Beyond Chatbots: Practical Applications for Real Businesses",excerpt:"AI creates value far beyond conversational interfaces, in operations, analytics, and decision-making.",body:["Artificial Intelligence is often associated with chatbots and virtual assistants. While these tools are valuable, they represent only a small part of what AI can achieve within modern organizations.","Today, businesses are using AI to automate workflows, improve operational efficiency, support decision-making, and create better customer experiences.","One of the most impactful applications of AI is workflow automation. Organizations spend countless hours performing repetitive administrative tasks such as data entry, reporting, document processing, and communication management. Intelligent systems can automate many of these processes, allowing employees to focus on higher-value activities.","AI also plays an increasingly important role in decision support. By analyzing large volumes of business information, intelligent systems can identify patterns, detect inefficiencies, and provide recommendations that help organizations make better decisions.","Customer service is another area where AI creates significant value. Beyond simple chatbots, AI can assist support teams by organizing information, suggesting responses, and providing instant access to organizational knowledge.","The most successful organizations do not adopt AI simply because it is popular. They identify specific business challenges and implement intelligent solutions that generate measurable results.","The future of AI in business is not about replacing people. It is about empowering people with better tools, better information, and better systems.","Organizations that embrace this approach will be better positioned to improve efficiency, increase competitiveness, and adapt to a rapidly changing business environment."]},
   { slug:"automation-failures",tag:"Transformation",date:"Oct 2024",title:"Why Most Automation Projects Fail",excerpt:"The gap between automation promise and results is wider than most organizations expect.",body:["Automation is one of the most powerful tools available to modern organizations. However, many automation initiatives fail to deliver the expected benefits.","The primary reason is simple: organizations often attempt to automate inefficient processes. Automation cannot fix a broken workflow. It can only accelerate it.","Before introducing technology, organizations must first understand how work is performed, identify bottlenecks, and redesign inefficient processes. Without this foundation, automation often creates additional complexity instead of solving existing problems.","Another common mistake is focusing on software rather than business objectives. Organizations sometimes purchase new tools without clearly defining the problem they are trying to solve.","Successful automation projects begin with questions such as: What process needs improvement? What outcomes are we trying to achieve? How will success be measured?","Employee adoption is equally important. Even the most advanced automation platform will struggle if users do not understand its purpose or if it disrupts established workflows.","The most successful automation initiatives are not technology projects. They are business improvement projects supported by technology.","When implemented correctly, automation can reduce administrative workloads, improve consistency, increase operational visibility, and enable organizations to scale more effectively.","The goal is not simply to automate tasks. The goal is to build smarter and more efficient systems."]},
@@ -504,15 +661,58 @@ function ArticlePage({slug,setPage,setSlug}) {
   return (
     <>
       <section className="ev-art-hero"><Reveal><span className="ev-art-hero__tag">{art.tag}</span></Reveal><Reveal delay={100}><h1 className="ev-art-hero__h">{art.title}</h1></Reveal><Reveal delay={160}><span className="ev-art-hero__date">{art.date}</span></Reveal></section>
-      <section className="ev-art-body"><div className="ev-art-body__in"><div className="ev-art-body__content">{art.body.map((p,i)=><Reveal key={i} delay={i*30}><p className="ev-art-body__p">{p}</p></Reveal>)}<Reveal delay={200}><div className="ev-art-body__cta"><p>Ready to implement intelligent systems?</p><a href="javascript:void(0)" className="ev-btn ev-btn--dk" onClick={()=>{setPage("home");setTimeout(()=>document.getElementById("contact")?.scrollIntoView({behavior:"smooth"}),300)}}>Let's Discuss Your Project <ArrowRight size={15}/></a></div></Reveal></div><div className="ev-art-body__side"><h4 className="ev-art-side__h">More Articles</h4>{others.map((a,i)=><Reveal key={i} delay={i*70}><div className="ev-art-side__item" onClick={()=>{setSlug(a.slug);window.scrollTo({top:0,behavior:"smooth"})}}><span className="ev-art-side__tag">{a.tag}</span><p className="ev-art-side__t">{a.title}</p></div></Reveal>)}</div></div></section>
+      <section className="ev-art-body"><div className="ev-art-body__in"><div className="ev-art-body__content">{art.body.map((p,i)=><Reveal key={i} delay={i*30}><p className="ev-art-body__p">{p}</p></Reveal>)}<Reveal delay={200}><div className="ev-art-body__cta"><p>Ready to implement intelligent systems?</p><a href="#" className="ev-btn ev-btn--dk" onClick={e=>{e.preventDefault();setPage("home");setTimeout(()=>document.getElementById("contact")?.scrollIntoView({behavior:"smooth"}),300)}}>Let's Discuss Your Project <ArrowRight size={15}/></a></div></Reveal></div><div className="ev-art-body__side"><h4 className="ev-art-side__h">More Articles</h4>{others.map((a,i)=><Reveal key={i} delay={i*70}><div className="ev-art-side__item" onClick={()=>{setSlug(a.slug);window.scrollTo({top:0,behavior:"smooth"})}}><span className="ev-art-side__tag">{a.tag}</span><p className="ev-art-side__t">{a.title}</p></div></Reveal>)}</div></div></section>
     </>
   );
 }
 
-/* ═══ APP ═══ */
+/* PRIVACY POLICY */
+function PrivacyPage() {
+  return (
+    <section className="ev-privacy">
+      <div className="ev-privacy__wrap">
+        <Reveal><h1 className="ev-privacy__h">Privacy <em>Policy</em></h1></Reveal>
+        <Reveal delay={60}><p className="ev-privacy__updated">Last updated: June 2026</p></Reveal>
+        <div className="ev-privacy__content">
+          <Reveal delay={100}>
+            <h2>Who We Are</h2>
+            <p>Evriel Systems is an AI and digital transformation consultancy based in Europe. This policy explains how we collect, use, and protect your information when you use our website (evrielsystems.com).</p>
+          </Reveal>
+          <Reveal delay={140}>
+            <h2>Information We Collect</h2>
+            <p>When you submit our contact form, we collect: your name, company name, email address, phone number (optional), preferred language, industry, areas of interest, and project description. We collect this information solely to respond to your inquiry.</p>
+          </Reveal>
+          <Reveal delay={180}>
+            <h2>How We Use Your Information</h2>
+            <p>We use the information you provide exclusively to respond to your inquiry, discuss potential projects, and provide requested services. We do not sell, rent, or share your personal information with third parties. We do not use your information for marketing purposes unless you explicitly consent.</p>
+          </Reveal>
+          <Reveal delay={220}>
+            <h2>Cookies</h2>
+            <p>This website uses only essential cookies required for basic functionality (such as remembering your cookie consent preference). We do not use tracking cookies, advertising cookies, or third-party analytics that track individual users.</p>
+          </Reveal>
+          <Reveal delay={260}>
+            <h2>Your Rights (GDPR)</h2>
+            <p>Under the General Data Protection Regulation (GDPR), you have the right to access, correct, or delete any personal data we hold about you. You may also withdraw consent at any time. To exercise any of these rights, contact us at <a href="mailto:contact@evrielsystems.com">contact@evrielsystems.com</a>.</p>
+          </Reveal>
+          <Reveal delay={300}>
+            <h2>Data Retention</h2>
+            <p>We retain contact form submissions only as long as necessary to respond to your inquiry and for legitimate business purposes. You may request deletion of your data at any time.</p>
+          </Reveal>
+          <Reveal delay={340}>
+            <h2>Contact</h2>
+            <p>For any privacy-related questions or data requests, contact us at <a href="mailto:contact@evrielsystems.com">contact@evrielsystems.com</a>.</p>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* APP */
 export default function EvrielSystems() {
   const [page, setPage] = useState("home");
   const [slug, setSlug] = useState(null);
+  useSEO();
   return (
     <>
       <style>{`
@@ -569,20 +769,20 @@ em{font-family:var(--sf);font-style:italic}
 .ev-btn--gh{border-color:rgba(255,255,255,0.18);color:#fff}.ev-btn--gh:hover{border-color:rgba(255,255,255,0.5)}
 .ev-btn--dk{background:var(--bk);color:#fff}.ev-btn--dk:hover{background:#1a1a1a;transform:translateY(-2px)}
 .ev-btn--lg{padding:18px 42px;font-size:13px}
+.ev-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
 /* LABELS */
 .ev-label{font-size:12px;font-weight:400;letter-spacing:0.18em;text-transform:uppercase;color:rgba(0,0,0,0.3);margin-bottom:20px;display:flex;gap:10px}
 .ev-label span{opacity:0.7}
 .ev-label--l,.ev-label--l span{color:rgba(255,255,255,0.25)}
 
-/* MARQUEE - faster */
+/* MARQUEE */
 .ev-mq{background:var(--mg);padding:13px 0;overflow:hidden;border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04)}
 .ev-mq__track{display:flex;gap:48px;white-space:nowrap;animation:mq 16s linear infinite}
 .ev-mq__i{display:inline-flex;align-items:center;gap:12px;font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
 .ev-mq__dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.25)}
 
-/* ═══ FLOWING SECTION BACKGROUNDS ═══ */
-/* About: dark top fading to deep charcoal */
+/* About */
 .ev-about{background:var(--bk);position:relative;overflow:hidden}
 .ev-about::after{content:'';position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(to bottom,transparent,var(--dk));pointer-events:none}
 .ev-about__wrap{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;min-height:90vh;align-items:center}
@@ -609,7 +809,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-ch:hover{border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.03);color:#fff}
 .ev-ch svg{color:var(--pt);flex-shrink:0}
 
-/* Industries: flowing from dark */
+/* Industries */
 .ev-ind-sec{background:linear-gradient(to bottom,var(--dk),var(--bk));padding:120px 0 140px;position:relative}
 .ev-ind-sec::before{content:'';position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,var(--dk),transparent);pointer-events:none;z-index:1}
 .ev-ind__wrap{max-width:1440px;margin:0 auto;padding:0 48px;position:relative;z-index:2}
@@ -640,7 +840,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-out__ln{position:absolute;left:0;bottom:-1px;width:0;height:1px;background:var(--pt);transition:width 0.6s ${EASE}}
 .ev-out:hover .ev-out__ln{width:100%}
 
-/* Services: subtle dark background flowing into next */
+/* Services */
 .ev-svc-sec{background:linear-gradient(to bottom,var(--bk),#131313,var(--bk));padding:140px 0;position:relative}
 .ev-svc__wrap{max-width:1440px;margin:0 auto;padding:0 48px}
 .ev-svc__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:18px}
@@ -661,7 +861,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-svc__r li{font-size:13px;color:rgba(255,255,255,0.4);padding-left:14px;position:relative}
 .ev-svc__r li::before{content:'';position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.12)}
 
-/* Projects: dark flowing */
+/* Projects */
 .ev-proj-sec{background:linear-gradient(to bottom,var(--bk),var(--dk),var(--mg));padding:140px 0}
 .ev-proj__wrap{max-width:1200px;margin:0 auto;padding:0 48px}
 .ev-proj__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:56px}
@@ -673,6 +873,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-prj__hl{display:flex;align-items:center;gap:18px}
 .ev-prj__ix{font-family:var(--sf);font-size:15px;color:rgba(255,255,255,0.15)}
 .ev-prj__t{font-family:var(--sf);font-size:clamp(18px,2vw,24px);font-weight:400;color:#fff}
+.ev-prj__badge{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(217,217,217,0.3);color:var(--pt);font-weight:500;font-family:var(--bd)}
 .ev-prj__tog{color:rgba(255,255,255,0.3)}
 .ev-prj__bd{padding:16px 0 4px 46px}
 .ev-prj__bd>p:first-child{font-size:14px;line-height:1.72;color:rgba(255,255,255,0.38);margin-bottom:14px;max-width:560px}
@@ -680,8 +881,17 @@ em{font-family:var(--sf);font-style:italic}
 .ev-prj__cap{font-size:10px;letter-spacing:0.06em;text-transform:uppercase;padding:5px 12px;border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);transition:all 0.3s}
 .ev-prj__cap:hover{border-color:var(--pt);color:var(--pt)}
 .ev-prj__tl{font-family:var(--sf);font-size:14px;font-style:italic;color:rgba(217,217,217,0.5)}
+.ev-prj__more{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;color:var(--pt);margin-top:16px;transition:gap 0.3s ${EASE};background:none;border:none;cursor:pointer;padding:0}
+.ev-prj__more:hover{gap:14px}
+.ev-prj__detail{margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06)}
+.ev-prj__detail-sec{margin-bottom:22px}
+.ev-prj__detail-sec h4{font-family:var(--sf);font-size:16px;font-weight:400;color:var(--pt);margin-bottom:10px}
+.ev-prj__detail-sec p{font-size:14px;line-height:1.72;color:rgba(255,255,255,0.38);max-width:600px}
+.ev-prj__detail-sec ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.ev-prj__detail-sec li{font-size:13px;color:rgba(255,255,255,0.4);padding-left:14px;position:relative}
+.ev-prj__detail-sec li::before{content:'';position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:var(--pt)}
 
-/* Process: subtle light on dark */
+/* Process */
 .ev-proc-sec{background:linear-gradient(to bottom,var(--mg),var(--dk),var(--bk));padding:140px 0}
 .ev-proc__wrap{max-width:1440px;margin:0 auto;padding:0 48px}
 .ev-proc__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:18px}
@@ -706,7 +916,6 @@ em{font-family:var(--sf);font-style:italic}
 .ev-bdr__h em{color:var(--pt)}
 .ev-bdr__p{font-size:15px;line-height:1.8;color:rgba(255,255,255,0.4);margin-bottom:14px}
 .ev-bdr__tag{display:inline-flex;align-items:center;gap:12px;margin-top:22px;padding:16px 26px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:rgba(255,255,255,0.5);font-size:13px;line-height:1.6;text-align:left}
-.ev-bdr__tag svg{color:var(--pt);flex-shrink:0}
 
 /* Why */
 .ev-why-sec{background:linear-gradient(to bottom,var(--mg),var(--bk));padding:140px 0}
@@ -722,7 +931,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-why__card h3{font-family:var(--sf);font-size:19px;color:#fff;margin-bottom:8px;font-weight:400}
 .ev-why__card p{font-size:13px;line-height:1.6;color:rgba(255,255,255,0.32)}
 
-/* Trust: flowing */
+/* Trust */
 .ev-trust-sec{background:linear-gradient(to bottom,var(--bk),#0D0D0D);padding:140px 0}
 .ev-trust__wrap{max-width:1440px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
 .ev-trust__h{font-family:var(--sf);font-size:clamp(38px,4.2vw,62px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:24px}
@@ -746,18 +955,18 @@ em{font-family:var(--sf);font-style:italic}
 .ev-stmt__h{font-family:var(--sf);font-size:clamp(30px,4.2vw,60px);font-weight:400;color:#fff;line-height:1.2;margin-bottom:40px}
 .ev-stmt__h em{color:var(--pt)}
 
-/* Contact: dark with subtle lighter form area */
+/* Contact */
 .ev-contact-sec{background:linear-gradient(to bottom,var(--bk),#0C0C0C);padding:140px 0}
 .ev-contact__wrap{max-width:1440px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:5fr 7fr;gap:80px;align-items:start}
 .ev-contact__h{font-family:var(--sf);font-size:clamp(36px,4vw,60px);font-weight:400;color:#fff;line-height:1.1;margin-bottom:16px}
 .ev-contact__h em{color:var(--pt)}
-.ev-contact__sub{font-size:16px;color:rgba(255,255,255,0.5);margin-bottom:6px;font-family:var(--sf);font-style:italic}
 .ev-contact__p{font-size:14px;line-height:1.72;color:rgba(255,255,255,0.35);margin-bottom:36px;max-width:380px}
 .ev-contact__info{display:flex;flex-direction:column;gap:20px}
 .ev-contact__bl{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:4px}
 .ev-contact__bv{font-family:var(--sf);font-size:17px;color:rgba(255,255,255,0.7);transition:opacity 0.3s}.ev-contact__bv:hover{opacity:0.5}
 .ev-form{display:flex;flex-direction:column;gap:22px;padding:36px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02)}
 .ev-form__r{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.ev-form__err{font-size:13px;color:#e55;line-height:1.5;padding:12px 16px;border:1px solid rgba(255,100,100,0.2);background:rgba(255,100,100,0.05)}
 .ev-f{display:flex;flex-direction:column;gap:7px}
 .ev-f label{font-size:10px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
 .opt{font-weight:400;opacity:0.5;letter-spacing:0;text-transform:none}
@@ -788,6 +997,25 @@ em{font-family:var(--sf);font-style:italic}
 .ev-footer__top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
 .ev-footer__line{height:1px;background:rgba(255,255,255,0.04);margin-bottom:20px}
 .ev-footer__bot{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.15)}
+.ev-footer__link{color:rgba(255,255,255,0.25);transition:color 0.3s}.ev-footer__link:hover{color:var(--pt)}
+
+/* Cookie Banner */
+.ev-cookie{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:rgba(17,17,17,0.97);backdrop-filter:blur(16px);padding:18px 48px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-top:1px solid rgba(255,255,255,0.06);animation:cookieUp 0.5s ${EASE}}
+@keyframes cookieUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.ev-cookie p{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.45);max-width:700px}
+.ev-cookie a{color:var(--pt);text-decoration:underline;text-underline-offset:2px}
+.ev-cookie__btn{font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;padding:10px 22px;background:#fff;color:var(--bk);white-space:nowrap;transition:all 0.3s ${EASE};flex-shrink:0}
+.ev-cookie__btn:hover{background:var(--pt);transform:translateY(-1px)}
+
+/* Privacy Policy */
+.ev-privacy{background:var(--bk);padding:180px 48px 120px;min-height:100vh}
+.ev-privacy__wrap{max-width:760px;margin:0 auto}
+.ev-privacy__h{font-family:var(--sf);font-size:clamp(40px,5vw,72px);font-weight:400;color:#fff;line-height:1.1;margin-bottom:12px}
+.ev-privacy__h em{color:var(--pt)}
+.ev-privacy__updated{font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:0.1em;margin-bottom:48px}
+.ev-privacy__content h2{font-family:var(--sf);font-size:22px;font-weight:400;color:#fff;margin-top:36px;margin-bottom:12px}
+.ev-privacy__content p{font-size:15px;line-height:1.82;color:rgba(255,255,255,0.45);margin-bottom:16px}
+.ev-privacy__content a{color:var(--pt);text-decoration:underline;text-underline-offset:2px}
 
 /* Insights */
 .ev-ins-hero{background:var(--bk);padding:200px 48px 90px;text-align:center}
@@ -880,13 +1108,14 @@ em{font-family:var(--sf);font-style:italic}
   .ev-ins-grid__in{grid-template-columns:1fr;padding:0 20px}
   .ev-art-hero{padding:150px 20px 70px}
   .ev-art-body__in{padding:0 20px}
+  .ev-cookie{flex-direction:column;padding:16px 20px;gap:14px;text-align:center}
+  .ev-privacy{padding:140px 20px 80px}
 }
 @media(max-width:480px){
   .ev-hero{min-height:100svh}
   .ev-hero__brand-name{font-size:48px}
   .ev-hero__ctas{flex-direction:column;align-items:center}
   .ev-btn{width:100%;justify-content:center}
-  .ev-ind-grid{grid-template-columns:1fr}
   .ev-radios{flex-direction:column}
 }
       `}</style>
@@ -895,7 +1124,9 @@ em{font-family:var(--sf);font-style:italic}
       {page==="home"&&<><Hero/><Marquee/><About/><Outcomes/><Industries/><Services/><Projects/><Process/><Borders/><Why/><Trust/><Statement/><Contact/></>}
       {page==="insights"&&<InsightsHome setPage={setPage} setSlug={setSlug}/>}
       {page==="article"&&<ArticlePage slug={slug} setPage={setPage} setSlug={setSlug}/>}
+      {page==="privacy"&&<PrivacyPage/>}
       <Footer setPage={setPage}/>
+      <CookieConsent setPage={setPage}/>
     </>
   );
 }
