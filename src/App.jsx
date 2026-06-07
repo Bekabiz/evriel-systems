@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Mail, ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Workflow, LineChart, Network, Compass, Lock, Eye, Shield, CheckCircle2, Languages, Target } from "lucide-react";
+import { Mail, ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Atom, Radar, Boxes, Waypoints, Lock, Eye, Shield, CheckCircle2, Target } from "lucide-react";
 
 const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 
@@ -148,8 +148,8 @@ function About() {
           <Reveal delay={180}>
             <p className="ev-about__lead">Every organization faces unique challenges.</p>
             <p className="ev-about__quote">Our role is to understand those challenges and design practical systems that improve how people work, collaborate, and make decisions.</p>
-            <p className="ev-about__p">Artificial Intelligence is transforming industries and creating new opportunities to operate more efficiently, make smarter decisions, and remain competitive. <strong>The challenge is not accessing AI — it is implementing it correctly.</strong></p>
-            <p className="ev-about__p">Evriel Systems helps organizations integrate AI, automation, and intelligent technologies into practical business systems that create measurable value — connecting people, processes, information, and technology into solutions built for efficiency, growth, and long-term success.</p>
+            <p className="ev-about__p">Artificial Intelligence is transforming industries and creating new opportunities to operate more efficiently, make smarter decisions, and remain competitive. <strong>The challenge is not accessing AI. It is implementing it correctly.</strong></p>
+            <p className="ev-about__p">Evriel Systems helps organizations integrate AI, automation, and intelligent technologies into practical business systems that create measurable value, connecting people, processes, information, and technology into solutions built for efficiency, growth, and long-term success.</p>
           </Reveal>
           <Stagger className="ev-about__stats" delay={90}>
             {ABOUT_FEATS.map((f,i)=>
@@ -190,7 +190,7 @@ function Outcomes() {
     <section className="ev-out-sec">
       <div className="ev-out__glow" ref={pRef}/>
       <div className="ev-out__wrap">
-        <Reveal><div className="ev-label ev-label--l">— <span>What We Help Improve</span></div></Reveal>
+        <Reveal><div className="ev-label ev-label--l"><span>What We Help Improve</span></div></Reveal>
         <div className="ev-out__grid">
           {OUTCOMES.map((o,i)=>(
             <Reveal key={i} delay={i*90} direction={i%2?"right":"left"}>
@@ -249,10 +249,10 @@ function Industries() {
 
 /* ═══ SERVICES ═══ */
 const SVCS = [
-  { n:"01",ic:<Workflow size={26}/>,t:"AI Automation",d:"Reduce repetitive work and improve operational efficiency through intelligent automation.",a:["Email automation","Workflow automation","Internal process automation","AI-powered assistants","Customer communication systems"] },
-  { n:"02",ic:<LineChart size={26}/>,t:"Business Intelligence",d:"Transform business information into actionable insights.",a:["Reporting dashboards","Operational analytics","Decision support systems","Data visualization","Performance monitoring"] },
-  { n:"03",ic:<Network size={26}/>,t:"Intelligent Systems",d:"Custom-built solutions designed around the unique needs of each organization.",a:["Industry-specific platforms","Knowledge management","AI-powered operational tools","Intelligent information systems"] },
-  { n:"04",ic:<Compass size={26}/>,t:"Digital Transformation",d:"Support organizations as they modernize operations and adopt emerging technologies.",a:["Process redesign","Digital strategy","Technology integration","Operational modernization"] },
+  { n:"01",ic:<Atom size={26}/>,t:"AI Automation",d:"Reduce repetitive work and improve operational efficiency through intelligent automation.",a:["Email automation","Workflow automation","Internal process automation","AI-powered assistants","Customer communication systems"] },
+  { n:"02",ic:<Radar size={26}/>,t:"Business Intelligence",d:"Transform business information into actionable insights.",a:["Reporting dashboards","Operational analytics","Decision support systems","Data visualization","Performance monitoring"] },
+  { n:"03",ic:<Boxes size={26}/>,t:"Intelligent Systems",d:"Custom-built solutions designed around the unique needs of each organization.",a:["Industry-specific platforms","Knowledge management","AI-powered operational tools","Intelligent information systems"] },
+  { n:"04",ic:<Waypoints size={26}/>,t:"Digital Transformation",d:"Support organizations as they modernize operations and adopt emerging technologies.",a:["Process redesign","Digital strategy","Technology integration","Operational modernization"] },
 ];
 
 function Services() {
@@ -344,14 +344,14 @@ function Borders() {
     <section className="ev-bdr-sec">
       <div className="ev-bdr__orb" ref={pRef}><LogoMark size={520} color="rgba(255,255,255,0.022)" spin/></div>
       <div className="ev-bdr__wrap">
-        <Reveal><div className="ev-label ev-label--l">— <span>Working Across Borders</span></div></Reveal>
+        <Reveal><div className="ev-label ev-label--l"><span>Working Across Borders</span></div></Reveal>
         <Reveal delay={100}><h2 className="ev-bdr__h">Built for a <em>Connected</em> World</h2></Reveal>
         <Reveal delay={180}>
           <p className="ev-bdr__p">Business challenges rarely stop at national boundaries. Evriel Systems supports organizations operating across different industries, markets, and regions.</p>
           <p className="ev-bdr__p">We understand the importance of clear communication, cultural awareness, and practical solutions that work in diverse environments.</p>
         </Reveal>
         <Reveal delay={260}>
-          <div className="ev-bdr__tag"><Languages size={16}/><span>Projects and communications can be conducted in multiple languages depending on client requirements.</span></div>
+          <div className="ev-bdr__tag"><span>Projects and communications can be conducted in multiple languages depending on client requirements.</span></div>
         </Reveal>
       </div>
     </section>
@@ -369,7 +369,7 @@ function Why() {
   return (
     <section className="ev-why-sec">
       <div className="ev-why__wrap">
-        <Reveal><div className="ev-label ev-label--l">— <span>Why Evriel Systems</span></div></Reveal>
+        <Reveal><div className="ev-label ev-label--l"><span>Why Evriel Systems</span></div></Reveal>
         <Reveal delay={100}><h2 className="ev-why__h">Clarity, Not <em>Complexity</em></h2></Reveal>
         <Reveal delay={180}>
           <p className="ev-why__lead">Technology should create clarity, not complexity. Our approach combines business understanding, intelligent technology, and practical implementation to help organizations improve operations, make better decisions, and adapt to a rapidly changing world.</p>
@@ -480,7 +480,7 @@ function Footer({setPage}) {
 
 /* ═══ ARTICLES ═══ */
 const ARTS = [
-  { slug:"ai-beyond-chatbots",tag:"AI Strategy",date:"Nov 2024",title:"AI Beyond Chatbots: Practical Applications for Real Businesses",excerpt:"AI creates value far beyond conversational interfaces — in operations, analytics, and decision-making.",body:["Artificial Intelligence is often associated with chatbots and virtual assistants. While these tools are valuable, they represent only a small part of what AI can achieve within modern organizations.","Today, businesses are using AI to automate workflows, improve operational efficiency, support decision-making, and create better customer experiences.","One of the most impactful applications of AI is workflow automation. Organizations spend countless hours performing repetitive administrative tasks such as data entry, reporting, document processing, and communication management. Intelligent systems can automate many of these processes, allowing employees to focus on higher-value activities.","AI also plays an increasingly important role in decision support. By analyzing large volumes of business information, intelligent systems can identify patterns, detect inefficiencies, and provide recommendations that help organizations make better decisions.","Customer service is another area where AI creates significant value. Beyond simple chatbots, AI can assist support teams by organizing information, suggesting responses, and providing instant access to organizational knowledge.","The most successful organizations do not adopt AI simply because it is popular. They identify specific business challenges and implement intelligent solutions that generate measurable results.","The future of AI in business is not about replacing people. It is about empowering people with better tools, better information, and better systems.","Organizations that embrace this approach will be better positioned to improve efficiency, increase competitiveness, and adapt to a rapidly changing business environment."]},
+  { slug:"ai-beyond-chatbots",tag:"AI Strategy",date:"Nov 2024",title:"AI Beyond Chatbots: Practical Applications for Real Businesses",excerpt:"AI creates value far beyond conversational interfaces, in operations, analytics, and decision-making.",body:["Artificial Intelligence is often associated with chatbots and virtual assistants. While these tools are valuable, they represent only a small part of what AI can achieve within modern organizations.","Today, businesses are using AI to automate workflows, improve operational efficiency, support decision-making, and create better customer experiences.","One of the most impactful applications of AI is workflow automation. Organizations spend countless hours performing repetitive administrative tasks such as data entry, reporting, document processing, and communication management. Intelligent systems can automate many of these processes, allowing employees to focus on higher-value activities.","AI also plays an increasingly important role in decision support. By analyzing large volumes of business information, intelligent systems can identify patterns, detect inefficiencies, and provide recommendations that help organizations make better decisions.","Customer service is another area where AI creates significant value. Beyond simple chatbots, AI can assist support teams by organizing information, suggesting responses, and providing instant access to organizational knowledge.","The most successful organizations do not adopt AI simply because it is popular. They identify specific business challenges and implement intelligent solutions that generate measurable results.","The future of AI in business is not about replacing people. It is about empowering people with better tools, better information, and better systems.","Organizations that embrace this approach will be better positioned to improve efficiency, increase competitiveness, and adapt to a rapidly changing business environment."]},
   { slug:"automation-failures",tag:"Transformation",date:"Oct 2024",title:"Why Most Automation Projects Fail",excerpt:"The gap between automation promise and results is wider than most organizations expect.",body:["Automation is one of the most powerful tools available to modern organizations. However, many automation initiatives fail to deliver the expected benefits.","The primary reason is simple: organizations often attempt to automate inefficient processes. Automation cannot fix a broken workflow. It can only accelerate it.","Before introducing technology, organizations must first understand how work is performed, identify bottlenecks, and redesign inefficient processes. Without this foundation, automation often creates additional complexity instead of solving existing problems.","Another common mistake is focusing on software rather than business objectives. Organizations sometimes purchase new tools without clearly defining the problem they are trying to solve.","Successful automation projects begin with questions such as: What process needs improvement? What outcomes are we trying to achieve? How will success be measured?","Employee adoption is equally important. Even the most advanced automation platform will struggle if users do not understand its purpose or if it disrupts established workflows.","The most successful automation initiatives are not technology projects. They are business improvement projects supported by technology.","When implemented correctly, automation can reduce administrative workloads, improve consistency, increase operational visibility, and enable organizations to scale more effectively.","The goal is not simply to automate tasks. The goal is to build smarter and more efficient systems."]},
   { slug:"ai-construction-engineering",tag:"Industry",date:"Sep 2024",title:"AI in Construction and Engineering",excerpt:"Intelligent systems transforming project visibility, communication, and operational control.",body:["Construction and engineering projects generate enormous amounts of information. Drawings, reports, site updates, documentation, schedules, budgets, and communication records are often distributed across multiple systems and stakeholders.","Managing this information efficiently has become one of the industry's greatest challenges.","AI and intelligent systems are creating new opportunities to improve project visibility, communication, and operational control.","AI can support engineering teams by organizing project documentation, monitoring progress, generating reports, and helping identify potential issues before they impact schedules or budgets.","Project managers can benefit from real-time access to information that would otherwise require hours of manual review.","Digital monitoring systems can improve coordination between office teams, engineers, contractors, and site personnel.","Intelligent systems can also support technical knowledge management by ensuring that important information remains accessible throughout the project lifecycle.","The future of construction technology is not simply about digitizing documents. It is about creating connected environments where information flows efficiently between people, processes, and systems.","Organizations that adopt intelligent technologies today will be better positioned to improve productivity, reduce risk, and deliver projects more effectively."]},
   { slug:"digital-transformation-people",tag:"Strategy",date:"Aug 2024",title:"Digital Transformation Is About People, Not Software",excerpt:"Why the most expensive transformation failures share the same root cause.",body:["When organizations begin digital transformation initiatives, many focus immediately on technology. New software is purchased. New platforms are implemented. New tools are introduced.","Yet despite significant investments, many transformation projects fail to achieve their intended outcomes.","The reason is simple: digital transformation is not primarily a technology challenge. It is a people and process challenge.","Technology can enable change, but it cannot create it on its own.","Successful organizations first understand how people work, how decisions are made, and how information moves throughout the business. Only then can technology be implemented effectively.","Employees need systems that support their work rather than create additional complexity. Managers need visibility into operations. Leadership teams need reliable information to guide strategic decisions.","When technology aligns with business processes and organizational objectives, transformation becomes sustainable.","The most successful organizations do not simply digitize existing activities. They redesign how work is performed and use technology to create better outcomes.","Digital transformation is ultimately about creating environments where people, processes, and technology work together effectively.","Organizations that understand this principle achieve greater efficiency, adaptability, and long-term growth."]},
@@ -575,7 +575,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-label span{opacity:0.7}
 .ev-label--l,.ev-label--l span{color:rgba(255,255,255,0.25)}
 
-/* MARQUEE — faster */
+/* MARQUEE - faster */
 .ev-mq{background:var(--mg);padding:13px 0;overflow:hidden;border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04)}
 .ev-mq__track{display:flex;gap:48px;white-space:nowrap;animation:mq 16s linear infinite}
 .ev-mq__i{display:inline-flex;align-items:center;gap:12px;font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
