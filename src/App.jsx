@@ -346,7 +346,7 @@ function Services() {
 
 /* PROJECTS */
 const PROJS = [
-  { t:"AI Business Integration",badge:null,d:"Supporting the transition from traditional operations to AI-enhanced business systems.",c:["AI-assisted communication","Email classification","Response generation","Digital transformation roadmap"],tl:"Designed and implemented an AI-powered communication system for a civil engineering firm, expanding into a broader digital transformation initiative.",
+  { t:"AI Business Integration",badge:null,d:"Supporting the transition from manual operations to AI-enhanced business systems.",c:["AI-assisted communication","Email classification","Response generation","Digital transformation roadmap"],tl:"Designed and implemented an AI-powered communication system for a civil engineering firm, expanding into a broader digital transformation initiative.",
     detail:{
       challenge:"A civil engineering firm with established operational processes wanted to modernize communication workflows, improve efficiency, and explore how AI could support future business growth.",
       solution:"Designed and implemented an AI-powered communication system capable of classifying emails, identifying urgency levels, and generating professional draft responses. The project expanded into a broader digital transformation initiative covering communication workflows, recruitment strategy, digital presence, and future business development opportunities.",
