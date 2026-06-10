@@ -43,19 +43,19 @@ function Stagger({ children, className = "", style = {}, delay = 110 }) {
 /* SEO meta tags + JSON-LD */
 function useSEO() {
   useEffect(() => {
-    document.title = "Evriel Systems · AI, Automation & Intelligent Systems";
+    document.title = "Evriel Systems - AI, Automation & Intelligent Systems";
     const metas = [
       { name: "description", content: "Evriel Systems helps organizations integrate AI, automation, and intelligent technologies into practical business systems. Based in Europe. Working across Europe." },
       { name: "keywords", content: "AI consulting, business automation, intelligent systems, digital transformation, AI integration, European projects" },
       { name: "author", content: "Evriel Systems" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "Evriel Systems · AI, Automation & Intelligent Systems" },
+      { property: "og:title", content: "Evriel Systems - AI, Automation & Intelligent Systems" },
       { property: "og:description", content: "Helping organizations integrate AI, automation, and intelligent technologies into practical business systems." },
       { property: "og:url", content: "https://evrielsystems.com" },
       { property: "og:image", content: "https://evrielsystems.com/og-image.jpg" },
       { property: "og:site_name", content: "Evriel Systems" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Evriel Systems · AI, Automation & Intelligent Systems" },
+      { name: "twitter:title", content: "Evriel Systems - AI, Automation & Intelligent Systems" },
       { name: "twitter:description", content: "Helping organizations integrate AI, automation, and intelligent technologies into practical business systems." },
       { name: "twitter:image", content: "https://evrielsystems.com/og-image.jpg" },
     ];
