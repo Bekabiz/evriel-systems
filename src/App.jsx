@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Mail, ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Atom, Radar, Boxes, Waypoints, Lock, Eye, Shield, CheckCircle2, Target } from "lucide-react";
+import { Mail, ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Atom, Radar, Boxes, Waypoints, Lock, Eye, Shield, CheckCircle2, Target, Building2, Factory, Hotel, ShoppingBag, Ship, Briefcase, TrendingUp, Landmark, HeartHandshake, GraduationCap, Rocket } from "lucide-react";
 
 const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 
@@ -27,6 +27,94 @@ function useParallax(speed = 0.05) {
     return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
   }, [speed]);
   return ref;
+}
+
+/* Interactive intelligence network — nodes drift slowly and react to the cursor */
+function NetworkCanvas() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const ctx = canvas.getContext("2d");
+    let raf, w, h, dpr;
+    const mouse = { x: -9999, y: -9999 };
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = canvas.offsetWidth; h = canvas.offsetHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    const N = w < 768 ? 34 : 64;
+    const nodes = Array.from({ length: N }, () => ({
+      x: Math.random() * w, y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.22, vy: (Math.random() - 0.5) * 0.22,
+      r: 1 + Math.random() * 1.6,
+    }));
+    const LINK = w < 768 ? 110 : 150;
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (const n of nodes) {
+        if (!reduced) {
+          n.x += n.vx; n.y += n.vy;
+          const dx = n.x - mouse.x, dy = n.y - mouse.y, d = Math.hypot(dx, dy);
+          if (d < 160 && d > 0.1) { n.x += (dx / d) * 0.6; n.y += (dy / d) * 0.6; }
+          if (n.x < 0 || n.x > w) n.vx *= -1;
+          if (n.y < 0 || n.y > h) n.vy *= -1;
+          n.x = Math.max(0, Math.min(w, n.x)); n.y = Math.max(0, Math.min(h, n.y));
+        }
+      }
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const d = Math.hypot(a.x - b.x, a.y - b.y);
+          if (d < LINK) {
+            const o = (1 - d / LINK) * 0.16;
+            ctx.strokeStyle = `rgba(124,192,255,${o})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+      }
+      for (const n of nodes) {
+        const md = Math.hypot(n.x - mouse.x, n.y - mouse.y);
+        const glow = md < 200 ? (1 - md / 200) * 0.5 : 0;
+        ctx.fillStyle = `rgba(124,192,255,${0.28 + glow})`;
+        ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx.fill();
+      }
+      if (!reduced) raf = requestAnimationFrame(draw);
+    };
+    const onMove = (e) => { const r = canvas.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; };
+    const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
+    window.addEventListener("resize", resize);
+    canvas.parentElement.parentElement.addEventListener("mousemove", onMove);
+    canvas.parentElement.parentElement.addEventListener("mouseleave", onLeave);
+    draw();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+      canvas.parentElement?.parentElement?.removeEventListener("mousemove", onMove);
+      canvas.parentElement?.parentElement?.removeEventListener("mouseleave", onLeave);
+    };
+  }, []);
+  return <canvas ref={ref} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />;
+}
+
+/* Scroll progress bar */
+function ScrollProgress() {
+  const ref = useRef(null);
+  useEffect(() => {
+    let raf;
+    const onScroll = () => { raf = requestAnimationFrame(() => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      if (ref.current) ref.current.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+    }); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
+  }, []);
+  return <div className="ev-progress"><div ref={ref} className="ev-progress__bar" /></div>;
 }
 
 function Reveal({ children, className = "", style = {}, delay = 0, direction = "up" }) {
@@ -127,20 +215,20 @@ function Nav({ page, setPage }) {
   const [open, setOpen] = useState(false);
   useEffect(() => { const h = () => setScrolled(window.scrollY > 50); window.addEventListener("scroll", h, { passive: true }); return () => window.removeEventListener("scroll", h); }, []);
   const go = (id) => { setOpen(false); if (page !== "home") { setPage("home"); setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 250); } else document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };
-  const c = scrolled ? "#0A0A0A" : "#fff";
+  const c = "#F4F7FC";
   return (
     <nav className={`ev-nav${scrolled?" ev-nav--s":""}`}>
       <div className="ev-nav__in">
         <div onClick={()=>{setPage("home");setOpen(false);window.scrollTo({top:0,behavior:"smooth"})}} style={{cursor:"pointer",display:"flex",alignItems:"center",gap:14}}>
           <LogoMark size={32} color={c}/>
-          <div><div style={{width:24,height:1.5,background:c,opacity:0.5,marginBottom:4}}/><div style={{fontFamily:"var(--sf)",fontSize:18,fontWeight:400,color:c,letterSpacing:"0.05em",lineHeight:1}}>Evriel</div><div style={{fontFamily:"var(--bd)",fontSize:8,color:scrolled?"#888":"rgba(255,255,255,0.4)",letterSpacing:"0.42em",textTransform:"uppercase",marginTop:3}}>Systems</div></div>
+          <div><div style={{width:24,height:1.5,background:c,opacity:0.5,marginBottom:4}}/><div style={{fontFamily:"var(--sf)",fontSize:18,fontWeight:400,color:c,letterSpacing:"0.05em",lineHeight:1}}>Evriel</div><div style={{fontFamily:"var(--bd)",fontSize:8,color:"rgba(175,200,232,0.55)",letterSpacing:"0.42em",textTransform:"uppercase",marginTop:3}}>Systems</div></div>
         </div>
         <div className="ev-nav__links">
           {[["About","about"],["Industries","industries"],["Services","services"],["Projects","projects"]].map(([l,id])=>
             <button key={id} onClick={()=>go(id)} className="ev-nav__link" style={{color:c}}>{l}</button>
           )}
           <button onClick={()=>{setPage("insights");setOpen(false);window.scrollTo({top:0,behavior:"smooth"})}} className="ev-nav__link" style={{color:c}}>Insights</button>
-          <button onClick={()=>go("contact")} className="ev-nav__cta" style={{background:c,color:scrolled?"#fff":"#0A0A0A"}}>Let's Talk</button>
+          <button onClick={()=>go("contact")} className="ev-nav__cta">Let's Talk</button>
         </div>
         <button className="ev-nav__burger" onClick={()=>setOpen(!open)} style={{color:c}}>{open?<X size={22}/>:<Menu size={22}/>}</button>
       </div>
@@ -157,7 +245,7 @@ function Hero() {
   const a = (d) => ({ opacity:on?1:0, transform:on?"translateY(0)":"translateY(70px)", transition:`opacity 1.3s ${EASE} ${d}ms, transform 1.3s ${EASE} ${d}ms` });
   return (
     <section className="ev-hero">
-      <div className="ev-hero__bg"><div className="ev-hero__grid" ref={gRef}/><div className="ev-hero__rad"/><div className="ev-hero__ghost"><LogoMark size={700} color="rgba(255,255,255,0.02)" spin/></div></div>
+      <div className="ev-hero__bg"><div className="ev-hero__grid" ref={gRef}/><div className="ev-hero__rad"/><div className="ev-hero__orb"/><div className="ev-hero__ghost"><LogoMark size={700} color="rgba(175,200,232,0.025)" spin/></div><NetworkCanvas/></div>
       <div className="ev-hero__body">
         <div style={{overflow:"hidden"}}><div className="ev-hero__eyebrow" style={a(150)}>AI &bull; Automation &bull; Intelligent Systems</div></div>
         <div style={{overflow:"hidden"}}>
@@ -201,6 +289,43 @@ const ABOUT_FEATS = [
   { t:"Future-Ready", s:"Growth", d:"Built to adapt, scale, and evolve with your organization." },
 ];
 
+/* People + Processes + Information + Technology converge into Intelligent Systems */
+function ConvergenceDiagram() {
+  const [ref, vis] = useReveal(0.25);
+  const SRC = ["People", "Processes", "Information", "Technology"];
+  return (
+    <div className="ev-conv" ref={ref}>
+      <svg viewBox="0 0 440 340" width="100%" style={{ overflow: "visible" }}>
+        {SRC.map((label, i) => {
+          const y = 56 + i * 76;
+          const path = `M138 ${y} C 215 ${y}, 235 170, 290 170`;
+          return (
+            <g key={label} style={{ opacity: vis ? 1 : 0, transition: `opacity 0.9s ${EASE} ${i * 160}ms` }}>
+              <path d={path} fill="none" stroke="rgba(124,192,255,0.22)" strokeWidth="1.2"
+                strokeDasharray="320" strokeDashoffset={vis ? 0 : 320}
+                style={{ transition: `stroke-dashoffset 1.6s ${EASE} ${300 + i * 160}ms` }} />
+              <circle r="2.6" fill="var(--ac)" opacity={vis ? 0.9 : 0}>
+                <animateMotion dur="3.2s" begin={`${i * 0.8}s`} repeatCount="indefinite" path={path} />
+              </circle>
+              <rect x="6" y={y - 19} width="132" height="38" rx="3" fill="rgba(124,192,255,0.04)" stroke="rgba(124,192,255,0.18)" strokeWidth="1" />
+              <text x="72" y={y + 4.5} textAnchor="middle" fill="rgba(244,247,252,0.78)"
+                style={{ font: "500 13px var(--bd)", letterSpacing: "0.04em" }}>{label}</text>
+            </g>
+          );
+        })}
+        <g style={{ opacity: vis ? 1 : 0, transform: vis ? "none" : "scale(0.85)", transformOrigin: "346px 170px", transition: `opacity 1s ${EASE} 900ms, transform 1s ${EASE} 900ms` }}>
+          <circle cx="346" cy="170" r="62" fill="rgba(77,159,255,0.05)" stroke="rgba(77,159,255,0.35)" strokeWidth="1.2" />
+          <circle cx="346" cy="170" r="74" fill="none" stroke="rgba(77,159,255,0.12)" strokeWidth="1" strokeDasharray="3 6">
+            <animateTransform attributeName="transform" type="rotate" from="0 346 170" to="360 346 170" dur="40s" repeatCount="indefinite" />
+          </circle>
+          <text x="346" y="164" textAnchor="middle" fill="#fff" style={{ font: "italic 400 17px var(--sf)" }}>Intelligent</text>
+          <text x="346" y="186" textAnchor="middle" fill="var(--ac2)" style={{ font: "italic 400 17px var(--sf)" }}>Systems</text>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
 function About() {
   const [ref, vis] = useReveal(0.08);
   return (
@@ -226,10 +351,7 @@ function About() {
         </div>
         <div className="ev-about__right">
           <Reveal direction="scale" delay={200}>
-            <div className="ev-about__logo-area">
-              <div className="ev-about__ring ev-about__ring--1"/><div className="ev-about__ring ev-about__ring--2"/><div className="ev-about__ring ev-about__ring--3"/>
-              <LogoMark size={180} color="#fff"/>
-            </div>
+            <ConvergenceDiagram/>
           </Reveal>
           <Stagger className="ev-challenges" delay={90}>
             {["Fragmented Information","Repetitive Manual Work","Disconnected Systems","Inefficient Communication","Slow Decision-Making"].map((c,i)=>
@@ -277,17 +399,17 @@ function Outcomes() {
 
 /* INDUSTRIES */
 const INDS = [
-  { name:"Construction & Engineering", desc:"Digital project monitoring, documentation systems, and reporting automation built for complex, multi-stakeholder environments." },
-  { name:"Manufacturing & Industrial", desc:"Workflow optimization, operational analytics, and predictive monitoring that improve consistency at scale." },
-  { name:"Tourism & Hospitality", desc:"Guest management, operational automation, and business analytics that elevate the experience and the bottom line." },
-  { name:"Retail & Commerce", desc:"Customer intelligence, inventory visibility, and process automation across the full commercial journey." },
-  { name:"Import & Export", desc:"Trade documentation, workflow automation, and operational coordination across borders and partners." },
-  { name:"Professional Services", desc:"Knowledge systems, workflow optimization, and AI-assisted operations that free experts to focus on expertise." },
-  { name:"Marketing & SEO", desc:"Content intelligence, domain qualification, and opportunity discovery powered by AI-driven analysis." },
-  { name:"European Projects", desc:"Project management support, reporting, and knowledge management for complex funding environments." },
-  { name:"NGOs & Associations", desc:"Operational efficiency, communication systems, and data management aligned with mission-driven work." },
-  { name:"Education & Training", desc:"Knowledge systems, digital learning support, and administrative automation that support people first." },
-  { name:"Startups & SMEs", desc:"Scalable systems designed to support growth and operational maturity at every stage." },
+  { name:"Construction & Engineering", icon:Building2, desc:"Digital project monitoring, documentation systems, and reporting automation built for complex, multi-stakeholder environments." },
+  { name:"Manufacturing & Industrial", icon:Factory, desc:"Workflow optimization, operational analytics, and predictive monitoring that improve consistency at scale." },
+  { name:"Tourism & Hospitality", icon:Hotel, desc:"Guest management, operational automation, and business analytics that elevate the experience and the bottom line." },
+  { name:"Retail & Commerce", icon:ShoppingBag, desc:"Customer intelligence, inventory visibility, and process automation across the full commercial journey." },
+  { name:"Import & Export", icon:Ship, desc:"Trade documentation, workflow automation, and operational coordination across borders and partners." },
+  { name:"Professional Services", icon:Briefcase, desc:"Knowledge systems, workflow optimization, and AI-assisted operations that free experts to focus on expertise." },
+  { name:"Marketing & SEO", icon:TrendingUp, desc:"Content intelligence, domain qualification, and opportunity discovery powered by AI-driven analysis." },
+  { name:"European Projects", icon:Landmark, desc:"Project management support, reporting, and knowledge management for complex funding environments." },
+  { name:"NGOs & Associations", icon:HeartHandshake, desc:"Operational efficiency, communication systems, and data management aligned with mission-driven work." },
+  { name:"Education & Training", icon:GraduationCap, desc:"Knowledge systems, digital learning support, and administrative automation that support people first." },
+  { name:"Startups & SMEs", icon:Rocket, desc:"Scalable systems designed to support growth and operational maturity at every stage." },
 ];
 
 function Industries() {
@@ -301,7 +423,7 @@ function Industries() {
           {INDS.map((d,i)=>(
             <Reveal key={i} delay={i*50}>
               <div className={`ev-ind${hov===i?" ev-ind--on":""}`} onMouseEnter={()=>setHov(i)} onMouseLeave={()=>setHov(null)}>
-                <span className="ev-ind__ix">{String(i+1).padStart(2,"0")}</span>
+                <span className="ev-ind__ix"><d.icon size={20} className="ev-ind__ic" aria-hidden="true"/>{String(i+1).padStart(2,"0")}</span>
                 <h3 className="ev-ind__nm">{d.name}</h3>
                 <p className="ev-ind__ds">{d.desc}</p>
                 <ArrowUpRight size={22} className="ev-ind__ar"/>
@@ -316,11 +438,31 @@ function Industries() {
 
 /* SERVICES */
 const SVCS = [
-  { n:"01",t:"AI Automation",d:"Reduce repetitive work and improve operational efficiency through intelligent automation.",a:["Email automation","Workflow automation","Internal process automation","AI-powered assistants","Customer communication systems"] },
-  { n:"02",t:"Business Intelligence",d:"Transform business information into actionable insights.",a:["Reporting dashboards","Operational analytics","Decision support systems","Data visualization","Performance monitoring"] },
-  { n:"03",t:"Intelligent Systems",d:"Custom-built solutions designed around the unique needs of each organization.",a:["Industry-specific platforms","Knowledge management","AI-powered operational tools","Intelligent information systems"] },
-  { n:"04",t:"Digital Transformation",d:"Support organizations as they modernize operations and adopt emerging technologies.",a:["Process redesign","Digital strategy","Technology integration","Operational modernization"] },
+  { n:"01",t:"AI Automation",d:"Reduce repetitive work and improve operational efficiency through intelligent automation.",a:["Email automation","Workflow automation","Internal process automation","AI-powered assistants","Customer communication systems"],flow:["Email","AI Analysis","Automation","Action"] },
+  { n:"02",t:"Business Intelligence",d:"Transform business information into actionable insights.",a:["Reporting dashboards","Operational analytics","Decision support systems","Data visualization","Performance monitoring"],flow:["Data","Analysis","Insight","Decision"] },
+  { n:"03",t:"Intelligent Systems",d:"Custom-built solutions designed around the unique needs of each organization.",a:["Industry-specific platforms","Knowledge management","AI-powered operational tools","Intelligent information systems"],flow:["Needs","Design","Build","Evolve"] },
+  { n:"04",t:"Digital Transformation",d:"Support organizations as they modernize operations and adopt emerging technologies.",a:["Process redesign","Digital strategy","Technology integration","Operational modernization"],flow:["Assess","Strategy","Integrate","Modernize"] },
 ];
+
+/* Animated workflow diagram — shows how value flows through each service */
+function FlowDiagram({ steps }) {
+  const [ref, vis] = useReveal(0.4);
+  return (
+    <div className="ev-flow" ref={ref}>
+      {steps.map((s, i) => (
+        <div key={s} className="ev-flow__seg" style={{ opacity: vis ? 1 : 0, transform: vis ? "none" : "translateX(-14px)", transition: `opacity 0.7s ${EASE} ${i * 180}ms, transform 0.7s ${EASE} ${i * 180}ms` }}>
+          <span className={`ev-flow__node${i === steps.length - 1 ? " ev-flow__node--end" : ""}`}>{s}</span>
+          {i < steps.length - 1 && (
+            <svg className="ev-flow__link" width="34" height="10" viewBox="0 0 34 10">
+              <line x1="0" y1="5" x2="26" y2="5" stroke="rgba(124,192,255,0.35)" strokeWidth="1.2" strokeDasharray="4 4" style={vis ? { animation: "flowDash 1.4s linear infinite" } : {}} />
+              <path d="M26 1.5 L32 5 L26 8.5" fill="none" stroke="rgba(124,192,255,0.5)" strokeWidth="1.2" />
+            </svg>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function Services() {
   return (
@@ -333,7 +475,7 @@ function Services() {
           <Reveal key={i} delay={i*90}>
             <div className="ev-svc">
               <div className="ev-svc__l"><span className="ev-svc__gn">{s.n}</span></div>
-              <div className="ev-svc__m"><h3 className="ev-svc__t">{s.t}</h3><p className="ev-svc__d">{s.d}</p></div>
+              <div className="ev-svc__m"><h3 className="ev-svc__t">{s.t}</h3><p className="ev-svc__d">{s.d}</p><FlowDiagram steps={s.flow}/></div>
               <div className="ev-svc__r"><div className="ev-svc__al">Applications</div><ul>{s.a.map((x,j)=><li key={j}>{x}</li>)}</ul></div>
               <div className="ev-svc__bar"/>
             </div>
@@ -478,7 +620,7 @@ function Borders() {
   const pRef = useParallax(0.03);
   return (
     <section className="ev-bdr-sec">
-      <div className="ev-bdr__orb" ref={pRef}><LogoMark size={520} color="rgba(255,255,255,0.022)" spin/></div>
+      <div className="ev-bdr__orb" ref={pRef}><LogoMark size={520} color="rgba(124,192,255,0.035)" spin/></div>
       <div className="ev-bdr__wrap">
         <Reveal><div className="ev-label ev-label--l"><span>Working Across Borders</span></div></Reveal>
         <Reveal delay={100}><h2 className="ev-bdr__h">Built for a <em>Connected</em> World</h2></Reveal>
@@ -547,7 +689,7 @@ function Statement() {
   const p = useParallax(0.02);
   return (
     <section className="ev-stmt">
-      <div className="ev-stmt__bg" ref={p}><LogoMark size={420} color="rgba(255,255,255,0.025)"/></div>
+      <div className="ev-stmt__bg" ref={p}><LogoMark size={420} color="rgba(124,192,255,0.04)"/></div>
       <div className="ev-stmt__body">
         <Reveal><h2 className="ev-stmt__h">The future belongs to<br/>organizations that can adapt,<br/>innovate, and act <em>intelligently.</em></h2></Reveal>
         <Reveal delay={180}><a href="#contact" className="ev-btn ev-btn--w ev-btn--lg" onClick={e=>{e.preventDefault();document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}}>Start a Conversation <ArrowRight size={18}/></a></Reveal>
@@ -717,27 +859,36 @@ export default function EvrielSystems() {
     <>
       <style>{`
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
-:root{--bk:#0A0A0A;--wh:#FFFFFF;--pt:#D9D9D9;--dk:#111111;--mg:#0E0E0E;--sf:'DM Serif Display',Georgia,serif;--bd:'Inter',-apple-system,sans-serif}
+:root{--bk:#070B15;--wh:#F4F7FC;--pt:#AFC8E8;--ac:#4D9FFF;--ac2:#7CC0FF;--acg:rgba(77,159,255,0.14);--dk:#0B1220;--mg:#0A0F1C;--sf:'DM Serif Display',Georgia,serif;--bd:'Inter',-apple-system,sans-serif}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:var(--bd);background:var(--bk);color:var(--bk);-webkit-font-smoothing:antialiased}
+::selection{background:rgba(77,159,255,0.3);color:#fff}
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:var(--bk)}
+::-webkit-scrollbar-thumb{background:#1B2940;border-radius:5px;border:2px solid var(--bk)}
+::-webkit-scrollbar-thumb:hover{background:#2A3D5E}
 button,input,textarea,select{font-family:inherit;background:none;border:none;cursor:pointer}
 a{text-decoration:none;color:inherit}
 em{font-family:var(--sf);font-style:italic}
 .dbr{display:block}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}html{scroll-behavior:auto}}
 @keyframes logospin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes cpulse{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes ringP{0%,100%{transform:scale(1);opacity:0.5}50%{transform:scale(1.06);opacity:0.15}}
 @keyframes mq{from{transform:translateX(0)}to{transform:translateX(-25%)}}
 @keyframes scBob{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(10px);opacity:0.3}}
+@keyframes flowDash{to{stroke-dashoffset:-24}}
+@keyframes acPulse{0%,100%{box-shadow:0 0 0 0 rgba(77,159,255,0.35)}50%{box-shadow:0 0 0 7px rgba(77,159,255,0)}}
+@keyframes orbDrift{0%,100%{transform:translate(0,0)}33%{transform:translate(30px,-40px)}66%{transform:translate(-25px,30px)}}
 
 /* NAV */
 .ev-nav{position:fixed;top:0;left:0;right:0;z-index:999;padding:18px 0;transition:all 0.5s ${EASE}}
-.ev-nav--s{background:rgba(255,255,255,0.96);backdrop-filter:blur(24px);padding:10px 0;box-shadow:0 1px 0 rgba(0,0,0,0.06)}
+.ev-nav--s{background:rgba(8,13,24,0.82);backdrop-filter:blur(24px);padding:10px 0;box-shadow:0 1px 0 rgba(124,192,255,0.08)}
 .ev-nav__in{max-width:1440px;margin:0 auto;padding:0 48px;display:flex;align-items:center;justify-content:space-between}
 .ev-nav__links{display:flex;align-items:center;gap:30px}
 .ev-nav__link{font-size:12px;font-weight:400;letter-spacing:0.07em;text-transform:uppercase;transition:opacity 0.3s}.ev-nav__link:hover{opacity:0.5}
-.ev-nav__cta{font-size:11px;font-weight:500;letter-spacing:0.09em;text-transform:uppercase;padding:10px 22px;transition:all 0.3s}.ev-nav__cta:hover{opacity:0.8}
+.ev-nav__cta{font-size:11px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;padding:10px 22px;background:var(--ac);color:#04101F;border-radius:2px;transition:all 0.3s ${EASE}}.ev-nav__cta:hover{background:var(--ac2);box-shadow:0 0 24px rgba(77,159,255,0.35)}
 .ev-nav__burger{display:none}
 .ev-mobile-menu{position:fixed;inset:0;background:var(--bk);z-index:998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding-top:60px}
 .ev-mob-link{font-family:var(--sf);font-size:32px;color:#fff;transition:opacity 0.3s}.ev-mob-link:hover{opacity:0.5}
@@ -745,14 +896,15 @@ em{font-family:var(--sf);font-style:italic}
 /* HERO */
 .ev-hero{position:relative;height:100vh;min-height:680px;display:flex;align-items:center;justify-content:center;background:var(--bk);overflow:hidden}
 .ev-hero__bg{position:absolute;inset:0;pointer-events:none}
-.ev-hero__grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:80px 80px}
-.ev-hero__rad{position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% 50%,rgba(255,255,255,0.035),transparent)}
+.ev-hero__grid{position:absolute;inset:0;background-image:linear-gradient(rgba(124,192,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(124,192,255,0.03) 1px,transparent 1px);background-size:80px 80px}
+.ev-hero__rad{position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% 50%,rgba(77,159,255,0.07),transparent)}
+.ev-hero__orb{position:absolute;top:12%;right:8%;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(77,159,255,0.08),transparent 65%);animation:orbDrift 18s ease-in-out infinite;pointer-events:none}
 .ev-hero__ghost{position:absolute;top:50%;left:50%;animation:logospin 90s linear infinite}
 .ev-hero__body{position:relative;z-index:2;text-align:center;padding:0 24px;max-width:1100px}
-.ev-hero__eyebrow{font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:36px}
+.ev-hero__eyebrow{font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--ac2);opacity:0.75;margin-bottom:36px}
 .ev-hero__brand{display:flex;align-items:center;gap:24px;justify-content:center;margin-bottom:28px}
 .ev-hero__brand-text{text-align:left}
-.ev-hero__brand-line{width:48px;height:2px;background:rgba(255,255,255,0.5);margin-bottom:8px}
+.ev-hero__brand-line{width:48px;height:2px;background:linear-gradient(90deg,var(--ac),transparent);margin-bottom:8px}
 .ev-hero__brand-name{font-family:var(--sf);font-size:clamp(52px,8vw,100px);font-weight:400;color:#fff;letter-spacing:0.03em;line-height:0.9}
 .ev-hero__brand-sub{font-family:var(--bd);font-size:clamp(12px,1.8vw,20px);font-weight:300;letter-spacing:0.55em;color:var(--pt);display:block;margin-top:6px}
 .ev-hero__h2{font-family:var(--sf);font-size:clamp(20px,2.6vw,34px);font-weight:400;color:rgba(255,255,255,0.7);line-height:1.35;letter-spacing:0.01em}
@@ -761,26 +913,30 @@ em{font-family:var(--sf);font-style:italic}
 .ev-hero__ctas{display:flex;gap:14px;justify-content:center;margin-top:40px;flex-wrap:wrap}
 .ev-hero__scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,0.25);font-size:10px;letter-spacing:0.22em;text-transform:uppercase}
 .ev-scr-pill{width:20px;height:30px;border:1px solid rgba(255,255,255,0.15);border-radius:10px;display:flex;justify-content:center;padding-top:6px}
-.ev-scr-dot{width:3px;height:7px;background:rgba(255,255,255,0.4);border-radius:2px;animation:scBob 2s ease-in-out infinite}
+.ev-scr-dot{width:3px;height:7px;background:var(--ac);border-radius:2px;animation:scBob 2s ease-in-out infinite}
 
 /* BUTTONS */
 .ev-btn{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:500;letter-spacing:0.09em;text-transform:uppercase;padding:15px 30px;transition:all 0.4s ${EASE};border:1px solid transparent;cursor:pointer}
-.ev-btn--w{background:#fff;color:var(--bk)}.ev-btn--w:hover{background:var(--pt);transform:translateY(-2px)}
-.ev-btn--gh{border-color:rgba(255,255,255,0.18);color:#fff}.ev-btn--gh:hover{border-color:rgba(255,255,255,0.5)}
-.ev-btn--dk{background:var(--bk);color:#fff}.ev-btn--dk:hover{background:#1a1a1a;transform:translateY(-2px)}
+.ev-btn--w{background:var(--ac);color:#04101F;border-radius:2px}.ev-btn--w:hover{background:var(--ac2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(77,159,255,0.35)}
+.ev-btn--gh{border-color:rgba(124,192,255,0.25);color:#fff;border-radius:2px}.ev-btn--gh:hover{border-color:var(--ac);box-shadow:inset 0 0 24px rgba(77,159,255,0.08)}
+.ev-btn--dk{background:var(--ac);color:#04101F;border-radius:2px}.ev-btn--dk:hover{background:var(--ac2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(77,159,255,0.35)}
 .ev-btn--lg{padding:18px 42px;font-size:13px}
 .ev-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
+/* PROGRESS */
+.ev-progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:1001;background:transparent;pointer-events:none}
+.ev-progress__bar{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));transform-origin:left;transform:scaleX(0)}
+
 /* LABELS */
-.ev-label{font-size:12px;font-weight:400;letter-spacing:0.18em;text-transform:uppercase;color:rgba(0,0,0,0.3);margin-bottom:20px;display:flex;gap:10px}
-.ev-label span{opacity:0.7}
-.ev-label--l,.ev-label--l span{color:rgba(255,255,255,0.25)}
+.ev-label{font-size:12px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--ac);margin-bottom:20px;display:flex;gap:10px}
+.ev-label span{color:rgba(244,247,252,0.45)}
+.ev-label--l{color:var(--ac)}.ev-label--l span{color:rgba(244,247,252,0.45)}
 
 /* MARQUEE */
 .ev-mq{background:var(--mg);padding:13px 0;overflow:hidden;border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04)}
 .ev-mq__track{display:flex;gap:48px;white-space:nowrap;animation:mq 16s linear infinite}
 .ev-mq__i{display:inline-flex;align-items:center;gap:12px;font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
-.ev-mq__dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.25)}
+.ev-mq__dot{width:4px;height:4px;border-radius:50%;background:var(--ac);opacity:0.6}
 
 /* About */
 .ev-about{background:var(--bk);position:relative;overflow:hidden}
@@ -799,15 +955,11 @@ em{font-family:var(--sf);font-style:italic}
 .ev-afeat__d{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.35)}
 .ev-about__right{padding:120px 48px 100px 48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;position:relative}
 .ev-about__right::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(255,255,255,0.03),transparent 70%);pointer-events:none}
-.ev-about__logo-area{position:relative;width:300px;height:300px;display:flex;align-items:center;justify-content:center}
-.ev-about__ring{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,0.06)}
-.ev-about__ring--1{width:240px;height:240px;animation:ringP 3.5s ease-in-out infinite}
-.ev-about__ring--2{width:290px;height:290px;animation:ringP 3.5s ease-in-out infinite 0.6s}
-.ev-about__ring--3{width:300px;height:300px;border-style:dashed;border-color:rgba(255,255,255,0.03);animation:ringP 3.5s ease-in-out infinite 1.2s}
+.ev-conv{width:100%;max-width:460px}
 .ev-challenges{width:100%;display:flex;flex-direction:column;gap:8px}
 .ev-ch{display:flex;align-items:center;gap:12px;padding:11px 16px;border:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.55);font-size:13px;transition:all 0.35s ${EASE}}
 .ev-ch:hover{border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.03);color:#fff}
-.ev-ch svg{color:var(--pt);flex-shrink:0}
+.ev-ch svg{color:var(--ac);flex-shrink:0}
 
 /* Industries */
 .ev-ind-sec{background:linear-gradient(to bottom,var(--dk),var(--bk));padding:120px 0 140px;position:relative}
@@ -819,7 +971,9 @@ em{font-family:var(--sf);font-style:italic}
 .ev-ind{display:grid;grid-template-columns:60px 1fr 2fr 40px;gap:32px;align-items:center;padding:34px 8px;border-top:1px solid rgba(255,255,255,0.06);transition:all 0.45s ${EASE};position:relative;cursor:default}
 .ev-ind:last-child{border-bottom:1px solid rgba(255,255,255,0.06)}
 .ev-ind--on,.ev-ind:hover{padding-left:24px;background:rgba(255,255,255,0.025)}
-.ev-ind__ix{font-family:var(--sf);font-size:15px;color:rgba(255,255,255,0.18);letter-spacing:0.05em}
+.ev-ind__ix{font-family:var(--sf);font-size:15px;color:rgba(255,255,255,0.18);letter-spacing:0.05em;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.ev-ind__ic{color:rgba(124,192,255,0.3);transition:all 0.45s ${EASE}}
+.ev-ind--on .ev-ind__ic,.ev-ind:hover .ev-ind__ic{color:var(--ac);transform:translateY(-2px) scale(1.12)}
 .ev-ind__nm{font-family:var(--sf);font-size:clamp(22px,2.6vw,32px);font-weight:400;color:#fff;line-height:1.2;transition:color 0.4s ${EASE}}
 .ev-ind--on .ev-ind__nm,.ev-ind:hover .ev-ind__nm{color:var(--pt)}
 .ev-ind__ds{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.32);max-width:480px}
@@ -828,7 +982,7 @@ em{font-family:var(--sf);font-style:italic}
 
 /* Outcomes */
 .ev-out-sec{background:linear-gradient(to bottom,var(--bk),var(--dk));padding:120px 0;position:relative;overflow:hidden}
-.ev-out__glow{position:absolute;top:10%;right:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(217,217,217,0.04),transparent 65%);pointer-events:none}
+.ev-out__glow{position:absolute;top:10%;right:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(77,159,255,0.06),transparent 65%);pointer-events:none;animation:orbDrift 22s ease-in-out infinite}
 .ev-out__wrap{max-width:1100px;margin:0 auto;padding:0 48px;position:relative;z-index:2}
 .ev-out__grid{display:flex;flex-direction:column;margin-top:36px}
 .ev-out{display:grid;grid-template-columns:60px 1fr 1.4fr;gap:32px;align-items:center;padding:30px 8px;border-top:1px solid rgba(255,255,255,0.06);position:relative;transition:padding-left 0.4s ${EASE}}
@@ -837,11 +991,11 @@ em{font-family:var(--sf);font-style:italic}
 .ev-out__ix{font-family:var(--sf);font-size:14px;color:rgba(255,255,255,0.18)}
 .ev-out__t{font-family:var(--sf);font-size:clamp(20px,2.4vw,28px);font-weight:400;color:#fff}
 .ev-out__d{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.34)}
-.ev-out__ln{position:absolute;left:0;bottom:-1px;width:0;height:1px;background:var(--pt);transition:width 0.6s ${EASE}}
+.ev-out__ln{position:absolute;left:0;bottom:-1px;width:0;height:1px;background:linear-gradient(90deg,var(--ac),rgba(124,192,255,0.15));transition:width 0.6s ${EASE}}
 .ev-out:hover .ev-out__ln{width:100%}
 
 /* Services */
-.ev-svc-sec{background:linear-gradient(to bottom,var(--bk),#131313,var(--bk));padding:140px 0;position:relative}
+.ev-svc-sec{background:linear-gradient(to bottom,var(--bk),#0E1626,var(--bk));padding:140px 0;position:relative}
 .ev-svc__wrap{max-width:1440px;margin:0 auto;padding:0 48px}
 .ev-svc__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:18px}
 .ev-svc__h em{color:var(--pt)}
@@ -849,13 +1003,18 @@ em{font-family:var(--sf);font-style:italic}
 .ev-svc{display:grid;grid-template-columns:90px 1fr 1fr;gap:36px;padding:40px 0;border-top:1px solid rgba(255,255,255,0.06);position:relative;transition:padding-left 0.4s ${EASE};align-items:start}
 .ev-svc:last-child{border-bottom:1px solid rgba(255,255,255,0.06)}
 .ev-svc:hover{padding-left:14px}
-.ev-svc__bar{position:absolute;left:0;top:0;width:2px;height:0;background:var(--pt);transition:height 0.6s ${EASE}}
+.ev-svc__bar{position:absolute;left:0;top:0;width:2px;height:0;background:var(--ac);box-shadow:0 0 12px rgba(77,159,255,0.4);transition:height 0.6s ${EASE}}
 .ev-svc:hover .ev-svc__bar{height:100%}
 .ev-svc__l{display:flex;flex-direction:column;gap:12px;padding-top:4px}
 .ev-svc__gn{font-family:var(--sf);font-size:44px;color:rgba(255,255,255,0.04);line-height:1}
 .ev-svc__l svg{color:var(--pt)}
 .ev-svc__t{font-family:var(--sf);font-size:26px;font-weight:400;color:#fff;margin-bottom:10px}
 .ev-svc__d{font-size:14px;line-height:1.72;color:rgba(255,255,255,0.4)}
+.ev-flow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:18px}
+.ev-flow__seg{display:flex;align-items:center;gap:6px}
+.ev-flow__node{font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:6px 12px;border:1px solid rgba(124,192,255,0.2);border-radius:2px;color:rgba(244,247,252,0.6);background:rgba(124,192,255,0.03);white-space:nowrap}
+.ev-flow__node--end{border-color:var(--ac);color:var(--ac2);background:rgba(77,159,255,0.08)}
+.ev-flow__link{flex-shrink:0}
 .ev-svc__al{font-size:10px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:12px}
 .ev-svc__r ul{list-style:none;display:flex;flex-direction:column;gap:7px}
 .ev-svc__r li{font-size:13px;color:rgba(255,255,255,0.4);padding-left:14px;position:relative}
@@ -873,13 +1032,13 @@ em{font-family:var(--sf);font-style:italic}
 .ev-prj__hl{display:flex;align-items:center;gap:18px}
 .ev-prj__ix{font-family:var(--sf);font-size:15px;color:rgba(255,255,255,0.15)}
 .ev-prj__t{font-family:var(--sf);font-size:clamp(18px,2vw,24px);font-weight:400;color:#fff}
-.ev-prj__badge{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(217,217,217,0.3);color:var(--pt);font-weight:500;font-family:var(--bd)}
+.ev-prj__badge{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(77,159,255,0.4);color:var(--ac2);font-weight:500;font-family:var(--bd);background:rgba(77,159,255,0.06)}
 .ev-prj__tog{color:rgba(255,255,255,0.3)}
 .ev-prj__bd{padding:16px 0 4px 46px}
 .ev-prj__bd>p:first-child{font-size:14px;line-height:1.72;color:rgba(255,255,255,0.38);margin-bottom:14px;max-width:560px}
 .ev-prj__caps{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
 .ev-prj__cap{font-size:10px;letter-spacing:0.06em;text-transform:uppercase;padding:5px 12px;border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);transition:all 0.3s}
-.ev-prj__cap:hover{border-color:var(--pt);color:var(--pt)}
+.ev-prj__cap:hover{border-color:rgba(77,159,255,0.5);color:var(--ac2)}
 .ev-prj__tl{font-family:var(--sf);font-size:14px;font-style:italic;color:rgba(217,217,217,0.5)}
 .ev-prj__more{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;color:var(--pt);margin-top:16px;transition:gap 0.3s ${EASE};background:none;border:none;cursor:pointer;padding:0}
 .ev-prj__more:hover{gap:14px}
@@ -889,7 +1048,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-prj__detail-sec p{font-size:14px;line-height:1.72;color:rgba(255,255,255,0.38);max-width:600px}
 .ev-prj__detail-sec ul{list-style:none;display:flex;flex-direction:column;gap:6px}
 .ev-prj__detail-sec li{font-size:13px;color:rgba(255,255,255,0.4);padding-left:14px;position:relative}
-.ev-prj__detail-sec li::before{content:'';position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:var(--pt)}
+.ev-prj__detail-sec li::before{content:'';position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:var(--ac)}
 
 /* Process */
 .ev-proc-sec{background:linear-gradient(to bottom,var(--mg),var(--dk),var(--bk));padding:140px 0}
@@ -898,12 +1057,14 @@ em{font-family:var(--sf);font-style:italic}
 .ev-proc__h em{color:var(--pt)}
 .ev-proc__intro{font-size:15px;line-height:1.7;color:rgba(255,255,255,0.35);max-width:560px;margin-bottom:56px}
 .ev-proc__grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative}
-.ev-proc__grid::before{content:'';position:absolute;top:20px;left:0;right:0;height:1px;background:rgba(255,255,255,0.06)}
+.ev-proc__grid::before{content:'';position:absolute;top:20px;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--ac),rgba(124,192,255,0.25) 55%,rgba(124,192,255,0.06))}
+.ev-proc__grid::after{content:'';position:absolute;top:18.5px;left:0;width:42px;height:4px;border-radius:2px;background:var(--ac);filter:blur(1px);animation:procRun 7s ${EASE} infinite}
+@keyframes procRun{0%{left:0;opacity:0}8%{opacity:1}92%{opacity:1}100%{left:calc(100% - 42px);opacity:0}}
 .ev-proc__card{padding:0 24px 36px;border-right:1px solid rgba(255,255,255,0.04);transition:background 0.4s}
 .ev-proc__card:last-child{border-right:none}
 .ev-proc__card:hover{background:rgba(255,255,255,0.015)}
-.ev-proc__num{font-family:var(--sf);font-size:12px;color:rgba(255,255,255,0.15);margin-bottom:24px;padding-top:10px;letter-spacing:0.1em}
-.ev-proc__dot{width:8px;height:8px;border-radius:50%;background:var(--pt);margin-bottom:20px;transition:transform 0.4s}
+.ev-proc__num{font-family:var(--sf);font-size:12px;color:rgba(124,192,255,0.4);margin-bottom:24px;padding-top:10px;letter-spacing:0.1em}
+.ev-proc__dot{width:8px;height:8px;border-radius:50%;background:var(--ac);margin-bottom:20px;transition:transform 0.4s;animation:acPulse 3s ease-in-out infinite}
 .ev-proc__card:hover .ev-proc__dot{transform:scale(1.5)}
 .ev-proc__ct{font-family:var(--sf);font-size:20px;font-weight:400;color:#fff;margin-bottom:10px}
 .ev-proc__cd{font-size:13px;line-height:1.65;color:rgba(255,255,255,0.35)}
@@ -927,24 +1088,24 @@ em{font-family:var(--sf);font-style:italic}
 .ev-why__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
 .ev-why__card{padding:30px 26px;border:1px solid rgba(255,255,255,0.06);transition:all 0.4s ${EASE}}
 .ev-why__card:hover{border-color:rgba(255,255,255,0.16);background:rgba(255,255,255,0.025);transform:translateY(-4px)}
-.ev-why__card svg{color:var(--pt);margin-bottom:18px}
+.ev-why__card svg{color:var(--ac);margin-bottom:18px}
 .ev-why__card h3{font-family:var(--sf);font-size:19px;color:#fff;margin-bottom:8px;font-weight:400}
 .ev-why__card p{font-size:13px;line-height:1.6;color:rgba(255,255,255,0.32)}
 
 /* Trust */
-.ev-trust-sec{background:linear-gradient(to bottom,var(--bk),#0D0D0D);padding:140px 0}
+.ev-trust-sec{background:linear-gradient(to bottom,var(--bk),#0A111F);padding:140px 0}
 .ev-trust__wrap{max-width:1440px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
 .ev-trust__h{font-family:var(--sf);font-size:clamp(38px,4.2vw,62px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:24px}
 .ev-trust__h em{color:var(--pt)}
 .ev-trust__p{font-size:15px;line-height:1.75;color:rgba(255,255,255,0.35);margin-bottom:12px}
 .ev-trust__note{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:18px 20px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02)}
-.ev-trust__note svg{color:var(--pt);flex-shrink:0;margin-top:2px}
+.ev-trust__note svg{color:var(--ac);flex-shrink:0;margin-top:2px}
 .ev-trust__note p{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.4)}
 .ev-trust__note p strong{color:#fff;font-weight:600}
 .ev-trust__r{display:flex;flex-direction:column;gap:14px}
 .ev-trust__card{display:flex;gap:14px;padding:20px 18px;border:1px solid rgba(255,255,255,0.05);transition:all 0.4s ${EASE}}
 .ev-trust__card:hover{border-color:rgba(255,255,255,0.12);background:rgba(255,255,255,0.02)}
-.ev-trust__ci{color:var(--pt);flex-shrink:0;margin-top:2px}
+.ev-trust__ci{color:var(--ac);flex-shrink:0;margin-top:2px}
 .ev-trust__ct{font-family:var(--sf);font-size:16px;color:#fff;margin-bottom:3px}
 .ev-trust__cd{font-size:12px;color:rgba(255,255,255,0.3);line-height:1.55}
 
@@ -956,7 +1117,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-stmt__h em{color:var(--pt)}
 
 /* Contact */
-.ev-contact-sec{background:linear-gradient(to bottom,var(--bk),#0C0C0C);padding:140px 0}
+.ev-contact-sec{background:linear-gradient(to bottom,var(--bk),#091020);padding:140px 0}
 .ev-contact__wrap{max-width:1440px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:5fr 7fr;gap:80px;align-items:start}
 .ev-contact__h{font-family:var(--sf);font-size:clamp(36px,4vw,60px);font-weight:400;color:#fff;line-height:1.1;margin-bottom:16px}
 .ev-contact__h em{color:var(--pt)}
@@ -971,25 +1132,25 @@ em{font-family:var(--sf);font-style:italic}
 .ev-f label{font-size:10px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
 .opt{font-weight:400;opacity:0.5;letter-spacing:0;text-transform:none}
 .ev-f input{border:none;border-bottom:1px solid rgba(255,255,255,0.1);background:transparent;padding:10px 0;font-size:14px;color:#fff;outline:none;transition:border-color 0.3s}
-.ev-f input:focus{border-bottom-color:var(--pt)}
+.ev-f input:focus{border-bottom-color:var(--ac)}
 .ev-f input::placeholder{color:rgba(255,255,255,0.2)}
 .ev-sel{border:none;border-bottom:1px solid rgba(255,255,255,0.1);background:transparent;padding:10px 0;font-size:14px;color:rgba(255,255,255,0.6);outline:none;appearance:none}
 .ev-sel option{background:var(--bk);color:#fff}
 .ev-f textarea{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);padding:14px;font-size:14px;color:#fff;line-height:1.65;resize:vertical;outline:none;transition:border-color 0.3s}
-.ev-f textarea:focus{border-color:rgba(255,255,255,0.2)}
+.ev-f textarea:focus{border-color:rgba(77,159,255,0.5)}
 .ev-f textarea::placeholder{color:rgba(255,255,255,0.18)}
 .ev-radios{display:flex;flex-wrap:wrap;gap:7px}
 .ev-rad{font-size:12px;padding:7px 14px;border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.45);transition:all 0.3s;user-select:none}
-.ev-rad--on{background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.25)}
+.ev-rad--on{background:rgba(77,159,255,0.12);color:#fff;border-color:rgba(77,159,255,0.45)}
 .ev-checks{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .ev-chk{display:flex;align-items:center;gap:9px;font-size:12px;padding:8px 12px;border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.3s;user-select:none}
-.ev-chk--on{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.18);color:#fff}
+.ev-chk--on{background:rgba(77,159,255,0.08);border-color:rgba(77,159,255,0.35);color:#fff}
 .ev-chk__b{width:16px;height:16px;border:1px solid rgba(255,255,255,0.15);border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.3s}
-.ev-chk--on .ev-chk__b{background:var(--pt);border-color:var(--pt);color:var(--bk)}
+.ev-chk--on .ev-chk__b{background:var(--ac);border-color:var(--ac);color:#04101F}
 .ev-sent{display:flex;flex-direction:column;align-items:center;text-align:center;padding:80px 40px;color:#fff}
 .ev-sent h3{font-family:var(--sf);font-size:30px;margin:20px 0 10px}
 .ev-sent p{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.6;max-width:340px}
-.ev-sent svg{color:var(--pt)}
+.ev-sent svg{color:var(--ac)}
 
 /* Footer */
 .ev-footer{background:var(--bk);padding:44px 0 28px;border-top:1px solid rgba(255,255,255,0.04)}
@@ -1000,12 +1161,12 @@ em{font-family:var(--sf);font-style:italic}
 .ev-footer__link{color:rgba(255,255,255,0.25);transition:color 0.3s}.ev-footer__link:hover{color:var(--pt)}
 
 /* Cookie Banner */
-.ev-cookie{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:rgba(17,17,17,0.97);backdrop-filter:blur(16px);padding:18px 48px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-top:1px solid rgba(255,255,255,0.06);animation:cookieUp 0.5s ${EASE}}
+.ev-cookie{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:rgba(10,16,29,0.97);backdrop-filter:blur(16px);padding:18px 48px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-top:1px solid rgba(124,192,255,0.1);animation:cookieUp 0.5s ${EASE}}
 @keyframes cookieUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .ev-cookie p{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.45);max-width:700px}
 .ev-cookie a{color:var(--pt);text-decoration:underline;text-underline-offset:2px}
-.ev-cookie__btn{font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;padding:10px 22px;background:#fff;color:var(--bk);white-space:nowrap;transition:all 0.3s ${EASE};flex-shrink:0}
-.ev-cookie__btn:hover{background:var(--pt);transform:translateY(-1px)}
+.ev-cookie__btn{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:10px 22px;background:var(--ac);color:#04101F;border-radius:2px;white-space:nowrap;transition:all 0.3s ${EASE};flex-shrink:0}
+.ev-cookie__btn:hover{background:var(--ac2);transform:translateY(-1px)}
 
 /* Privacy Policy */
 .ev-privacy{background:var(--bk);padding:180px 48px 120px;min-height:100vh}
@@ -1023,7 +1184,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-ins-grid{background:var(--dk);padding:80px 0 120px}
 .ev-ins-grid__in{max-width:1440px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,0.04)}
 .ev-art-card{background:var(--bk);padding:36px 32px;cursor:pointer;transition:all 0.45s ${EASE};position:relative;overflow:hidden}
-.ev-art-card::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:var(--pt);transition:width 0.5s ${EASE}}
+.ev-art-card::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:var(--ac);transition:width 0.5s ${EASE}}
 .ev-art-card:hover{background:rgba(255,255,255,0.03);transform:translateY(-3px)}.ev-art-card:hover::after{width:100%}
 .ev-art-card__meta{display:flex;align-items:center;gap:12px;margin-bottom:14px}
 .ev-art-card__tag{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4)}
@@ -1080,8 +1241,7 @@ em{font-family:var(--sf);font-style:italic}
   .ev-about__left{padding:80px 20px 36px}
   .ev-about__h{font-size:clamp(34px,8vw,48px)}
   .ev-about__right{padding:36px 20px}
-  .ev-about__logo-area{width:220px;height:220px}
-  .ev-about__ring--1{width:180px;height:180px}.ev-about__ring--2{width:210px;height:210px}.ev-about__ring--3{width:220px;height:220px}
+  .ev-conv{max-width:340px;margin:0 auto}
   .ev-about__stats{grid-template-columns:1fr 1fr;gap:10px}
   .ev-ind__wrap,.ev-svc__wrap,.ev-proj__wrap,.ev-proc__wrap,.ev-trust__wrap,.ev-contact__wrap,.ev-footer__in,.ev-out__wrap,.ev-bdr__wrap,.ev-why__wrap{padding:0 20px}
   .ev-ind__h,.ev-svc__h,.ev-proj__h,.ev-proc__h,.ev-trust__h,.ev-contact__h,.ev-bdr__h,.ev-why__h{font-size:clamp(34px,8vw,48px)}
@@ -1120,6 +1280,7 @@ em{font-family:var(--sf);font-style:italic}
 }
       `}</style>
 
+      <ScrollProgress/>
       <Nav page={page} setPage={setPage}/>
       {page==="home"&&<><Hero/><Marquee/><About/><Outcomes/><Industries/><Services/><Projects/><Process/><Borders/><Why/><Trust/><Statement/><Contact/></>}
       {page==="insights"&&<InsightsHome setPage={setPage} setSlug={setSlug}/>}
