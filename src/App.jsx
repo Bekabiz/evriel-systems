@@ -220,8 +220,8 @@ function Nav({ page, setPage }) {
     <nav className={`ev-nav${scrolled?" ev-nav--s":""}`}>
       <div className="ev-nav__in">
         <div onClick={()=>{setPage("home");setOpen(false);window.scrollTo({top:0,behavior:"smooth"})}} style={{cursor:"pointer",display:"flex",alignItems:"center",gap:14}}>
-          <LogoMark size={32} color={c}/>
-          <div><div style={{width:24,height:1.5,background:c,opacity:0.5,marginBottom:4}}/><div style={{fontFamily:"var(--sf)",fontSize:18,fontWeight:400,color:c,letterSpacing:"0.05em",lineHeight:1}}>Evriel</div><div style={{fontFamily:"var(--bd)",fontSize:8,color:"rgba(189,212,240,0.55)",letterSpacing:"0.42em",textTransform:"uppercase",marginTop:3}}>Systems</div></div>
+          <LogoMark size={32} color="#C9CFD9"/>
+          <div><div style={{width:24,height:1.5,background:"#C9CFD9",opacity:0.55,marginBottom:4}}/><div style={{fontFamily:"var(--sf)",fontSize:18,fontWeight:400,color:c,letterSpacing:"0.05em",lineHeight:1}}>Evriel</div><div style={{fontFamily:"var(--bd)",fontSize:8,color:"rgba(201,207,217,0.7)",letterSpacing:"0.42em",textTransform:"uppercase",marginTop:3}}>Systems</div></div>
         </div>
         <div className="ev-nav__links">
           {[["About","about"],["Industries","industries"],["Services","services"],["Projects","projects"]].map(([l,id])=>
@@ -250,7 +250,7 @@ function Hero() {
         <div style={{overflow:"hidden"}}><div className="ev-hero__eyebrow" style={a(150)}>AI &bull; Automation &bull; Intelligent Systems</div></div>
         <div style={{overflow:"hidden"}}>
           <div style={a(300)} className="ev-hero__brand">
-            <LogoMark size={90} color="#fff"/>
+            <LogoMark size={90} color="#C9CFD9"/>
             <div className="ev-hero__brand-text">
               <div className="ev-hero__brand-line"/>
               <h1 className="ev-hero__brand-name">Evriel</h1>
@@ -373,21 +373,52 @@ const OUTCOMES = [
   { t:"Digital Transformation", d:"Build modern operational foundations that support long-term success." },
 ];
 
+const OUT_CYCLE_MS = 4600;
+
 function Outcomes() {
   const pRef = useParallax(0.018);
+  const [act, setAct] = useState(0);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => setAct(a => (a+1)%OUTCOMES.length), OUT_CYCLE_MS);
+    return () => clearInterval(id);
+  }, [paused]);
+  const ps = paused ? "paused" : "running";
   return (
     <section className="ev-out-sec">
       <div className="ev-out__glow" ref={pRef}/>
+      <div className="ev-out__beam ev-out__beam--a"/><div className="ev-out__beam ev-out__beam--b"/>
       <div className="ev-out__wrap">
-        <Reveal><div className="ev-label ev-label--l"><span>What We Help Improve</span></div></Reveal>
-        <div className="ev-out__grid">
+        <div className="ev-out__left">
+          <Reveal><div className="ev-label ev-label--l"><span>What We Help Improve</span></div></Reveal>
+          <Reveal delay={80} direction="left"><h2 className="ev-out__h">Where intelligence creates <em>real impact</em></h2></Reveal>
+          <Reveal delay={160}><p className="ev-out__intro">Five areas where AI and automation translate directly into measurable business results.</p></Reveal>
+          <Reveal delay={240}>
+            <div className="ev-out__display">
+              <svg className="ev-out__ring" viewBox="0 0 220 220">
+                <circle cx="110" cy="110" r="102" className="ev-out__ring-bg"/>
+                <circle key={act} cx="110" cy="110" r="102" className="ev-out__ring-fg" style={{animationDuration:`${OUT_CYCLE_MS}ms`,animationPlayState:ps}}/>
+                {OUTCOMES.map((_,i)=>{
+                  const a = (i/OUTCOMES.length)*Math.PI*2 - Math.PI/2;
+                  return <circle key={`d${i}`} cx={110+102*Math.cos(a)} cy={110+102*Math.sin(a)} r={i===act?5:3} fill={i===act?"var(--ac)":"rgba(168,210,255,0.25)"} style={{transition:"all 0.5s"}}/>;
+                })}
+              </svg>
+              <div className="ev-out__bignum" key={`n${act}`}>0{act+1}</div>
+            </div>
+          </Reveal>
+        </div>
+        <div className="ev-out__list" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
           {OUTCOMES.map((o,i)=>(
-            <Reveal key={i} delay={i*90} direction={i%2?"right":"left"}>
-              <div className="ev-out">
-                <span className="ev-out__ix">0{i+1}</span>
-                <h3 className="ev-out__t">{o.t}</h3>
-                <p className="ev-out__d">{o.d}</p>
-                <div className="ev-out__ln"/>
+            <Reveal key={i} delay={i*90} direction="right">
+              <div className={`ev-out2${i===act?" ev-out2--on":""}`} onClick={()=>setAct(i)}>
+                <div className="ev-out2__head">
+                  <span className="ev-out2__ix">0{i+1}</span>
+                  <h3 className="ev-out2__t">{o.t}</h3>
+                  <span className="ev-out2__chev"><ArrowRight size={15}/></span>
+                </div>
+                <div className="ev-out2__body"><p>{o.d}</p></div>
+                <div className="ev-out2__track">{i===act&&<div key={`f${act}`} className="ev-out2__fill" style={{animationDuration:`${OUT_CYCLE_MS}ms`,animationPlayState:ps}}/>}</div>
               </div>
             </Reveal>
           ))}
@@ -452,7 +483,7 @@ function Industries() {
               ))}
             </div>
             <div className="ev-orbit__hub">
-              <LogoMark size={30} color="#fff"/>
+              <LogoMark size={30} color="#C9CFD9"/>
               <span>Evriel<br/>Systems</span>
             </div>
           </div>
@@ -762,8 +793,9 @@ function WhatNext() {
 }
 
 /* CONTACT */
-function Contact() {
+function Contact({setPage}) {
   const [f, setF] = useState({name:"",company:"",email:"",phone:"",language:"English",industry:"",interests:[],challenge:""});
+  const [consent, setConsent] = useState(false);
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState(null);
   const [sending, setSending] = useState(false);
@@ -772,6 +804,7 @@ function Contact() {
     e.preventDefault();
     if (!f.name.trim() || !f.company.trim() || !f.email.trim() || !f.industry || !f.challenge.trim()) { setErr("Please fill in all required fields marked with *."); return; }
     if (f.interests.length === 0) { setErr("Please select at least one area of interest."); return; }
+    if (!consent) { setErr("Please accept the privacy policy so we can process your inquiry."); return; }
     setSending(true);
     setErr(null);
     try {
@@ -806,6 +839,7 @@ function Contact() {
                 <div className="ev-f"><label>Industry <span className="req">*</span></label><select required className="ev-sel" value={f.industry} onChange={e=>setF(p=>({...p,industry:e.target.value}))}><option value="">Select your industry</option>{["Construction & Engineering","Manufacturing","Tourism & Hospitality","Retail & Commerce","Import & Export","Marketing & SEO","European Projects","NGO & Associations","Professional Services","Startup / SME","Education & Training","Other"].map(x=><option key={x}>{x}</option>)}</select></div>
                 <div className="ev-f"><label>What are you interested in? <span className="req">*</span></label><div className="ev-checks">{["AI Automation","Business Intelligence","Digital Transformation","Custom Business Systems","European Project Solutions","Not Sure Yet"].map(x=><label key={x} className={`ev-chk${f.interests.includes(x)?" ev-chk--on":""}`} onClick={()=>tog(x)}><span className="ev-chk__b">{f.interests.includes(x)&&<CheckCircle2 size={12}/>}</span>{x}</label>)}</div></div>
                 <div className="ev-f"><label>Tell us about your challenge <span className="req">*</span></label><textarea required rows={5} placeholder="Describe your project, challenge, or business objective..." value={f.challenge} onChange={e=>setF(p=>({...p,challenge:e.target.value}))}/></div>
+                <label className="ev-consent"><input type="checkbox" required checked={consent} onChange={e=>setConsent(e.target.checked)}/><span>I agree that Evriel Systems may store and process the information I submit to respond to my inquiry, as described in the <a href="#" onClick={e=>{e.preventDefault();setPage&&setPage("privacy");window.scrollTo({top:0,behavior:"smooth"})}}>Privacy Policy</a>. <span className="req">*</span></span></label>
                 {err && <p className="ev-form__err">{err}</p>}
                 <button type="submit" className="ev-btn ev-btn--w ev-btn--lg" style={{width:"100%",justifyContent:"center",marginTop:4}} disabled={sending}>{sending ? "Sending..." : "Start the Conversation"} {!sending && <ArrowRight size={17}/>}</button>
               </form>
@@ -824,8 +858,8 @@ function Footer({setPage}) {
       <div className="ev-footer__in">
         <div className="ev-footer__top">
           <div onClick={()=>{setPage("home");window.scrollTo({top:0,behavior:"smooth"})}} style={{cursor:"pointer",display:"flex",alignItems:"center",gap:12}}>
-            <LogoMark size={26} color="#fff"/>
-            <div><div style={{width:20,height:1,background:"rgba(255,255,255,0.3)",marginBottom:3}}/><div style={{fontFamily:"var(--sf)",fontSize:14,color:"#fff",letterSpacing:"0.05em"}}>Evriel</div><div style={{fontFamily:"var(--bd)",fontSize:7,color:"rgba(255,255,255,0.3)",letterSpacing:"0.4em",textTransform:"uppercase",marginTop:2}}>Systems</div></div>
+            <LogoMark size={26} color="#C9CFD9"/>
+            <div><div style={{width:20,height:1,background:"rgba(201,207,217,0.45)",marginBottom:3}}/><div style={{fontFamily:"var(--sf)",fontSize:14,color:"#fff",letterSpacing:"0.05em"}}>Evriel</div><div style={{fontFamily:"var(--bd)",fontSize:7,color:"rgba(201,207,217,0.55)",letterSpacing:"0.4em",textTransform:"uppercase",marginTop:2}}>Systems</div></div>
           </div>
           <p style={{fontSize:12,color:"rgba(255,255,255,0.2)",fontStyle:"italic",fontFamily:"var(--sf)"}}>Connecting Intelligence with Business</p>
         </div>
@@ -844,12 +878,12 @@ function Footer({setPage}) {
 
 /* ARTICLES */
 const ARTS = [
-  { slug:"ai-beyond-chatbots",tag:"AI Strategy",date:"Nov 2024",title:"AI Beyond Chatbots: Practical Applications for Real Businesses",excerpt:"AI creates value far beyond conversational interfaces, in operations, analytics, and decision-making.",body:["Artificial Intelligence is often associated with chatbots and virtual assistants. While these tools are valuable, they represent only a small part of what AI can achieve within modern organizations.","Today, businesses are using AI to automate workflows, improve operational efficiency, support decision-making, and create better customer experiences.","One of the most impactful applications of AI is workflow automation. Organizations spend countless hours performing repetitive administrative tasks such as data entry, reporting, document processing, and communication management. Intelligent systems can automate many of these processes, allowing employees to focus on higher-value activities.","AI also plays an increasingly important role in decision support. By analyzing large volumes of business information, intelligent systems can identify patterns, detect inefficiencies, and provide recommendations that help organizations make better decisions.","Customer service is another area where AI creates significant value. Beyond simple chatbots, AI can assist support teams by organizing information, suggesting responses, and providing instant access to organizational knowledge.","The most successful organizations do not adopt AI simply because it is popular. They identify specific business challenges and implement intelligent solutions that generate measurable results.","The future of AI in business is not about replacing people. It is about empowering people with better tools, better information, and better systems.","Organizations that embrace this approach will be better positioned to improve efficiency, increase competitiveness, and adapt to a rapidly changing business environment."]},
-  { slug:"automation-failures",tag:"Transformation",date:"Oct 2024",title:"Why Most Automation Projects Fail",excerpt:"The gap between automation promise and results is wider than most organizations expect.",body:["Automation is one of the most powerful tools available to modern organizations. However, many automation initiatives fail to deliver the expected benefits.","The primary reason is simple: organizations often attempt to automate inefficient processes. Automation cannot fix a broken workflow. It can only accelerate it.","Before introducing technology, organizations must first understand how work is performed, identify bottlenecks, and redesign inefficient processes. Without this foundation, automation often creates additional complexity instead of solving existing problems.","Another common mistake is focusing on software rather than business objectives. Organizations sometimes purchase new tools without clearly defining the problem they are trying to solve.","Successful automation projects begin with questions such as: What process needs improvement? What outcomes are we trying to achieve? How will success be measured?","Employee adoption is equally important. Even the most advanced automation platform will struggle if users do not understand its purpose or if it disrupts established workflows.","The most successful automation initiatives are not technology projects. They are business improvement projects supported by technology.","When implemented correctly, automation can reduce administrative workloads, improve consistency, increase operational visibility, and enable organizations to scale more effectively.","The goal is not simply to automate tasks. The goal is to build smarter and more efficient systems."]},
-  { slug:"ai-construction-engineering",tag:"Industry",date:"Sep 2024",title:"AI in Construction and Engineering",excerpt:"Intelligent systems transforming project visibility, communication, and operational control.",body:["Construction and engineering projects generate enormous amounts of information. Drawings, reports, site updates, documentation, schedules, budgets, and communication records are often distributed across multiple systems and stakeholders.","Managing this information efficiently has become one of the industry's greatest challenges.","AI and intelligent systems are creating new opportunities to improve project visibility, communication, and operational control.","AI can support engineering teams by organizing project documentation, monitoring progress, generating reports, and helping identify potential issues before they impact schedules or budgets.","Project managers can benefit from real-time access to information that would otherwise require hours of manual review.","Digital monitoring systems can improve coordination between office teams, engineers, contractors, and site personnel.","Intelligent systems can also support technical knowledge management by ensuring that important information remains accessible throughout the project lifecycle.","The future of construction technology is not simply about digitizing documents. It is about creating connected environments where information flows efficiently between people, processes, and systems.","Organizations that adopt intelligent technologies today will be better positioned to improve productivity, reduce risk, and deliver projects more effectively."]},
-  { slug:"digital-transformation-people",tag:"Strategy",date:"Aug 2024",title:"Digital Transformation Is About People, Not Software",excerpt:"Why the most expensive transformation failures share the same root cause.",body:["When organizations begin digital transformation initiatives, many focus immediately on technology. New software is purchased. New platforms are implemented. New tools are introduced.","Yet despite significant investments, many transformation projects fail to achieve their intended outcomes.","The reason is simple: digital transformation is not primarily a technology challenge. It is a people and process challenge.","Technology can enable change, but it cannot create it on its own.","Successful organizations first understand how people work, how decisions are made, and how information moves throughout the business. Only then can technology be implemented effectively.","Employees need systems that support their work rather than create additional complexity. Managers need visibility into operations. Leadership teams need reliable information to guide strategic decisions.","When technology aligns with business processes and organizational objectives, transformation becomes sustainable.","The most successful organizations do not simply digitize existing activities. They redesign how work is performed and use technology to create better outcomes.","Digital transformation is ultimately about creating environments where people, processes, and technology work together effectively.","Organizations that understand this principle achieve greater efficiency, adaptability, and long-term growth."]},
-  { slug:"intelligent-systems-advantage",tag:"Competitive Edge",date:"Jul 2024",title:"Building Competitive Advantage Through Intelligent Systems",excerpt:"How forward-thinking organizations use AI to create sustainable competitive moats.",body:["Every organization is searching for ways to become more efficient, more responsive, and more competitive.","Traditionally, competitive advantage was often created through scale, location, or access to resources.","Today, intelligent systems are becoming one of the most important sources of competitive advantage.","Organizations generate vast amounts of information every day. Customer interactions, operational data, project updates, financial records, and market insights all contain valuable opportunities for improvement.","The challenge is not collecting information. The challenge is transforming information into action.","Intelligent systems help organizations automate repetitive tasks, identify patterns, support decision-making, and improve operational visibility.","By reducing manual work and improving access to information, organizations can respond more quickly to opportunities and challenges.","The goal is not to replace human expertise. The goal is to enhance it.","Organizations that successfully combine human knowledge with intelligent systems are better positioned to adapt, innovate, and grow.","Competitive advantage is no longer created solely through resources. It is increasingly created through intelligence, adaptability, and the ability to make better decisions faster."]},
-  { slug:"data-driven-decisions",tag:"Intelligence",date:"Jun 2024",title:"Turning Data Into Better Decisions",excerpt:"Organizations drown in data but struggle with decisions. Here's how intelligent systems close the gap.",body:["Modern organizations generate more information than ever before. Operational reports, customer interactions, project updates, financial records, performance metrics all contribute to growing volumes of data.","Yet many organizations continue to struggle with decision-making.","The problem is not a lack of information. The problem is transforming information into meaningful insights.","Without structure and context, data becomes overwhelming rather than useful.","Business intelligence and intelligent systems help organizations organize information, identify patterns, and present insights in ways that support effective decision-making.","When leaders have access to accurate and relevant information, they can identify opportunities more quickly, address problems earlier, and allocate resources more effectively.","Data-driven organizations are often more agile because decisions are supported by evidence rather than assumptions.","However, successful data utilization requires more than dashboards and reports. Organizations must establish processes that ensure information is accessible, reliable, and aligned with business objectives.","The future belongs to organizations that can transform information into intelligence and intelligence into action.","Better decisions create better outcomes. Intelligent systems make those decisions easier to achieve."]},
+  { slug:"ai-beyond-chatbots",tag:"AI Strategy",date:"2026",title:"AI Beyond Chatbots: Practical Applications for Real Businesses",excerpt:"AI creates value far beyond conversational interfaces, in operations, analytics, and decision-making.",body:["Artificial Intelligence is often associated with chatbots and virtual assistants. While these tools are valuable, they represent only a small part of what AI can achieve within modern organizations.","Today, businesses are using AI to automate workflows, improve operational efficiency, support decision-making, and create better customer experiences.","One of the most impactful applications of AI is workflow automation. Organizations spend countless hours performing repetitive administrative tasks such as data entry, reporting, document processing, and communication management. Intelligent systems can automate many of these processes, allowing employees to focus on higher-value activities.","AI also plays an increasingly important role in decision support. By analyzing large volumes of business information, intelligent systems can identify patterns, detect inefficiencies, and provide recommendations that help organizations make better decisions.","Customer service is another area where AI creates significant value. Beyond simple chatbots, AI can assist support teams by organizing information, suggesting responses, and providing instant access to organizational knowledge.","The most successful organizations do not adopt AI simply because it is popular. They identify specific business challenges and implement intelligent solutions that generate measurable results.","The future of AI in business is not about replacing people. It is about empowering people with better tools, better information, and better systems.","Organizations that embrace this approach will be better positioned to improve efficiency, increase competitiveness, and adapt to a rapidly changing business environment."]},
+  { slug:"automation-failures",tag:"Transformation",date:"2026",title:"Why Most Automation Projects Fail",excerpt:"The gap between automation promise and results is wider than most organizations expect.",body:["Automation is one of the most powerful tools available to modern organizations. However, many automation initiatives fail to deliver the expected benefits.","The primary reason is simple: organizations often attempt to automate inefficient processes. Automation cannot fix a broken workflow. It can only accelerate it.","Before introducing technology, organizations must first understand how work is performed, identify bottlenecks, and redesign inefficient processes. Without this foundation, automation often creates additional complexity instead of solving existing problems.","Another common mistake is focusing on software rather than business objectives. Organizations sometimes purchase new tools without clearly defining the problem they are trying to solve.","Successful automation projects begin with questions such as: What process needs improvement? What outcomes are we trying to achieve? How will success be measured?","Employee adoption is equally important. Even the most advanced automation platform will struggle if users do not understand its purpose or if it disrupts established workflows.","The most successful automation initiatives are not technology projects. They are business improvement projects supported by technology.","When implemented correctly, automation can reduce administrative workloads, improve consistency, increase operational visibility, and enable organizations to scale more effectively.","The goal is not simply to automate tasks. The goal is to build smarter and more efficient systems."]},
+  { slug:"ai-construction-engineering",tag:"Industry",date:"2026",title:"AI in Construction and Engineering",excerpt:"Intelligent systems transforming project visibility, communication, and operational control.",body:["Construction and engineering projects generate enormous amounts of information. Drawings, reports, site updates, documentation, schedules, budgets, and communication records are often distributed across multiple systems and stakeholders.","Managing this information efficiently has become one of the industry's greatest challenges.","AI and intelligent systems are creating new opportunities to improve project visibility, communication, and operational control.","AI can support engineering teams by organizing project documentation, monitoring progress, generating reports, and helping identify potential issues before they impact schedules or budgets.","Project managers can benefit from real-time access to information that would otherwise require hours of manual review.","Digital monitoring systems can improve coordination between office teams, engineers, contractors, and site personnel.","Intelligent systems can also support technical knowledge management by ensuring that important information remains accessible throughout the project lifecycle.","The future of construction technology is not simply about digitizing documents. It is about creating connected environments where information flows efficiently between people, processes, and systems.","Organizations that adopt intelligent technologies today will be better positioned to improve productivity, reduce risk, and deliver projects more effectively."]},
+  { slug:"digital-transformation-people",tag:"Strategy",date:"2026",title:"Digital Transformation Is About People, Not Software",excerpt:"Why the most expensive transformation failures share the same root cause.",body:["When organizations begin digital transformation initiatives, many focus immediately on technology. New software is purchased. New platforms are implemented. New tools are introduced.","Yet despite significant investments, many transformation projects fail to achieve their intended outcomes.","The reason is simple: digital transformation is not primarily a technology challenge. It is a people and process challenge.","Technology can enable change, but it cannot create it on its own.","Successful organizations first understand how people work, how decisions are made, and how information moves throughout the business. Only then can technology be implemented effectively.","Employees need systems that support their work rather than create additional complexity. Managers need visibility into operations. Leadership teams need reliable information to guide strategic decisions.","When technology aligns with business processes and organizational objectives, transformation becomes sustainable.","The most successful organizations do not simply digitize existing activities. They redesign how work is performed and use technology to create better outcomes.","Digital transformation is ultimately about creating environments where people, processes, and technology work together effectively.","Organizations that understand this principle achieve greater efficiency, adaptability, and long-term growth."]},
+  { slug:"intelligent-systems-advantage",tag:"Competitive Edge",date:"2026",title:"Building Competitive Advantage Through Intelligent Systems",excerpt:"How forward-thinking organizations use AI to create sustainable competitive moats.",body:["Every organization is searching for ways to become more efficient, more responsive, and more competitive.","Traditionally, competitive advantage was often created through scale, location, or access to resources.","Today, intelligent systems are becoming one of the most important sources of competitive advantage.","Organizations generate vast amounts of information every day. Customer interactions, operational data, project updates, financial records, and market insights all contain valuable opportunities for improvement.","The challenge is not collecting information. The challenge is transforming information into action.","Intelligent systems help organizations automate repetitive tasks, identify patterns, support decision-making, and improve operational visibility.","By reducing manual work and improving access to information, organizations can respond more quickly to opportunities and challenges.","The goal is not to replace human expertise. The goal is to enhance it.","Organizations that successfully combine human knowledge with intelligent systems are better positioned to adapt, innovate, and grow.","Competitive advantage is no longer created solely through resources. It is increasingly created through intelligence, adaptability, and the ability to make better decisions faster."]},
+  { slug:"data-driven-decisions",tag:"Intelligence",date:"2026",title:"Turning Data Into Better Decisions",excerpt:"Organizations drown in data but struggle with decisions. Here's how intelligent systems close the gap.",body:["Modern organizations generate more information than ever before. Operational reports, customer interactions, project updates, financial records, performance metrics all contribute to growing volumes of data.","Yet many organizations continue to struggle with decision-making.","The problem is not a lack of information. The problem is transforming information into meaningful insights.","Without structure and context, data becomes overwhelming rather than useful.","Business intelligence and intelligent systems help organizations organize information, identify patterns, and present insights in ways that support effective decision-making.","When leaders have access to accurate and relevant information, they can identify opportunities more quickly, address problems earlier, and allocate resources more effectively.","Data-driven organizations are often more agile because decisions are supported by evidence rather than assumptions.","However, successful data utilization requires more than dashboards and reports. Organizations must establish processes that ensure information is accessible, reliable, and aligned with business objectives.","The future belongs to organizations that can transform information into intelligence and intelligence into action.","Better decisions create better outcomes. Intelligent systems make those decisions easier to achieve."]},
 ];
 
 function InsightsHome({setPage,setSlug}) {
@@ -924,7 +958,7 @@ export default function EvrielSystems() {
     <>
       <style>{`
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
-:root{--bk:#070B15;--wh:#F4F7FC;--pt:#BCD4F0;--ac:#4D9FFF;--ac2:#A8D2FF;--acg:rgba(77,159,255,0.14);--dk:#0B1220;--mg:#0A0F1C;--sf:'DM Serif Display',Georgia,serif;--bd:'Inter',-apple-system,sans-serif}
+:root{--bk:#070B15;--wh:#F4F7FC;--pt:#BCD4F0;--pl:#C9CFD9;--ac:#4D9FFF;--ac2:#A8D2FF;--acg:rgba(77,159,255,0.14);--dk:#0B1220;--mg:#0A0F1C;--sf:'DM Serif Display',Georgia,serif;--bd:'Inter',-apple-system,sans-serif}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:var(--bd);background:var(--bk);color:var(--bk);-webkit-font-smoothing:antialiased}
@@ -970,9 +1004,9 @@ em{font-family:var(--sf);font-style:italic}
 .ev-hero__eyebrow{font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--ac2);opacity:0.75;margin-bottom:36px}
 .ev-hero__brand{display:flex;align-items:center;gap:24px;justify-content:center;margin-bottom:28px}
 .ev-hero__brand-text{text-align:left}
-.ev-hero__brand-line{width:48px;height:2px;background:linear-gradient(90deg,var(--ac),transparent);margin-bottom:8px}
+.ev-hero__brand-line{width:48px;height:2px;background:linear-gradient(90deg,var(--pl),transparent);margin-bottom:8px}
 .ev-hero__brand-name{font-family:var(--sf);font-size:clamp(52px,8vw,100px);font-weight:400;color:#fff;letter-spacing:0.03em;line-height:0.9}
-.ev-hero__brand-sub{font-family:var(--bd);font-size:clamp(12px,1.8vw,20px);font-weight:300;letter-spacing:0.55em;color:var(--pt);display:block;margin-top:6px}
+.ev-hero__brand-sub{font-family:var(--bd);font-size:clamp(12px,1.8vw,20px);font-weight:300;letter-spacing:0.55em;color:var(--pl);display:block;margin-top:6px}
 .ev-hero__h2{font-family:var(--sf);font-size:clamp(20px,2.6vw,34px);font-weight:400;color:rgba(255,255,255,0.7);line-height:1.35;letter-spacing:0.01em}
 .ev-hero__h2 em{color:var(--pt)}
 .ev-hero__sub{font-size:clamp(14px,1.4vw,17px);font-weight:300;color:rgba(255,255,255,0.32);margin-top:24px;line-height:1.7}
@@ -1057,19 +1091,41 @@ em{font-family:var(--sf);font-style:italic}
 .ev-orbit__hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:130px;height:130px;border-radius:50%;border:1px solid rgba(168,210,255,0.25);background:radial-gradient(circle,rgba(77,159,255,0.12),rgba(10,16,29,0.9) 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;animation:acPulse 4s ease-in-out infinite}
 .ev-orbit__hub span{font-family:var(--sf);font-size:12px;letter-spacing:0.08em;color:rgba(255,255,255,0.8);line-height:1.35}
 
-/* Outcomes */
-.ev-out-sec{background:linear-gradient(to bottom,var(--bk),var(--dk));padding:120px 0;position:relative;overflow:hidden}
+/* Outcomes — auto-cycling spotlight */
+@keyframes outRing{from{stroke-dashoffset:641}to{stroke-dashoffset:0}}
+@keyframes outFill{from{width:0}to{width:100%}}
+@keyframes outNum{from{opacity:0;transform:translateY(18px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes beamDrift{0%,100%{opacity:0.25;transform:translateY(0)}50%{opacity:0.55;transform:translateY(-30px)}}
+.ev-out-sec{background:linear-gradient(to bottom,var(--bk),var(--dk));padding:130px 0;position:relative;overflow:hidden}
+.ev-out-sec::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");opacity:0.05;mix-blend-mode:overlay;pointer-events:none}
 .ev-out__glow{position:absolute;top:10%;right:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(77,159,255,0.06),transparent 65%);pointer-events:none;animation:orbDrift 22s ease-in-out infinite}
-.ev-out__wrap{max-width:1100px;margin:0 auto;padding:0 48px;position:relative;z-index:2}
-.ev-out__grid{display:flex;flex-direction:column;margin-top:36px}
-.ev-out{display:grid;grid-template-columns:60px 1fr 1.4fr;gap:32px;align-items:center;padding:30px 8px;border-top:1px solid rgba(255,255,255,0.06);position:relative;transition:padding-left 0.4s ${EASE}}
-.ev-out:last-child{border-bottom:1px solid rgba(255,255,255,0.06)}
-.ev-out:hover{padding-left:18px}
-.ev-out__ix{font-family:var(--sf);font-size:14px;color:rgba(255,255,255,0.18)}
-.ev-out__t{font-family:var(--sf);font-size:clamp(20px,2.4vw,28px);font-weight:400;color:#fff}
-.ev-out__d{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.34)}
-.ev-out__ln{position:absolute;left:0;bottom:-1px;width:0;height:1px;background:linear-gradient(90deg,var(--ac),rgba(168,210,255,0.15));transition:width 0.6s ${EASE}}
-.ev-out:hover .ev-out__ln{width:100%}
+.ev-out__beam{position:absolute;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,rgba(168,210,255,0.14),transparent);pointer-events:none;animation:beamDrift 9s ease-in-out infinite}
+.ev-out__beam--a{left:34%}.ev-out__beam--b{left:67%;animation-delay:4.5s}
+.ev-out__wrap{max-width:1240px;margin:0 auto;padding:0 48px;position:relative;z-index:2;display:grid;grid-template-columns:0.9fr 1.1fr;gap:80px;align-items:start}
+.ev-out__h{font-family:var(--sf);font-size:clamp(28px,3.4vw,44px);font-weight:400;color:#fff;line-height:1.18;margin-top:26px}
+.ev-out__h em{color:var(--pt)}
+.ev-out__intro{font-size:14px;font-weight:300;line-height:1.75;color:rgba(255,255,255,0.38);margin-top:18px;max-width:380px}
+.ev-out__display{position:relative;width:220px;height:220px;margin-top:44px}
+.ev-out__ring{position:absolute;inset:0;transform:rotate(-90deg)}
+.ev-out__ring-bg{fill:none;stroke:rgba(168,210,255,0.1);stroke-width:1}
+.ev-out__ring-fg{fill:none;stroke:var(--ac);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:641;animation:outRing linear forwards}
+.ev-out__bignum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--sf);font-size:74px;color:#fff;animation:outNum 0.7s ${EASE} both}
+.ev-out__list{display:flex;flex-direction:column}
+.ev-out2{border-top:1px solid rgba(255,255,255,0.07);position:relative;cursor:pointer;transition:background 0.5s ${EASE}}
+.ev-out2:last-child{border-bottom:1px solid rgba(255,255,255,0.07)}
+.ev-out2--on{background:linear-gradient(90deg,rgba(77,159,255,0.05),transparent 70%)}
+.ev-out2__head{display:flex;align-items:center;gap:24px;padding:24px 14px}
+.ev-out2__ix{font-family:var(--sf);font-size:14px;color:rgba(255,255,255,0.22);transition:color 0.4s}
+.ev-out2--on .ev-out2__ix{color:var(--ac)}
+.ev-out2__t{font-family:var(--sf);font-size:clamp(19px,2.2vw,26px);font-weight:400;color:rgba(255,255,255,0.45);transition:color 0.5s ${EASE};flex:1}
+.ev-out2--on .ev-out2__t{color:#fff}
+.ev-out2__chev{color:var(--ac);opacity:0;transform:translateX(-8px);transition:all 0.45s ${EASE};display:flex}
+.ev-out2--on .ev-out2__chev{opacity:1;transform:translateX(0)}
+.ev-out2__body{max-height:0;overflow:hidden;transition:max-height 0.7s ${EASE}}
+.ev-out2--on .ev-out2__body{max-height:120px}
+.ev-out2__body p{font-size:13.5px;font-weight:300;line-height:1.7;color:rgba(255,255,255,0.42);padding:0 14px 24px 52px;max-width:520px}
+.ev-out2__track{position:absolute;left:0;bottom:-1px;width:100%;height:1px;background:transparent}
+.ev-out2__fill{height:100%;background:linear-gradient(90deg,var(--ac),rgba(168,210,255,0.3));animation:outFill linear forwards}
 
 /* Services */
 .ev-svc-sec{background:linear-gradient(to bottom,var(--bk),#0E1626,var(--bk));padding:140px 0;position:relative}
@@ -1226,6 +1282,10 @@ em{font-family:var(--sf);font-style:italic}
 .ev-f label{font-size:10px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
 .opt{font-weight:400;opacity:0.5;letter-spacing:0;text-transform:none}
 .req{color:var(--ac)}
+.ev-consent{display:flex;gap:11px;align-items:flex-start;font-size:12px;line-height:1.65;color:rgba(255,255,255,0.45);cursor:pointer;margin-top:2px}
+.ev-consent input{margin-top:3px;accent-color:var(--ac);width:14px;height:14px;flex-shrink:0;cursor:pointer}
+.ev-consent a{color:var(--pt);text-decoration:underline;text-underline-offset:2px}
+.ev-consent a:hover{color:#fff}
 .ev-f input{border:none;border-bottom:1px solid rgba(255,255,255,0.1);background:transparent;padding:10px 0;font-size:14px;color:#fff;outline:none;transition:border-color 0.3s}
 .ev-f input:focus{border-bottom-color:var(--ac)}
 .ev-f input::placeholder{color:rgba(255,255,255,0.2)}
@@ -1320,8 +1380,8 @@ em{font-family:var(--sf);font-style:italic}
   .ev-orbit__hub span{font-size:10px}
   .ev-ind__ds{grid-column:2/3;max-width:none}
   .ev-ind__ar{display:none}
-  .ev-out{grid-template-columns:44px 1fr;row-gap:6px}
-  .ev-out__d{grid-column:2/3}
+  .ev-out__wrap{grid-template-columns:1fr;gap:48px}
+  .ev-out__display{margin:36px auto 0}
   .ev-why__grid{grid-template-columns:1fr 1fr}
   .ev-svc{grid-template-columns:70px 1fr;gap:20px}
   .ev-svc__r{grid-column:1/-1;padding-left:70px}
@@ -1346,8 +1406,9 @@ em{font-family:var(--sf);font-style:italic}
   .ev-about__stats{grid-template-columns:1fr 1fr;gap:10px}
   .ev-ind__wrap,.ev-svc__wrap,.ev-proj__wrap,.ev-proc__wrap,.ev-trust__wrap,.ev-contact__wrap,.ev-footer__in,.ev-out__wrap,.ev-bdr__wrap,.ev-why__wrap{padding:0 20px}
   .ev-ind__h,.ev-svc__h,.ev-proj__h,.ev-proc__h,.ev-trust__h,.ev-contact__h,.ev-bdr__h,.ev-why__h{font-size:clamp(34px,8vw,48px)}
-  .ev-out{grid-template-columns:1fr;text-align:left}
-  .ev-out__d{grid-column:auto}
+  .ev-out__display{width:180px;height:180px}
+  .ev-out__bignum{font-size:60px}
+  .ev-out2__body p{padding-left:14px}
   .ev-ind{grid-template-columns:1fr;text-align:left}
   .ev-ind__ds{grid-column:auto}
   .ev-why__grid{grid-template-columns:1fr}
@@ -1389,7 +1450,7 @@ em{font-family:var(--sf);font-style:italic}
 
       <ScrollProgress/>
       <Nav page={page} setPage={setPage}/>
-      {page==="home"&&<><Hero/><Marquee/><About/><Outcomes/><Industries/><Services/><Projects/><Process/><Borders/><Why/><Trust/><Statement/><WhatNext/><Contact/></>}
+      {page==="home"&&<><Hero/><Marquee/><About/><Outcomes/><Industries/><Services/><Projects/><Process/><Borders/><Why/><Trust/><Statement/><WhatNext/><Contact setPage={setPage}/></>}
       {page==="insights"&&<InsightsHome setPage={setPage} setSlug={setSlug}/>}
       {page==="article"&&<ArticlePage slug={slug} setPage={setPage} setSlug={setSlug}/>}
       {page==="privacy"&&<PrivacyPage/>}
