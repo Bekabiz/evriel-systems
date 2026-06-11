@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Mail, ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Atom, Radar, Boxes, Waypoints, Lock, Eye, Shield, CheckCircle2, Target, Building2, Factory, Hotel, ShoppingBag, Ship, Briefcase, TrendingUp, Landmark, HeartHandshake, GraduationCap, Rocket } from "lucide-react";
+import { Mail, ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Atom, Radar, Boxes, Waypoints, Lock, Eye, Shield, CheckCircle2, Target } from "lucide-react";
 
 const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 
@@ -71,7 +71,7 @@ function NetworkCanvas() {
           const d = Math.hypot(a.x - b.x, a.y - b.y);
           if (d < LINK) {
             const o = (1 - d / LINK) * 0.16;
-            ctx.strokeStyle = `rgba(235,207,154,${o})`;
+            ctx.strokeStyle = `rgba(168,210,255,${o})`;
             ctx.lineWidth = 1;
             ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
           }
@@ -80,7 +80,7 @@ function NetworkCanvas() {
       for (const n of nodes) {
         const md = Math.hypot(n.x - mouse.x, n.y - mouse.y);
         const glow = md < 200 ? (1 - md / 200) * 0.5 : 0;
-        ctx.fillStyle = `rgba(235,207,154,${0.28 + glow})`;
+        ctx.fillStyle = `rgba(168,210,255,${0.28 + glow})`;
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx.fill();
       }
       if (!reduced) raf = requestAnimationFrame(draw);
@@ -215,13 +215,13 @@ function Nav({ page, setPage }) {
   const [open, setOpen] = useState(false);
   useEffect(() => { const h = () => setScrolled(window.scrollY > 50); window.addEventListener("scroll", h, { passive: true }); return () => window.removeEventListener("scroll", h); }, []);
   const go = (id) => { setOpen(false); if (page !== "home") { setPage("home"); setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 250); } else document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };
-  const c = "#F6F4EF";
+  const c = "#F4F7FC";
   return (
     <nav className={`ev-nav${scrolled?" ev-nav--s":""}`}>
       <div className="ev-nav__in">
         <div onClick={()=>{setPage("home");setOpen(false);window.scrollTo({top:0,behavior:"smooth"})}} style={{cursor:"pointer",display:"flex",alignItems:"center",gap:14}}>
           <LogoMark size={32} color={c}/>
-          <div><div style={{width:24,height:1.5,background:c,opacity:0.5,marginBottom:4}}/><div style={{fontFamily:"var(--sf)",fontSize:18,fontWeight:400,color:c,letterSpacing:"0.05em",lineHeight:1}}>Evriel</div><div style={{fontFamily:"var(--bd)",fontSize:8,color:"rgba(232,216,180,0.55)",letterSpacing:"0.42em",textTransform:"uppercase",marginTop:3}}>Systems</div></div>
+          <div><div style={{width:24,height:1.5,background:c,opacity:0.5,marginBottom:4}}/><div style={{fontFamily:"var(--sf)",fontSize:18,fontWeight:400,color:c,letterSpacing:"0.05em",lineHeight:1}}>Evriel</div><div style={{fontFamily:"var(--bd)",fontSize:8,color:"rgba(189,212,240,0.55)",letterSpacing:"0.42em",textTransform:"uppercase",marginTop:3}}>Systems</div></div>
         </div>
         <div className="ev-nav__links">
           {[["About","about"],["Industries","industries"],["Services","services"],["Projects","projects"]].map(([l,id])=>
@@ -245,7 +245,7 @@ function Hero() {
   const a = (d) => ({ opacity:on?1:0, transform:on?"translateY(0)":"translateY(70px)", transition:`opacity 1.3s ${EASE} ${d}ms, transform 1.3s ${EASE} ${d}ms` });
   return (
     <section className="ev-hero">
-      <div className="ev-hero__bg"><div className="ev-hero__grid" ref={gRef}/><div className="ev-hero__rad"/><div className="ev-hero__orb"/><div className="ev-hero__ghost"><LogoMark size={700} color="rgba(232,216,180,0.025)" spin/></div><NetworkCanvas/></div>
+      <div className="ev-hero__bg"><div className="ev-hero__grid" ref={gRef}/><div className="ev-hero__rad"/><div className="ev-hero__orb"/><div className="ev-hero__ghost"><LogoMark size={700} color="rgba(189,212,240,0.025)" spin/></div><NetworkCanvas/></div>
       <div className="ev-hero__body">
         <div style={{overflow:"hidden"}}><div className="ev-hero__eyebrow" style={a(150)}>AI &bull; Automation &bull; Intelligent Systems</div></div>
         <div style={{overflow:"hidden"}}>
@@ -301,21 +301,21 @@ function ConvergenceDiagram() {
           const path = `M138 ${y} C 215 ${y}, 235 170, 290 170`;
           return (
             <g key={label} style={{ opacity: vis ? 1 : 0, transition: `opacity 0.9s ${EASE} ${i * 160}ms` }}>
-              <path d={path} fill="none" stroke="rgba(235,207,154,0.22)" strokeWidth="1.2"
+              <path d={path} fill="none" stroke="rgba(168,210,255,0.22)" strokeWidth="1.2"
                 strokeDasharray="320" strokeDashoffset={vis ? 0 : 320}
                 style={{ transition: `stroke-dashoffset 1.6s ${EASE} ${300 + i * 160}ms` }} />
               <circle r="2.6" fill="var(--ac)" opacity={vis ? 0.9 : 0}>
                 <animateMotion dur="3.2s" begin={`${i * 0.8}s`} repeatCount="indefinite" path={path} />
               </circle>
-              <rect x="6" y={y - 19} width="132" height="38" rx="3" fill="rgba(235,207,154,0.04)" stroke="rgba(235,207,154,0.18)" strokeWidth="1" />
-              <text x="72" y={y + 4.5} textAnchor="middle" fill="rgba(246,244,239,0.78)"
+              <rect x="6" y={y - 19} width="132" height="38" rx="3" fill="rgba(168,210,255,0.04)" stroke="rgba(168,210,255,0.18)" strokeWidth="1" />
+              <text x="72" y={y + 4.5} textAnchor="middle" fill="rgba(244,247,252,0.78)"
                 style={{ font: "500 13px var(--bd)", letterSpacing: "0.04em" }}>{label}</text>
             </g>
           );
         })}
         <g style={{ opacity: vis ? 1 : 0, transform: vis ? "none" : "scale(0.85)", transformOrigin: "346px 170px", transition: `opacity 1s ${EASE} 900ms, transform 1s ${EASE} 900ms` }}>
-          <circle cx="346" cy="170" r="62" fill="rgba(215,173,99,0.05)" stroke="rgba(215,173,99,0.35)" strokeWidth="1.2" />
-          <circle cx="346" cy="170" r="74" fill="none" stroke="rgba(215,173,99,0.12)" strokeWidth="1" strokeDasharray="3 6">
+          <circle cx="346" cy="170" r="62" fill="rgba(77,159,255,0.05)" stroke="rgba(77,159,255,0.35)" strokeWidth="1.2" />
+          <circle cx="346" cy="170" r="74" fill="none" stroke="rgba(77,159,255,0.12)" strokeWidth="1" strokeDasharray="3 6">
             <animateTransform attributeName="transform" type="rotate" from="0 346 170" to="360 346 170" dur="40s" repeatCount="indefinite" />
           </circle>
           <text x="346" y="164" textAnchor="middle" fill="#fff" style={{ font: "italic 400 17px var(--sf)" }}>Intelligent</text>
@@ -397,40 +397,66 @@ function Outcomes() {
   );
 }
 
-/* INDUSTRIES */
+/* INDUSTRIES — rotating orbit wheel */
 const INDS = [
-  { name:"Construction & Engineering", icon:Building2, desc:"Digital project monitoring, documentation systems, and reporting automation built for complex, multi-stakeholder environments." },
-  { name:"Manufacturing & Industrial", icon:Factory, desc:"Workflow optimization, operational analytics, and predictive monitoring that improve consistency at scale." },
-  { name:"Tourism & Hospitality", icon:Hotel, desc:"Guest management, operational automation, and business analytics that elevate the experience and the bottom line." },
-  { name:"Retail & Commerce", icon:ShoppingBag, desc:"Customer intelligence, inventory visibility, and process automation across the full commercial journey." },
-  { name:"Import & Export", icon:Ship, desc:"Trade documentation, workflow automation, and operational coordination across borders and partners." },
-  { name:"Professional Services", icon:Briefcase, desc:"Knowledge systems, workflow optimization, and AI-assisted operations that free experts to focus on expertise." },
-  { name:"Marketing & SEO", icon:TrendingUp, desc:"Content intelligence, domain qualification, and opportunity discovery powered by AI-driven analysis." },
-  { name:"European Projects", icon:Landmark, desc:"Project management support, reporting, and knowledge management for complex funding environments." },
-  { name:"NGOs & Associations", icon:HeartHandshake, desc:"Operational efficiency, communication systems, and data management aligned with mission-driven work." },
-  { name:"Education & Training", icon:GraduationCap, desc:"Knowledge systems, digital learning support, and administrative automation that support people first." },
-  { name:"Startups & SMEs", icon:Rocket, desc:"Scalable systems designed to support growth and operational maturity at every stage." },
+  { name:"Construction & Engineering", short:"Construction", desc:"Digital project monitoring, documentation systems, and reporting automation built for complex, multi-stakeholder environments." },
+  { name:"Manufacturing & Industrial", short:"Manufacturing", desc:"Workflow optimization, operational analytics, and predictive monitoring that improve consistency at scale." },
+  { name:"Tourism & Hospitality", short:"Tourism", desc:"Guest management, operational automation, and business analytics that elevate the experience and the bottom line." },
+  { name:"Retail & Commerce", short:"Retail", desc:"Customer intelligence, inventory visibility, and process automation across the full commercial journey." },
+  { name:"Import & Export", short:"Import & Export", desc:"Trade documentation, workflow automation, and operational coordination across borders and partners." },
+  { name:"Professional Services", short:"Services", desc:"Knowledge systems, workflow optimization, and AI-assisted operations that free experts to focus on expertise." },
+  { name:"Marketing & SEO", short:"Marketing", desc:"Content intelligence, domain qualification, and opportunity discovery powered by AI-driven analysis." },
+  { name:"European Projects", short:"EU Projects", desc:"Project management support, reporting, and knowledge management for complex funding environments." },
+  { name:"NGOs & Associations", short:"NGOs", desc:"Operational efficiency, communication systems, and data management aligned with mission-driven work." },
+  { name:"Education & Training", short:"Education", desc:"Knowledge systems, digital learning support, and administrative automation that support people first." },
+  { name:"Startups & SMEs", short:"Startups", desc:"Scalable systems designed to support growth and operational maturity at every stage." },
 ];
 
 function Industries() {
-  const [hov, setHov] = useState(null);
+  const [act, setAct] = useState(0);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => setAct(a => (a+1)%INDS.length), 3000);
+    return () => clearInterval(id);
+  }, [paused]);
+  const step = 360/INDS.length;
   return (
     <section id="industries" className="ev-ind-sec">
       <div className="ev-ind__wrap">
-        <Reveal><div className="ev-label ev-label--l">02 <span>Industries</span></div></Reveal>
-        <Reveal delay={80}><h2 className="ev-ind__h">Industries We <em>Support</em></h2></Reveal>
-        <div className="ev-ind-list">
-          {INDS.map((d,i)=>(
-            <Reveal key={i} delay={i*50} direction={i%2?"left":"right"}>
-              <div className={`ev-ind${hov===i?" ev-ind--on":""}`} onMouseEnter={()=>setHov(i)} onMouseLeave={()=>setHov(null)}>
-                <span className="ev-ind__ix"><d.icon size={20} className="ev-ind__ic" aria-hidden="true"/>{String(i+1).padStart(2,"0")}</span>
-                <h3 className="ev-ind__nm">{d.name}</h3>
-                <p className="ev-ind__ds">{d.desc}</p>
-                <ArrowUpRight size={22} className="ev-ind__ar"/>
-              </div>
-            </Reveal>
-          ))}
+        <div className="ev-ind__left">
+          <Reveal><div className="ev-label ev-label--l">02 <span>Industries</span></div></Reveal>
+          <Reveal delay={80} direction="right"><h2 className="ev-ind__h">Industries We <em>Support</em></h2></Reveal>
+          <div className="ev-ind__detail" key={act}>
+            <span className="ev-ind__dnum">{String(act+1).padStart(2,"0")} / {INDS.length}</span>
+            <h3 className="ev-ind__dname">{INDS[act].name}</h3>
+            <p className="ev-ind__ddesc">{INDS[act].desc}</p>
+          </div>
+          <div className="ev-ind__dots">
+            {INDS.map((_,i)=>(
+              <button key={i} className={`ev-ind__dot${i===act?" ev-ind__dot--on":""}`} onClick={()=>setAct(i)} aria-label={INDS[i].name}/>
+            ))}
+          </div>
         </div>
+        <Reveal direction="scale" delay={150}>
+          <div className="ev-orbit" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
+            <div className="ev-orbit__ring"/>
+            <div className="ev-orbit__ring ev-orbit__ring--in"/>
+            <div className="ev-orbit__spin">
+              {INDS.map((s,i)=>(
+                <div key={i} className="ev-orbit__pos" style={{transform:`rotate(${i*step}deg) translateY(calc(var(--orbR) * -1)) rotate(${-i*step}deg)`}}>
+                  <div className="ev-orbit__upright">
+                    <button className={`ev-orbit__node${i===act?" ev-orbit__node--on":""}`} onClick={()=>setAct(i)} onMouseEnter={()=>setAct(i)}>{s.short}</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="ev-orbit__hub">
+              <LogoMark size={30} color="#fff"/>
+              <span>Evriel<br/>Systems</span>
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -454,8 +480,8 @@ function FlowDiagram({ steps }) {
           <span className={`ev-flow__node${i === steps.length - 1 ? " ev-flow__node--end" : ""}`}>{s}</span>
           {i < steps.length - 1 && (
             <svg className="ev-flow__link" width="34" height="10" viewBox="0 0 34 10">
-              <line x1="0" y1="5" x2="26" y2="5" stroke="rgba(235,207,154,0.35)" strokeWidth="1.2" strokeDasharray="4 4" style={vis ? { animation: "flowDash 1.4s linear infinite" } : {}} />
-              <path d="M26 1.5 L32 5 L26 8.5" fill="none" stroke="rgba(235,207,154,0.5)" strokeWidth="1.2" />
+              <line x1="0" y1="5" x2="26" y2="5" stroke="rgba(168,210,255,0.35)" strokeWidth="1.2" strokeDasharray="4 4" style={vis ? { animation: "flowDash 1.4s linear infinite" } : {}} />
+              <path d="M26 1.5 L32 5 L26 8.5" fill="none" stroke="rgba(168,210,255,0.5)" strokeWidth="1.2" />
             </svg>
           )}
         </div>
@@ -620,7 +646,7 @@ function Borders() {
   const pRef = useParallax(0.03);
   return (
     <section className="ev-bdr-sec">
-      <div className="ev-bdr__orb" ref={pRef}><LogoMark size={520} color="rgba(235,207,154,0.035)" spin/></div>
+      <div className="ev-bdr__orb" ref={pRef}><LogoMark size={520} color="rgba(168,210,255,0.035)" spin/></div>
       <div className="ev-bdr__wrap">
         <Reveal><div className="ev-label ev-label--l"><span>Working Across Borders</span></div></Reveal>
         <Reveal delay={100} direction="scale"><h2 className="ev-bdr__h">Built for a <em>Connected</em> World</h2></Reveal>
@@ -689,7 +715,7 @@ function Statement() {
   const p = useParallax(0.02);
   return (
     <section className="ev-stmt">
-      <div className="ev-stmt__bg" ref={p}><LogoMark size={420} color="rgba(235,207,154,0.04)"/></div>
+      <div className="ev-stmt__bg" ref={p}><LogoMark size={420} color="rgba(168,210,255,0.04)"/></div>
       <div className="ev-stmt__body">
         <Reveal direction="scale"><h2 className="ev-stmt__h">The future belongs to<br/>organizations that can adapt,<br/>innovate, and act <em>intelligently.</em></h2></Reveal>
         <Reveal delay={180}><a href="#contact" className="ev-btn ev-btn--w ev-btn--lg" onClick={e=>{e.preventDefault();document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}}>Start a Conversation <ArrowRight size={18}/></a></Reveal>
@@ -703,7 +729,7 @@ const NEXT_STEPS = [
   { t:"You Reach Out", d:"Send us a message through the form below. We personally read every inquiry and respond within 24 hours." },
   { t:"Initial Conversation", d:"A relaxed introductory call to understand your organization, goals, and challenges. No commitments, no sales pressure." },
   { t:"Discovery & Assessment", d:"We analyze your workflows and identify exactly where AI and intelligent systems can create measurable value." },
-  { t:"Solution Design", d:"You receive a clear proposal — scope, timeline, and expected outcomes — written in plain business language." },
+  { t:"Solution Design", d:"You receive a clear proposal with scope, timeline, and expected outcomes, written in plain business language." },
   { t:"Implementation & Continuous Improvement", d:"We build, integrate, and continuously improve the solution alongside your team for long-term success." },
 ];
 
@@ -744,6 +770,8 @@ function Contact() {
   const tog = (v) => setF(p=>({...p,interests:p.interests.includes(v)?p.interests.filter(x=>x!==v):[...p.interests,v]}));
   const submit = async (e) => {
     e.preventDefault();
+    if (!f.name.trim() || !f.company.trim() || !f.email.trim() || !f.industry || !f.challenge.trim()) { setErr("Please fill in all required fields marked with *."); return; }
+    if (f.interests.length === 0) { setErr("Please select at least one area of interest."); return; }
     setSending(true);
     setErr(null);
     try {
@@ -772,12 +800,12 @@ function Contact() {
           ) : (
             <Reveal direction="right">
               <form className="ev-form" onSubmit={submit}>
-                <div className="ev-form__r"><div className="ev-f"><label>Name</label><input placeholder="Your full name" value={f.name} onChange={e=>setF(p=>({...p,name:e.target.value}))}/></div><div className="ev-f"><label>Company</label><input placeholder="Organization" value={f.company} onChange={e=>setF(p=>({...p,company:e.target.value}))}/></div></div>
-                <div className="ev-form__r"><div className="ev-f"><label>Email</label><input type="email" placeholder="your@email.com" value={f.email} onChange={e=>setF(p=>({...p,email:e.target.value}))}/></div><div className="ev-f"><label>Phone <span className="opt">(Optional)</span></label><input placeholder="+1 000 000 0000" value={f.phone} onChange={e=>setF(p=>({...p,phone:e.target.value}))}/></div></div>
+                <div className="ev-form__r"><div className="ev-f"><label>Name <span className="req">*</span></label><input required placeholder="Your full name" value={f.name} onChange={e=>setF(p=>({...p,name:e.target.value}))}/></div><div className="ev-f"><label>Company <span className="req">*</span></label><input required placeholder="Organization" value={f.company} onChange={e=>setF(p=>({...p,company:e.target.value}))}/></div></div>
+                <div className="ev-form__r"><div className="ev-f"><label>Email <span className="req">*</span></label><input required type="email" placeholder="your@email.com" value={f.email} onChange={e=>setF(p=>({...p,email:e.target.value}))}/></div><div className="ev-f"><label>Phone <span className="opt">(Optional)</span></label><input placeholder="+1 000 000 0000" value={f.phone} onChange={e=>setF(p=>({...p,phone:e.target.value}))}/></div></div>
                 <div className="ev-f"><label>Preferred Language</label><div className="ev-radios">{["English","Italian","Spanish","Greek","Polish","French","German","Other"].map(l=><label key={l} className={`ev-rad${f.language===l?" ev-rad--on":""}`}><input type="radio" name="lang" checked={f.language===l} onChange={()=>setF(p=>({...p,language:l}))} style={{display:"none"}}/>{l}</label>)}</div></div>
-                <div className="ev-f"><label>Industry</label><select className="ev-sel" value={f.industry} onChange={e=>setF(p=>({...p,industry:e.target.value}))}><option value="">Select your industry</option>{["Construction & Engineering","Manufacturing","Tourism & Hospitality","Retail & Commerce","Import & Export","Marketing & SEO","European Projects","NGO & Associations","Professional Services","Startup / SME","Education & Training","Other"].map(x=><option key={x}>{x}</option>)}</select></div>
-                <div className="ev-f"><label>What are you interested in?</label><div className="ev-checks">{["AI Automation","Business Intelligence","Digital Transformation","Custom Business Systems","European Project Solutions","Not Sure Yet"].map(x=><label key={x} className={`ev-chk${f.interests.includes(x)?" ev-chk--on":""}`} onClick={()=>tog(x)}><span className="ev-chk__b">{f.interests.includes(x)&&<CheckCircle2 size={12}/>}</span>{x}</label>)}</div></div>
-                <div className="ev-f"><label>Tell us about your challenge</label><textarea rows={5} placeholder="Describe your project, challenge, or business objective..." value={f.challenge} onChange={e=>setF(p=>({...p,challenge:e.target.value}))}/></div>
+                <div className="ev-f"><label>Industry <span className="req">*</span></label><select required className="ev-sel" value={f.industry} onChange={e=>setF(p=>({...p,industry:e.target.value}))}><option value="">Select your industry</option>{["Construction & Engineering","Manufacturing","Tourism & Hospitality","Retail & Commerce","Import & Export","Marketing & SEO","European Projects","NGO & Associations","Professional Services","Startup / SME","Education & Training","Other"].map(x=><option key={x}>{x}</option>)}</select></div>
+                <div className="ev-f"><label>What are you interested in? <span className="req">*</span></label><div className="ev-checks">{["AI Automation","Business Intelligence","Digital Transformation","Custom Business Systems","European Project Solutions","Not Sure Yet"].map(x=><label key={x} className={`ev-chk${f.interests.includes(x)?" ev-chk--on":""}`} onClick={()=>tog(x)}><span className="ev-chk__b">{f.interests.includes(x)&&<CheckCircle2 size={12}/>}</span>{x}</label>)}</div></div>
+                <div className="ev-f"><label>Tell us about your challenge <span className="req">*</span></label><textarea required rows={5} placeholder="Describe your project, challenge, or business objective..." value={f.challenge} onChange={e=>setF(p=>({...p,challenge:e.target.value}))}/></div>
                 {err && <p className="ev-form__err">{err}</p>}
                 <button type="submit" className="ev-btn ev-btn--w ev-btn--lg" style={{width:"100%",justifyContent:"center",marginTop:4}} disabled={sending}>{sending ? "Sending..." : "Start the Conversation"} {!sending && <ArrowRight size={17}/>}</button>
               </form>
@@ -896,15 +924,15 @@ export default function EvrielSystems() {
     <>
       <style>{`
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
-:root{--bk:#0B0B0C;--wh:#F6F4EF;--pt:#E0D2AE;--ac:#D7AD63;--ac2:#EBCF9A;--acg:rgba(215,173,99,0.14);--dk:#121214;--mg:#0E0E10;--sf:'DM Serif Display',Georgia,serif;--bd:'Inter',-apple-system,sans-serif}
+:root{--bk:#070B15;--wh:#F4F7FC;--pt:#BCD4F0;--ac:#4D9FFF;--ac2:#A8D2FF;--acg:rgba(77,159,255,0.14);--dk:#0B1220;--mg:#0A0F1C;--sf:'DM Serif Display',Georgia,serif;--bd:'Inter',-apple-system,sans-serif}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:var(--bd);background:var(--bk);color:var(--bk);-webkit-font-smoothing:antialiased}
-::selection{background:rgba(215,173,99,0.3);color:#fff}
+::selection{background:rgba(77,159,255,0.3);color:#fff}
 ::-webkit-scrollbar{width:10px}
 ::-webkit-scrollbar-track{background:var(--bk)}
-::-webkit-scrollbar-thumb{background:#2A2A30;border-radius:5px;border:2px solid var(--bk)}
-::-webkit-scrollbar-thumb:hover{background:#3C3C45}
+::-webkit-scrollbar-thumb{background:#1B2940;border-radius:5px;border:2px solid var(--bk)}
+::-webkit-scrollbar-thumb:hover{background:#2A3D5E}
 button,input,textarea,select{font-family:inherit;background:none;border:none;cursor:pointer}
 a{text-decoration:none;color:inherit}
 em{font-family:var(--sf);font-style:italic}
@@ -916,26 +944,27 @@ em{font-family:var(--sf);font-style:italic}
 @keyframes mq{from{transform:translateX(0)}to{transform:translateX(-25%)}}
 @keyframes scBob{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(10px);opacity:0.3}}
 @keyframes flowDash{to{stroke-dashoffset:-24}}
-@keyframes acPulse{0%,100%{box-shadow:0 0 0 0 rgba(215,173,99,0.35)}50%{box-shadow:0 0 0 7px rgba(215,173,99,0)}}
+@keyframes acPulse{0%,100%{box-shadow:0 0 0 0 rgba(77,159,255,0.35)}50%{box-shadow:0 0 0 7px rgba(77,159,255,0)}}
 @keyframes orbDrift{0%,100%{transform:translate(0,0)}33%{transform:translate(30px,-40px)}66%{transform:translate(-25px,30px)}}
 
 /* NAV */
 .ev-nav{position:fixed;top:0;left:0;right:0;z-index:999;padding:18px 0;transition:all 0.5s ${EASE}}
-.ev-nav--s{background:rgba(12,12,14,0.85);backdrop-filter:blur(24px);padding:10px 0;box-shadow:0 1px 0 rgba(235,207,154,0.08)}
+.ev-nav--s{background:rgba(8,13,24,0.82);backdrop-filter:blur(24px);padding:10px 0;box-shadow:0 1px 0 rgba(168,210,255,0.08)}
 .ev-nav__in{max-width:1440px;margin:0 auto;padding:0 48px;display:flex;align-items:center;justify-content:space-between}
 .ev-nav__links{display:flex;align-items:center;gap:30px}
 .ev-nav__link{font-size:12px;font-weight:400;letter-spacing:0.07em;text-transform:uppercase;transition:opacity 0.3s}.ev-nav__link:hover{opacity:0.5}
-.ev-nav__cta{font-size:11px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;padding:10px 22px;background:var(--ac);color:#171005;border-radius:2px;transition:all 0.3s ${EASE}}.ev-nav__cta:hover{background:var(--ac2);box-shadow:0 0 24px rgba(215,173,99,0.35)}
+.ev-nav__cta{font-size:11px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;padding:10px 22px;background:var(--ac);color:#04101F;border-radius:2px;transition:all 0.3s ${EASE}}.ev-nav__cta:hover{background:var(--ac2);box-shadow:0 0 24px rgba(77,159,255,0.35)}
 .ev-nav__burger{display:none}
 .ev-mobile-menu{position:fixed;inset:0;background:var(--bk);z-index:998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding-top:60px}
 .ev-mob-link{font-family:var(--sf);font-size:32px;color:#fff;transition:opacity 0.3s}.ev-mob-link:hover{opacity:0.5}
 
 /* HERO */
 .ev-hero{position:relative;height:100vh;min-height:680px;display:flex;align-items:center;justify-content:center;background:var(--bk);overflow:hidden}
+.ev-hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 90% 55% at 50% -12%,rgba(225,240,255,0.13),rgba(120,180,255,0.05) 45%,transparent 70%);pointer-events:none}
 .ev-hero__bg{position:absolute;inset:0;pointer-events:none}
-.ev-hero__grid{position:absolute;inset:0;background-image:linear-gradient(rgba(235,207,154,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(235,207,154,0.03) 1px,transparent 1px);background-size:80px 80px}
-.ev-hero__rad{position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% 50%,rgba(215,173,99,0.07),transparent)}
-.ev-hero__orb{position:absolute;top:12%;right:8%;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(215,173,99,0.08),transparent 65%);animation:orbDrift 18s ease-in-out infinite;pointer-events:none}
+.ev-hero__grid{position:absolute;inset:0;background-image:linear-gradient(rgba(168,210,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(168,210,255,0.03) 1px,transparent 1px);background-size:80px 80px}
+.ev-hero__rad{position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% 50%,rgba(77,159,255,0.07),transparent)}
+.ev-hero__orb{position:absolute;top:12%;right:8%;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(77,159,255,0.08),transparent 65%);animation:orbDrift 18s ease-in-out infinite;pointer-events:none}
 .ev-hero__ghost{position:absolute;top:50%;left:50%;animation:logospin 90s linear infinite}
 .ev-hero__body{position:relative;z-index:2;text-align:center;padding:0 24px;max-width:1100px}
 .ev-hero__eyebrow{font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--ac2);opacity:0.75;margin-bottom:36px}
@@ -954,9 +983,9 @@ em{font-family:var(--sf);font-style:italic}
 
 /* BUTTONS */
 .ev-btn{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:500;letter-spacing:0.09em;text-transform:uppercase;padding:15px 30px;transition:all 0.4s ${EASE};border:1px solid transparent;cursor:pointer}
-.ev-btn--w{background:var(--ac);color:#171005;border-radius:2px}.ev-btn--w:hover{background:var(--ac2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(215,173,99,0.35)}
-.ev-btn--gh{border-color:rgba(235,207,154,0.25);color:#fff;border-radius:2px}.ev-btn--gh:hover{border-color:var(--ac);box-shadow:inset 0 0 24px rgba(215,173,99,0.08)}
-.ev-btn--dk{background:var(--ac);color:#171005;border-radius:2px}.ev-btn--dk:hover{background:var(--ac2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(215,173,99,0.35)}
+.ev-btn--w{background:var(--ac);color:#04101F;border-radius:2px}.ev-btn--w:hover{background:var(--ac2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(77,159,255,0.35)}
+.ev-btn--gh{border-color:rgba(168,210,255,0.25);color:#fff;border-radius:2px}.ev-btn--gh:hover{border-color:var(--ac);box-shadow:inset 0 0 24px rgba(77,159,255,0.08)}
+.ev-btn--dk{background:var(--ac);color:#04101F;border-radius:2px}.ev-btn--dk:hover{background:var(--ac2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(77,159,255,0.35)}
 .ev-btn--lg{padding:18px 42px;font-size:13px}
 .ev-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 
@@ -966,8 +995,8 @@ em{font-family:var(--sf);font-style:italic}
 
 /* LABELS */
 .ev-label{font-size:12px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--ac);margin-bottom:20px;display:flex;gap:10px}
-.ev-label span{color:rgba(246,244,239,0.45)}
-.ev-label--l{color:var(--ac)}.ev-label--l span{color:rgba(246,244,239,0.45)}
+.ev-label span{color:rgba(244,247,252,0.45)}
+.ev-label--l{color:var(--ac)}.ev-label--l span{color:rgba(244,247,252,0.45)}
 
 /* MARQUEE */
 .ev-mq{background:var(--mg);padding:13px 0;overflow:hidden;border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04)}
@@ -999,27 +1028,38 @@ em{font-family:var(--sf);font-style:italic}
 .ev-ch svg{color:var(--ac);flex-shrink:0}
 
 /* Industries */
-.ev-ind-sec{background:linear-gradient(to bottom,var(--dk),var(--bk));padding:120px 0 140px;position:relative}
+.ev-ind-sec{background:linear-gradient(to bottom,var(--dk),var(--bk));padding:120px 0 140px;position:relative;overflow:hidden}
 .ev-ind-sec::before{content:'';position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,var(--dk),transparent);pointer-events:none;z-index:1}
-.ev-ind__wrap{max-width:1440px;margin:0 auto;padding:0 48px;position:relative;z-index:2}
-.ev-ind__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:56px}
+.ev-ind__wrap{max-width:1440px;margin:0 auto;padding:0 48px;position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.ev-ind__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:40px}
 .ev-ind__h em{color:var(--pt)}
-.ev-ind-list{display:flex;flex-direction:column}
-.ev-ind{display:grid;grid-template-columns:60px 1fr 2fr 40px;gap:32px;align-items:center;padding:34px 8px;border-top:1px solid rgba(255,255,255,0.06);transition:all 0.45s ${EASE};position:relative;cursor:default}
-.ev-ind:last-child{border-bottom:1px solid rgba(255,255,255,0.06)}
-.ev-ind--on,.ev-ind:hover{padding-left:24px;background:rgba(255,255,255,0.025)}
-.ev-ind__ix{font-family:var(--sf);font-size:15px;color:rgba(255,255,255,0.18);letter-spacing:0.05em;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
-.ev-ind__ic{color:rgba(235,207,154,0.3);transition:all 0.45s ${EASE}}
-.ev-ind--on .ev-ind__ic,.ev-ind:hover .ev-ind__ic{color:var(--ac);transform:translateY(-2px) scale(1.12)}
-.ev-ind__nm{font-family:var(--sf);font-size:clamp(22px,2.6vw,32px);font-weight:400;color:#fff;line-height:1.2;transition:color 0.4s ${EASE}}
-.ev-ind--on .ev-ind__nm,.ev-ind:hover .ev-ind__nm{color:var(--pt)}
-.ev-ind__ds{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.32);max-width:480px}
-.ev-ind__ar{color:rgba(255,255,255,0.15);justify-self:end;transition:all 0.4s ${EASE};opacity:0;transform:translate(-8px,8px)}
-.ev-ind--on .ev-ind__ar,.ev-ind:hover .ev-ind__ar{opacity:1;transform:translate(0,0);color:var(--pt)}
+.ev-ind__detail{min-height:170px;animation:indFade 0.55s ${EASE}}
+@keyframes indFade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.ev-ind__dnum{font-family:var(--sf);font-size:13px;color:var(--ac);letter-spacing:0.15em;display:block;margin-bottom:14px}
+.ev-ind__dname{font-family:var(--sf);font-size:clamp(26px,2.8vw,38px);font-weight:400;color:#fff;line-height:1.15;margin-bottom:14px}
+.ev-ind__ddesc{font-size:14px;line-height:1.75;color:rgba(255,255,255,0.42);max-width:440px}
+.ev-ind__dots{display:flex;gap:9px;margin-top:30px;flex-wrap:wrap}
+.ev-ind__dot{width:8px;height:8px;border-radius:50%;border:none;padding:0;background:rgba(168,210,255,0.18);cursor:pointer;transition:all 0.4s ${EASE}}
+.ev-ind__dot--on{background:var(--ac);transform:scale(1.45);box-shadow:0 0 10px rgba(77,159,255,0.6)}
+/* orbit wheel */
+.ev-orbit{--orbR:235px;position:relative;width:560px;height:560px;margin:0 auto}
+.ev-orbit__ring{position:absolute;inset:45px;border:1px solid rgba(168,210,255,0.14);border-radius:50%}
+.ev-orbit__ring--in{inset:150px;border-color:rgba(168,210,255,0.07)}
+.ev-orbit__spin{position:absolute;inset:0;animation:orbSpin 70s linear infinite}
+.ev-orbit:hover .ev-orbit__spin,.ev-orbit:hover .ev-orbit__upright{animation-play-state:paused}
+@keyframes orbSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes orbSpinRev{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+.ev-orbit__pos{position:absolute;top:50%;left:50%;width:0;height:0}
+.ev-orbit__node{position:absolute;transform:translate(-50%,-50%);border:1px solid rgba(168,210,255,0.18);background:rgba(10,16,29,0.85);color:rgba(255,255,255,0.55);font-family:var(--bd);font-size:10.5px;letter-spacing:0.06em;text-transform:uppercase;padding:9px 14px;border-radius:99px;cursor:pointer;white-space:nowrap;transition:all 0.4s ${EASE};backdrop-filter:blur(4px)}
+.ev-orbit__node--on{border-color:var(--ac);background:rgba(77,159,255,0.14);color:#fff;box-shadow:0 0 24px rgba(77,159,255,0.35)}
+.ev-orbit__node:hover{color:#fff;border-color:rgba(168,210,255,0.5)}
+.ev-orbit__upright{position:absolute;width:0;height:0;animation:orbSpinRev 70s linear infinite}
+.ev-orbit__hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:130px;height:130px;border-radius:50%;border:1px solid rgba(168,210,255,0.25);background:radial-gradient(circle,rgba(77,159,255,0.12),rgba(10,16,29,0.9) 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;animation:acPulse 4s ease-in-out infinite}
+.ev-orbit__hub span{font-family:var(--sf);font-size:12px;letter-spacing:0.08em;color:rgba(255,255,255,0.8);line-height:1.35}
 
 /* Outcomes */
 .ev-out-sec{background:linear-gradient(to bottom,var(--bk),var(--dk));padding:120px 0;position:relative;overflow:hidden}
-.ev-out__glow{position:absolute;top:10%;right:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(215,173,99,0.06),transparent 65%);pointer-events:none;animation:orbDrift 22s ease-in-out infinite}
+.ev-out__glow{position:absolute;top:10%;right:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(77,159,255,0.06),transparent 65%);pointer-events:none;animation:orbDrift 22s ease-in-out infinite}
 .ev-out__wrap{max-width:1100px;margin:0 auto;padding:0 48px;position:relative;z-index:2}
 .ev-out__grid{display:flex;flex-direction:column;margin-top:36px}
 .ev-out{display:grid;grid-template-columns:60px 1fr 1.4fr;gap:32px;align-items:center;padding:30px 8px;border-top:1px solid rgba(255,255,255,0.06);position:relative;transition:padding-left 0.4s ${EASE}}
@@ -1028,11 +1068,11 @@ em{font-family:var(--sf);font-style:italic}
 .ev-out__ix{font-family:var(--sf);font-size:14px;color:rgba(255,255,255,0.18)}
 .ev-out__t{font-family:var(--sf);font-size:clamp(20px,2.4vw,28px);font-weight:400;color:#fff}
 .ev-out__d{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.34)}
-.ev-out__ln{position:absolute;left:0;bottom:-1px;width:0;height:1px;background:linear-gradient(90deg,var(--ac),rgba(235,207,154,0.15));transition:width 0.6s ${EASE}}
+.ev-out__ln{position:absolute;left:0;bottom:-1px;width:0;height:1px;background:linear-gradient(90deg,var(--ac),rgba(168,210,255,0.15));transition:width 0.6s ${EASE}}
 .ev-out:hover .ev-out__ln{width:100%}
 
 /* Services */
-.ev-svc-sec{background:linear-gradient(to bottom,var(--bk),#16161A,var(--bk));padding:140px 0;position:relative}
+.ev-svc-sec{background:linear-gradient(to bottom,var(--bk),#0E1626,var(--bk));padding:140px 0;position:relative}
 .ev-svc__wrap{max-width:1440px;margin:0 auto;padding:0 48px}
 .ev-svc__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:18px}
 .ev-svc__h em{color:var(--pt)}
@@ -1040,7 +1080,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-svc{display:grid;grid-template-columns:90px 1fr 1fr;gap:36px;padding:40px 0;border-top:1px solid rgba(255,255,255,0.06);position:relative;transition:padding-left 0.4s ${EASE};align-items:start}
 .ev-svc:last-child{border-bottom:1px solid rgba(255,255,255,0.06)}
 .ev-svc:hover{padding-left:14px}
-.ev-svc__bar{position:absolute;left:0;top:0;width:2px;height:0;background:var(--ac);box-shadow:0 0 12px rgba(215,173,99,0.4);transition:height 0.6s ${EASE}}
+.ev-svc__bar{position:absolute;left:0;top:0;width:2px;height:0;background:var(--ac);box-shadow:0 0 12px rgba(77,159,255,0.4);transition:height 0.6s ${EASE}}
 .ev-svc:hover .ev-svc__bar{height:100%}
 .ev-svc__l{display:flex;flex-direction:column;gap:12px;padding-top:4px}
 .ev-svc__gn{font-family:var(--sf);font-size:44px;color:rgba(255,255,255,0.04);line-height:1}
@@ -1049,8 +1089,8 @@ em{font-family:var(--sf);font-style:italic}
 .ev-svc__d{font-size:14px;line-height:1.72;color:rgba(255,255,255,0.4)}
 .ev-flow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:18px}
 .ev-flow__seg{display:flex;align-items:center;gap:6px}
-.ev-flow__node{font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:6px 12px;border:1px solid rgba(235,207,154,0.2);border-radius:2px;color:rgba(246,244,239,0.6);background:rgba(235,207,154,0.03);white-space:nowrap}
-.ev-flow__node--end{border-color:var(--ac);color:var(--ac2);background:rgba(215,173,99,0.08)}
+.ev-flow__node{font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:6px 12px;border:1px solid rgba(168,210,255,0.2);border-radius:2px;color:rgba(244,247,252,0.6);background:rgba(168,210,255,0.03);white-space:nowrap}
+.ev-flow__node--end{border-color:var(--ac);color:var(--ac2);background:rgba(77,159,255,0.08)}
 .ev-flow__link{flex-shrink:0}
 .ev-svc__al{font-size:10px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:12px}
 .ev-svc__r ul{list-style:none;display:flex;flex-direction:column;gap:7px}
@@ -1069,13 +1109,13 @@ em{font-family:var(--sf);font-style:italic}
 .ev-prj__hl{display:flex;align-items:center;gap:18px}
 .ev-prj__ix{font-family:var(--sf);font-size:15px;color:rgba(255,255,255,0.15)}
 .ev-prj__t{font-family:var(--sf);font-size:clamp(18px,2vw,24px);font-weight:400;color:#fff}
-.ev-prj__badge{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(215,173,99,0.4);color:var(--ac2);font-weight:500;font-family:var(--bd);background:rgba(215,173,99,0.06)}
+.ev-prj__badge{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(77,159,255,0.4);color:var(--ac2);font-weight:500;font-family:var(--bd);background:rgba(77,159,255,0.06)}
 .ev-prj__tog{color:rgba(255,255,255,0.3)}
 .ev-prj__bd{padding:16px 0 4px 46px}
 .ev-prj__bd>p:first-child{font-size:14px;line-height:1.72;color:rgba(255,255,255,0.38);margin-bottom:14px;max-width:560px}
 .ev-prj__caps{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
 .ev-prj__cap{font-size:10px;letter-spacing:0.06em;text-transform:uppercase;padding:5px 12px;border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);transition:all 0.3s}
-.ev-prj__cap:hover{border-color:rgba(215,173,99,0.5);color:var(--ac2)}
+.ev-prj__cap:hover{border-color:rgba(77,159,255,0.5);color:var(--ac2)}
 .ev-prj__tl{font-family:var(--sf);font-size:14px;font-style:italic;color:rgba(217,217,217,0.5)}
 .ev-prj__more{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;color:var(--pt);margin-top:16px;transition:gap 0.3s ${EASE};background:none;border:none;cursor:pointer;padding:0}
 .ev-prj__more:hover{gap:14px}
@@ -1094,13 +1134,13 @@ em{font-family:var(--sf);font-style:italic}
 .ev-proc__h em{color:var(--pt)}
 .ev-proc__intro{font-size:15px;line-height:1.7;color:rgba(255,255,255,0.35);max-width:560px;margin-bottom:56px}
 .ev-proc__grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative}
-.ev-proc__grid::before{content:'';position:absolute;top:20px;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--ac),rgba(235,207,154,0.25) 55%,rgba(235,207,154,0.06))}
+.ev-proc__grid::before{content:'';position:absolute;top:20px;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--ac),rgba(168,210,255,0.25) 55%,rgba(168,210,255,0.06))}
 .ev-proc__grid::after{content:'';position:absolute;top:18.5px;left:0;width:42px;height:4px;border-radius:2px;background:var(--ac);filter:blur(1px);animation:procRun 7s ${EASE} infinite}
 @keyframes procRun{0%{left:0;opacity:0}8%{opacity:1}92%{opacity:1}100%{left:calc(100% - 42px);opacity:0}}
 .ev-proc__card{padding:0 24px 36px;border-right:1px solid rgba(255,255,255,0.04);transition:background 0.4s}
 .ev-proc__card:last-child{border-right:none}
 .ev-proc__card:hover{background:rgba(255,255,255,0.015)}
-.ev-proc__num{font-family:var(--sf);font-size:12px;color:rgba(235,207,154,0.4);margin-bottom:24px;padding-top:10px;letter-spacing:0.1em}
+.ev-proc__num{font-family:var(--sf);font-size:12px;color:rgba(168,210,255,0.4);margin-bottom:24px;padding-top:10px;letter-spacing:0.1em}
 .ev-proc__dot{width:8px;height:8px;border-radius:50%;background:var(--ac);margin-bottom:20px;transition:transform 0.4s;animation:acPulse 3s ease-in-out infinite}
 .ev-proc__card:hover .ev-proc__dot{transform:scale(1.5)}
 .ev-proc__ct{font-family:var(--sf);font-size:20px;font-weight:400;color:#fff;margin-bottom:10px}
@@ -1130,7 +1170,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-why__card p{font-size:13px;line-height:1.6;color:rgba(255,255,255,0.32)}
 
 /* Trust */
-.ev-trust-sec{background:linear-gradient(to bottom,var(--bk),#101013);padding:140px 0}
+.ev-trust-sec{background:linear-gradient(to bottom,var(--bk),#0A111F);padding:140px 0}
 .ev-trust__wrap{max-width:1440px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
 .ev-trust__h{font-family:var(--sf);font-size:clamp(38px,4.2vw,62px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:24px}
 .ev-trust__h em{color:var(--pt)}
@@ -1160,18 +1200,18 @@ em{font-family:var(--sf);font-style:italic}
 .ev-next__h em{color:var(--pt)}
 .ev-next__intro{font-size:15px;line-height:1.7;color:rgba(255,255,255,0.4);max-width:520px;margin-bottom:64px}
 .ev-next__tl{position:relative;padding:10px 0 4px}
-.ev-next__line{position:absolute;top:0;bottom:0;left:50%;width:1px;background:linear-gradient(to bottom,var(--ac),rgba(235,207,154,0.25) 60%,rgba(235,207,154,0.05));transform-origin:top;transition:transform 2.4s ${EASE} 200ms}
+.ev-next__line{position:absolute;top:0;bottom:0;left:50%;width:1px;background:linear-gradient(to bottom,var(--ac),rgba(168,210,255,0.25) 60%,rgba(168,210,255,0.05));transform-origin:top;transition:transform 2.4s ${EASE} 200ms}
 .ev-next__row{position:relative;display:flex;justify-content:flex-start;padding:26px 0}
 .ev-next__row--r{justify-content:flex-end}
-.ev-next__card{width:44%;padding:28px 30px;border:1px solid rgba(235,207,154,0.12);background:rgba(235,207,154,0.025);transition:all 0.45s ${EASE}}
-.ev-next__card:hover{border-color:rgba(215,173,99,0.45);background:rgba(235,207,154,0.05);transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,0.35)}
+.ev-next__card{width:44%;padding:28px 30px;border:1px solid rgba(168,210,255,0.12);background:rgba(168,210,255,0.025);transition:all 0.45s ${EASE}}
+.ev-next__card:hover{border-color:rgba(77,159,255,0.45);background:rgba(168,210,255,0.05);transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,0.35)}
 .ev-next__num{font-family:var(--sf);font-size:13px;color:var(--ac);letter-spacing:0.12em;display:block;margin-bottom:12px}
 .ev-next__t{font-family:var(--sf);font-size:21px;font-weight:400;color:#fff;margin-bottom:10px;line-height:1.25}
 .ev-next__d{font-size:13.5px;line-height:1.7;color:rgba(255,255,255,0.4)}
-.ev-next__node{position:absolute;top:50%;left:50%;width:11px;height:11px;border-radius:50%;background:var(--ac);box-shadow:0 0 0 5px rgba(215,173,99,0.12);transition:transform 0.6s ${EASE};animation:acPulse 3s ease-in-out infinite}
+.ev-next__node{position:absolute;top:50%;left:50%;width:11px;height:11px;border-radius:50%;background:var(--ac);box-shadow:0 0 0 5px rgba(77,159,255,0.12);transition:transform 0.6s ${EASE};animation:acPulse 3s ease-in-out infinite}
 
 /* Contact */
-.ev-contact-sec{background:linear-gradient(to bottom,var(--bk),#0E0E11);padding:140px 0}
+.ev-contact-sec{background:linear-gradient(to bottom,var(--bk),#091020);padding:140px 0}
 .ev-contact__wrap{max-width:1440px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:5fr 7fr;gap:80px;align-items:start}
 .ev-contact__h{font-family:var(--sf);font-size:clamp(36px,4vw,60px);font-weight:400;color:#fff;line-height:1.1;margin-bottom:16px}
 .ev-contact__h em{color:var(--pt)}
@@ -1185,22 +1225,23 @@ em{font-family:var(--sf);font-style:italic}
 .ev-f{display:flex;flex-direction:column;gap:7px}
 .ev-f label{font-size:10px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
 .opt{font-weight:400;opacity:0.5;letter-spacing:0;text-transform:none}
+.req{color:var(--ac)}
 .ev-f input{border:none;border-bottom:1px solid rgba(255,255,255,0.1);background:transparent;padding:10px 0;font-size:14px;color:#fff;outline:none;transition:border-color 0.3s}
 .ev-f input:focus{border-bottom-color:var(--ac)}
 .ev-f input::placeholder{color:rgba(255,255,255,0.2)}
 .ev-sel{border:none;border-bottom:1px solid rgba(255,255,255,0.1);background:transparent;padding:10px 0;font-size:14px;color:rgba(255,255,255,0.6);outline:none;appearance:none}
 .ev-sel option{background:var(--bk);color:#fff}
 .ev-f textarea{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);padding:14px;font-size:14px;color:#fff;line-height:1.65;resize:vertical;outline:none;transition:border-color 0.3s}
-.ev-f textarea:focus{border-color:rgba(215,173,99,0.5)}
+.ev-f textarea:focus{border-color:rgba(77,159,255,0.5)}
 .ev-f textarea::placeholder{color:rgba(255,255,255,0.18)}
 .ev-radios{display:flex;flex-wrap:wrap;gap:7px}
 .ev-rad{font-size:12px;padding:7px 14px;border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.45);transition:all 0.3s;user-select:none}
-.ev-rad--on{background:rgba(215,173,99,0.12);color:#fff;border-color:rgba(215,173,99,0.45)}
+.ev-rad--on{background:rgba(77,159,255,0.12);color:#fff;border-color:rgba(77,159,255,0.45)}
 .ev-checks{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .ev-chk{display:flex;align-items:center;gap:9px;font-size:12px;padding:8px 12px;border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.3s;user-select:none}
-.ev-chk--on{background:rgba(215,173,99,0.08);border-color:rgba(215,173,99,0.35);color:#fff}
+.ev-chk--on{background:rgba(77,159,255,0.08);border-color:rgba(77,159,255,0.35);color:#fff}
 .ev-chk__b{width:16px;height:16px;border:1px solid rgba(255,255,255,0.15);border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.3s}
-.ev-chk--on .ev-chk__b{background:var(--ac);border-color:var(--ac);color:#171005}
+.ev-chk--on .ev-chk__b{background:var(--ac);border-color:var(--ac);color:#04101F}
 .ev-sent{display:flex;flex-direction:column;align-items:center;text-align:center;padding:80px 40px;color:#fff}
 .ev-sent h3{font-family:var(--sf);font-size:30px;margin:20px 0 10px}
 .ev-sent p{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.6;max-width:340px}
@@ -1215,11 +1256,11 @@ em{font-family:var(--sf);font-style:italic}
 .ev-footer__link{color:rgba(255,255,255,0.25);transition:color 0.3s}.ev-footer__link:hover{color:var(--pt)}
 
 /* Cookie Banner */
-.ev-cookie{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:rgba(14,14,16,0.97);backdrop-filter:blur(16px);padding:18px 48px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-top:1px solid rgba(235,207,154,0.1);animation:cookieUp 0.5s ${EASE}}
+.ev-cookie{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:rgba(10,16,29,0.97);backdrop-filter:blur(16px);padding:18px 48px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-top:1px solid rgba(168,210,255,0.1);animation:cookieUp 0.5s ${EASE}}
 @keyframes cookieUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .ev-cookie p{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.45);max-width:700px}
 .ev-cookie a{color:var(--pt);text-decoration:underline;text-underline-offset:2px}
-.ev-cookie__btn{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:10px 22px;background:var(--ac);color:#171005;border-radius:2px;white-space:nowrap;transition:all 0.3s ${EASE};flex-shrink:0}
+.ev-cookie__btn{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:10px 22px;background:var(--ac);color:#04101F;border-radius:2px;white-space:nowrap;transition:all 0.3s ${EASE};flex-shrink:0}
 .ev-cookie__btn:hover{background:var(--ac2);transform:translateY(-1px)}
 
 /* Privacy Policy */
@@ -1270,7 +1311,13 @@ em{font-family:var(--sf);font-style:italic}
   .ev-about__wrap{grid-template-columns:1fr}
   .ev-about__left{padding:100px 40px 48px}
   .ev-about__right{padding:48px 40px}
-  .ev-ind{grid-template-columns:44px 1fr;row-gap:8px}
+  .ev-ind__wrap{grid-template-columns:1fr;gap:40px}
+  .ev-orbit{--orbR:148px;width:340px;height:340px;max-width:90vw}
+  .ev-orbit__ring{inset:24px}
+  .ev-orbit__ring--in{inset:90px}
+  .ev-orbit__node{font-size:8px;padding:6px 9px;letter-spacing:0.04em}
+  .ev-orbit__hub{width:92px;height:92px;gap:5px}
+  .ev-orbit__hub span{font-size:10px}
   .ev-ind__ds{grid-column:2/3;max-width:none}
   .ev-ind__ar{display:none}
   .ev-out{grid-template-columns:44px 1fr;row-gap:6px}
