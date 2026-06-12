@@ -335,13 +335,14 @@ function About() {
           <Reveal><div className="ev-label">01 <span>About</span></div></Reveal>
           <Reveal delay={100} direction="right"><h2 className="ev-about__h">Intelligence<br/>With <em>Purpose</em></h2></Reveal>
           <Reveal delay={180}>
-            <p className="ev-about__lead">Every organization faces unique challenges.</p>
+            <p className="ev-about__lead">No two organizations operate the same way, which is why effective solutions must be built around real operational needs rather than one-size-fits-all technology.</p>
             <p className="ev-about__quote">Our role is to understand those challenges and design practical systems that improve how people work, collaborate, and make decisions.</p>
             <p className="ev-about__p">Artificial Intelligence is transforming industries and creating new opportunities to operate more efficiently, make smarter decisions, and remain competitive. <strong>The challenge is not accessing AI. It is implementing it correctly.</strong></p>
             <p className="ev-about__p">Founded by Bereket Teshome, Evriel Systems was shaped by experience across business, marketing, European projects, and digital transformation initiatives in Poland, Spain, Italy, and Greece.</p>
-            <p className="ev-about__p">Through these experiences, a common challenge became clear: many organizations struggle to transform emerging technologies into practical business value.</p>
+            <p className="ev-about__p">Through these experiences, one challenge consistently emerged: many organizations struggle to transform emerging technologies into practical business value.</p>
             <p className="ev-about__p">Working across industries has shown that while technologies change rapidly, the underlying challenges often remain the same: disconnected information, inefficient workflows, and missed opportunities for better decision-making.</p>
             <p className="ev-about__p">Evriel Systems was created to help bridge that gap through AI, automation, and intelligent systems that connect people, processes, information, and technology into solutions built for efficiency, growth, and long-term success.</p>
+            <p className="ev-about__p">Our solutions include AI agents, workflow automation, intelligent knowledge systems, custom software, and digital platforms designed to improve efficiency, streamline operations, and support better decision-making.</p>
           </Reveal>
           <Stagger className="ev-about__stats" delay={90}>
             {ABOUT_FEATS.map((f,i)=>
