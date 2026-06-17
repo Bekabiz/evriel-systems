@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Mail, ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Atom, Radar, Boxes, Waypoints, Lock, Eye, Shield, CheckCircle2, Target } from "lucide-react";
+import ChatWidget from "./ChatWidget";
 
 const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 
@@ -1457,6 +1458,7 @@ em{font-family:var(--sf);font-style:italic}
       {page==="privacy"&&<PrivacyPage/>}
       <Footer setPage={setPage}/>
       <CookieConsent setPage={setPage}/>
+      <ChatWidget/>
     </>
   );
 }
