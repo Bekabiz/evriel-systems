@@ -378,51 +378,35 @@ const OUTCOMES = [
 const OUT_CYCLE_MS = 4600;
 
 function Outcomes() {
-  const pRef = useParallax(0.018);
   const [act, setAct] = useState(0);
-  const [paused, setPaused] = useState(false);
-  useEffect(() => {
-    if (paused) return;
-    const id = setInterval(() => setAct(a => (a+1)%OUTCOMES.length), OUT_CYCLE_MS);
-    return () => clearInterval(id);
-  }, [paused]);
-  const ps = paused ? "paused" : "running";
   return (
     <section className="ev-out-sec">
-      <div className="ev-out__glow" ref={pRef}/>
-      <div className="ev-out__beam ev-out__beam--a"/><div className="ev-out__beam ev-out__beam--b"/>
       <div className="ev-out__wrap">
         <div className="ev-out__left">
-          <Reveal><div className="ev-label ev-label--l"><span>What We Help Improve</span></div></Reveal>
-          <Reveal delay={80} direction="left"><h2 className="ev-out__h">Where intelligence creates <em>real impact</em></h2></Reveal>
-          <Reveal delay={160}><p className="ev-out__intro">Five areas where AI and automation translate directly into measurable business results.</p></Reveal>
-          <Reveal delay={240}>
+          <div className="ev-label ev-label--l"><span>What We Help Improve</span></div>
+          <h2 className="ev-out__h">Where intelligence creates <em>real impact</em></h2>
+          <p className="ev-out__intro">Five areas where AI and automation translate directly into measurable business results.</p>
             <div className="ev-out__display">
               <svg className="ev-out__ring" viewBox="0 0 220 220">
                 <circle cx="110" cy="110" r="102" className="ev-out__ring-bg"/>
-                <circle key={act} cx="110" cy="110" r="102" className="ev-out__ring-fg" style={{animationDuration:`${OUT_CYCLE_MS}ms`,animationPlayState:ps}}/>
                 {OUTCOMES.map((_,i)=>{
                   const a = (i/OUTCOMES.length)*Math.PI*2 - Math.PI/2;
                   return <circle key={`d${i}`} cx={110+102*Math.cos(a)} cy={110+102*Math.sin(a)} r={i===act?5:3} fill={i===act?"var(--ac)":"rgba(168,210,255,0.25)"} style={{transition:"all 0.5s"}}/>;
                 })}
               </svg>
-              <div className="ev-out__bignum" key={`n${act}`}>0{act+1}</div>
+              <div className="ev-out__bignum">0{act+1}</div>
             </div>
-          </Reveal>
         </div>
-        <div className="ev-out__list" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
+        <div className="ev-out__list">
           {OUTCOMES.map((o,i)=>(
-            <Reveal key={i} delay={i*90} direction="right">
-              <div className={`ev-out2${i===act?" ev-out2--on":""}`} onClick={()=>setAct(i)}>
+              <div key={i} className={`ev-out2${i===act?" ev-out2--on":""}`} onClick={()=>setAct(i)}>
                 <div className="ev-out2__head">
                   <span className="ev-out2__ix">0{i+1}</span>
                   <h3 className="ev-out2__t">{o.t}</h3>
                   <span className="ev-out2__chev"><ArrowRight size={15}/></span>
                 </div>
                 <div className="ev-out2__body"><p>{o.d}</p></div>
-                <div className="ev-out2__track">{i===act&&<div key={`f${act}`} className="ev-out2__fill" style={{animationDuration:`${OUT_CYCLE_MS}ms`,animationPlayState:ps}}/>}</div>
               </div>
-            </Reveal>
           ))}
         </div>
       </div>
@@ -1100,9 +1084,7 @@ em{font-family:var(--sf);font-style:italic}
 @keyframes beamDrift{0%,100%{opacity:0.25;transform:translateY(0)}50%{opacity:0.55;transform:translateY(-30px)}}
 .ev-out-sec{background:linear-gradient(to bottom,var(--bk),var(--dk));padding:130px 0;position:relative;overflow:hidden}
 .ev-out-sec::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");opacity:0.05;mix-blend-mode:overlay;pointer-events:none}
-.ev-out__glow{position:absolute;top:10%;right:-10%;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(77,159,255,0.06),transparent 65%);pointer-events:none;animation:orbDrift 22s ease-in-out infinite}
-.ev-out__beam{position:absolute;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,rgba(168,210,255,0.14),transparent);pointer-events:none;animation:beamDrift 9s ease-in-out infinite}
-.ev-out__beam--a{left:34%}.ev-out__beam--b{left:67%;animation-delay:4.5s}
+
 .ev-out__wrap{max-width:1240px;margin:0 auto;padding:0 48px;position:relative;z-index:2;display:grid;grid-template-columns:0.9fr 1.1fr;gap:80px;align-items:start}
 .ev-out__h{font-family:var(--sf);font-size:clamp(28px,3.4vw,44px);font-weight:400;color:#fff;line-height:1.18;margin-top:26px}
 .ev-out__h em{color:var(--pt)}
@@ -1110,8 +1092,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-out__display{position:relative;width:220px;height:220px;margin-top:44px}
 .ev-out__ring{position:absolute;inset:0;transform:rotate(-90deg)}
 .ev-out__ring-bg{fill:none;stroke:rgba(168,210,255,0.1);stroke-width:1}
-.ev-out__ring-fg{fill:none;stroke:var(--ac);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:641;animation:outRing linear forwards}
-.ev-out__bignum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--sf);font-size:74px;color:#fff;animation:outNum 0.7s ${EASE} both}
+.ev-out__bignum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--sf);font-size:74px;color:#fff}
 .ev-out__list{display:flex;flex-direction:column}
 .ev-out2{border-top:1px solid rgba(255,255,255,0.07);position:relative;cursor:pointer;transition:background 0.5s ${EASE}}
 .ev-out2:last-child{border-bottom:1px solid rgba(255,255,255,0.07)}
@@ -1126,8 +1107,7 @@ em{font-family:var(--sf);font-style:italic}
 .ev-out2__body{max-height:0;overflow:hidden;transition:max-height 0.7s ${EASE}}
 .ev-out2--on .ev-out2__body{max-height:120px}
 .ev-out2__body p{font-size:13.5px;font-weight:300;line-height:1.7;color:rgba(255,255,255,0.42);padding:0 14px 24px 52px;max-width:520px}
-.ev-out2__track{position:absolute;left:0;bottom:-1px;width:100%;height:1px;background:transparent}
-.ev-out2__fill{height:100%;background:linear-gradient(90deg,var(--ac),rgba(168,210,255,0.3));animation:outFill linear forwards}
+
 
 /* Services */
 .ev-svc-sec{background:linear-gradient(to bottom,var(--bk),#0E1626,var(--bk));padding:140px 0;position:relative}
