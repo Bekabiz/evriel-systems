@@ -145,7 +145,8 @@ export default function ChatWidget() {
 
 @media(max-width:480px){
   .evc{bottom:16px;right:16px}
-  .evc__panel{width:calc(100vw - 32px);height:calc(100vh - 100px);bottom:68px;right:0}
+  .evc__panel{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:none}
+  .evc__btn{width:50px;height:50px}
 }
       `}</style>
 
