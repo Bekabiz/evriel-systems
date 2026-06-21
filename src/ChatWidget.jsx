@@ -87,7 +87,7 @@ export default function ChatWidget() {
   return (
     <>
       <style>{`
-.evc{position:fixed;bottom:24px;right:24px;z-index:990;font-family:'Inter',-apple-system,sans-serif}
+.evc{position:fixed;bottom:24px;right:24px;z-index:1100;font-family:'Inter',-apple-system,sans-serif}
 
 /* Bubble */
 .evc__btn{width:56px;height:56px;border-radius:50%;background:var(--ac,#4D9FFF);color:#04101F;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(77,159,255,0.35);transition:all 0.4s ${EASE}}
@@ -145,7 +145,7 @@ export default function ChatWidget() {
 
 @media(max-width:480px){
   .evc{bottom:16px;right:16px}
-  .evc__panel{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;border:none}
+  .evc__panel{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;max-width:100%;height:100dvh;max-height:100dvh;border-radius:0;border:none;background:rgba(10,15,28,1);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
   .evc__btn{width:50px;height:50px}
 }
       `}</style>
