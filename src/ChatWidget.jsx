@@ -90,13 +90,13 @@ export default function ChatWidget() {
 .evc{position:fixed;bottom:24px;right:24px;z-index:1100;font-family:'Inter',-apple-system,sans-serif}
 
 /* Bubble */
-.evc__btn{width:56px;height:56px;border-radius:50%;background:var(--ac,#4ECDB4);color:#0A1A16;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(78,205,180,0.35);transition:all 0.4s ${EASE}}
+.evc__btn{width:56px;height:56px;border-radius:50%;background:var(--ac,#4ECDB4);color:#1A2A24;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(78,205,180,0.35);transition:all 0.4s ${EASE}}
 .evc__btn:hover{transform:scale(1.08);box-shadow:0 6px 32px rgba(78,205,180,0.5)}
 .evc__btn--pulse{animation:evcPulse 2.5s ease-in-out infinite}
 @keyframes evcPulse{0%,100%{box-shadow:0 4px 24px rgba(78,205,180,0.35)}50%{box-shadow:0 4px 24px rgba(78,205,180,0.35),0 0 0 10px rgba(78,205,180,0.12)}}
 
 /* Panel */
-.evc__panel{position:absolute;bottom:72px;right:0;width:380px;max-width:calc(100vw - 32px);height:520px;max-height:calc(100vh - 120px);background:rgba(19,26,33,0.97);backdrop-filter:blur(24px);border:1px solid rgba(125,220,200,0.12);display:flex;flex-direction:column;opacity:0;transform:translateY(16px) scale(0.96);pointer-events:none;transition:opacity 0.35s ${EASE},transform 0.35s ${EASE};overflow:hidden}
+.evc__panel{position:absolute;bottom:72px;right:0;width:380px;max-width:calc(100vw - 32px);height:520px;max-height:calc(100vh - 120px);background:rgba(61,74,85,0.97);backdrop-filter:blur(24px);border:1px solid rgba(125,220,200,0.12);display:flex;flex-direction:column;opacity:0;transform:translateY(16px) scale(0.96);pointer-events:none;transition:opacity 0.35s ${EASE},transform 0.35s ${EASE};overflow:hidden}
 .evc__panel--open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
 
 /* Header */
@@ -131,7 +131,7 @@ export default function ChatWidget() {
 .evc__input textarea{flex:1;background:transparent;border:none;color:#fff;font-size:13.5px;font-family:inherit;line-height:1.5;resize:none;outline:none;max-height:80px;scrollbar-width:none}
 .evc__input textarea::-webkit-scrollbar{display:none}
 .evc__input textarea::placeholder{color:rgba(255,255,255,0.2)}
-.evc__send{width:34px;height:34px;border-radius:50%;background:var(--ac,#4ECDB4);color:#0A1A16;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s ${EASE};flex-shrink:0}
+.evc__send{width:34px;height:34px;border-radius:50%;background:var(--ac,#4ECDB4);color:#1A2A24;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s ${EASE};flex-shrink:0}
 .evc__send:hover{background:var(--ac2,#7DDCC8);transform:scale(1.08)}
 .evc__send:disabled{opacity:0.35;cursor:not-allowed;transform:none}
 
@@ -145,7 +145,7 @@ export default function ChatWidget() {
 
 @media(max-width:480px){
   .evc{bottom:16px;right:16px}
-  .evc__panel{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;max-width:100%;height:100dvh;max-height:100dvh;border-radius:0;border:none;background:rgba(19,26,33,1);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  .evc__panel{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;max-width:100%;height:100dvh;max-height:100dvh;border-radius:0;border:none;background:rgba(61,74,85,1);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
   .evc__btn{width:50px;height:50px}
 }
       `}</style>
