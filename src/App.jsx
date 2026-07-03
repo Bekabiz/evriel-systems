@@ -261,10 +261,10 @@ function Nav({ page, setPage }) {
   useEffect(() => { const h = () => setScrolled(window.scrollY > 50); window.addEventListener("scroll", h, { passive: true }); return () => window.removeEventListener("scroll", h); }, []);
   const go = (id) => { setOpen(false); if (page !== "home") { setPage("home"); setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 250); } else document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };
   return (
-    <nav className={`ev-nav${scrolled?" ev-nav--s":""}${open?" ev-nav--open":""}`}>
+    <nav className={`ev-nav${scrolled?" ev-nav--s":""}`}>
       <div className="ev-nav__in">
         <div onClick={()=>{setPage("home");setOpen(false);window.scrollTo({top:0,behavior:"smooth"})}} className="ev-brand">
-          <Logo light={!scrolled&&!open} height={30}/>
+          <Logo light height={44}/>
         </div>
         <div className="ev-nav__links">
           {[["About","about"],["Industries","industries"],["Services","services"],["Projects","projects"]].map(([l,id])=>
@@ -329,7 +329,7 @@ const TOOLS_B = [["Supabase","supabase"],["OpenAI","openai"],["Anthropic","anthr
 
 const ToolChip = ({ name, slug }) => (
   <span className="ev-tm__i">
-    <img src={`https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/${slug}.svg`} alt="" loading="lazy" onError={(e)=>{e.currentTarget.style.display="none";}}/>
+    <img src={`https://cdn.simpleicons.org/${slug}`} alt="" loading="lazy" onError={(e)=>{e.currentTarget.style.display="none";}}/>
     {name}
   </span>
 );
@@ -339,9 +339,15 @@ function TechMarquee() {
   const r2 = TOOLS_B.map((t,i)=><ToolChip key={i} name={t[0]} slug={t[1]}/>);
   return (
     <div className="ev-tm">
-      <div className="ev-tm__label">We connect the tools you already use</div>
-      <div className="ev-tm__row"><div className="ev-tm__track">{r1}{r1}{r1}{r1}</div></div>
-      <div className="ev-tm__row"><div className="ev-tm__track ev-tm__track--rev">{r2}{r2}{r2}{r2}</div></div>
+      <div className="ev-wrap">
+        <FX y={40}>
+          <div className="ev-tm__panel">
+            <div className="ev-tm__label">We connect the tools you already use</div>
+            <div className="ev-tm__row"><div className="ev-tm__track">{r1}{r1}{r1}{r1}</div></div>
+            <div className="ev-tm__row"><div className="ev-tm__track ev-tm__track--rev">{r2}{r2}{r2}{r2}</div></div>
+          </div>
+        </FX>
+      </div>
     </div>
   );
 }
@@ -375,18 +381,18 @@ function ConvergenceDiagram() {
           const path = `M124 ${y} C 210 ${y}, 244 170, 324 170`;
           return (
             <g key={label}>
-              <path data-draw d={path} fill="none" stroke="rgba(0,130,124,0.3)" strokeWidth="1"/>
-              <circle r="2.4" fill="#00827c" opacity="0.9">
+              <path data-draw d={path} fill="none" stroke="rgba(203,255,252,0.22)" strokeWidth="1"/>
+              <circle r="2.4" fill="#cbfffc" opacity="0.9">
                 <animateMotion dur="3.4s" begin={`${i * 0.85}s`} repeatCount="indefinite" path={path}/>
               </circle>
-              <circle cx="118" cy={y} r="4" fill="#00827c"/>
-              <text x="104" y={y + 4} textAnchor="end" fill="#4a5a58" style={{ font: "500 11px Inter, sans-serif", letterSpacing: "1.44px" }}>{label.toUpperCase()}</text>
+              <circle cx="118" cy={y} r="4" fill="#ffffff"/>
+              <text x="104" y={y + 4} textAnchor="end" fill="#bbc7c6" style={{ font: "500 11px Inter, sans-serif", letterSpacing: "1.44px" }}>{label.toUpperCase()}</text>
             </g>
           );
         })}
-        <circle cx="332" cy="170" r="7" fill="#00827c"/>
-        <circle cx="332" cy="170" r="17" fill="none" stroke="rgba(0,130,124,0.45)" strokeWidth="1" className="ev-pulse-ring"/>
-        <text x="332" y="216" textAnchor="middle" fill="#012624" style={{ font: "500 15px Inter, sans-serif", letterSpacing: "0.2px" }}>Intelligent Systems</text>
+        <circle cx="332" cy="170" r="7" fill="#cbfffc"/>
+        <circle cx="332" cy="170" r="17" fill="none" stroke="rgba(203,255,252,0.35)" strokeWidth="1" className="ev-pulse-ring"/>
+        <text x="332" y="216" textAnchor="middle" fill="#ffffff" style={{ font: "500 15px Inter, sans-serif", letterSpacing: "0.2px" }}>Intelligent Systems</text>
       </svg>
     </div>
   );
@@ -394,7 +400,7 @@ function ConvergenceDiagram() {
 
 function About() {
   return (
-    <section id="about" className="ev-sec ev-about lt">
+    <section id="about" className="ev-sec ev-about">
       <GlowWash variant="tealRight"/>
       <span className="ev-gnum" aria-hidden="true">01</span>
       <div className="ev-wrap ev-about__grid">
@@ -450,7 +456,7 @@ function Outcomes() {
     return () => clearInterval(id);
   }, [paused]);
   return (
-    <section className="ev-sec ev-out lt lt--mint" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
+    <section className="ev-sec ev-out" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
       <GlowWash variant="tealLeft"/>
       <div className="ev-wrap ev-out__grid">
         <div className="ev-out__left">
@@ -526,7 +532,7 @@ function Industries() {
     return () => clearInterval(id);
   }, [paused]);
   return (
-    <section id="industries" className="ev-sec ev-ind lt" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
+    <section id="industries" className="ev-sec ev-ind" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
       <GlowWash variant="teal"/>
       <span className="ev-gnum ev-gnum--l" aria-hidden="true">02</span>
       <div className="ev-wrap ev-ind__grid">
@@ -569,8 +575,8 @@ function FlowDiagram({ steps }) {
           <span className={`ev-flow__node${i === steps.length - 1 ? " ev-flow__node--end" : ""}`}>{s}</span>
           {i < steps.length - 1 && (
             <svg className="ev-flow__link" width="34" height="10" viewBox="0 0 34 10">
-              <line x1="0" y1="5" x2="26" y2="5" stroke="rgba(0,130,124,0.4)" strokeWidth="1" strokeDasharray="4 4" style={{ animation: "flowDash 1.4s linear infinite" }} />
-              <path d="M26 1.5 L32 5 L26 8.5" fill="none" stroke="rgba(0,130,124,0.6)" strokeWidth="1" />
+              <line x1="0" y1="5" x2="26" y2="5" stroke="rgba(203,255,252,0.3)" strokeWidth="1" strokeDasharray="4 4" style={{ animation: "flowDash 1.4s linear infinite" }} />
+              <path d="M26 1.5 L32 5 L26 8.5" fill="none" stroke="rgba(203,255,252,0.45)" strokeWidth="1" />
             </svg>
           )}
         </div>
@@ -647,7 +653,7 @@ function DashboardMockup() {
 
 function Services() {
   return (
-    <section id="services" className="ev-sec ev-svc lt">
+    <section id="services" className="ev-sec ev-svc">
       <GlowWash variant="lav"/>
       <span className="ev-gnum" aria-hidden="true">03</span>
       <div className="ev-wrap">
@@ -803,7 +809,7 @@ function Process() {
     return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
   }, []);
   return (
-    <section id="process" className="ev-sec ev-proc lt" ref={secRef}>
+    <section id="process" className="ev-sec ev-proc" ref={secRef}>
       <GlowWash variant="mint"/>
       <span className="ev-gnum" aria-hidden="true">05</span>
       <div className="ev-wrap">
@@ -831,7 +837,7 @@ function Process() {
 /* BORDERS — atmospheric statement band */
 function Borders() {
   return (
-    <section className="ev-sec ev-bdr lt">
+    <section className="ev-sec ev-bdr">
       <div className="ev-bdr__wash"/>
       <div className="ev-wrap ev-bdr__body">
         <FX><Eyebrow>Working Across Borders</Eyebrow></FX>
@@ -888,7 +894,7 @@ function DottedSphere() {
 function Why() {
   const go = (e) => { e.preventDefault(); document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }); };
   return (
-    <section className="ev-sec ev-why lt lt--mint">
+    <section className="ev-sec ev-why">
       <div className="ev-wrap">
         <FX y={56}>
           <div className="ev-bigcard">
@@ -916,7 +922,7 @@ function Why() {
 /* TRUST */
 function Trust() {
   return (
-    <section id="trust" className="ev-sec ev-trust lt lt--mint">
+    <section id="trust" className="ev-sec ev-trust">
       <GlowWash variant="tealLeft"/>
       <span className="ev-gnum ev-gnum--l" aria-hidden="true">06</span>
       <div className="ev-wrap ev-trust__grid">
@@ -970,7 +976,7 @@ function WhatNext() {
     return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
   }, []);
   return (
-    <section id="next" className="ev-sec ev-next lt">
+    <section id="next" className="ev-sec ev-next">
       <GlowWash variant="lav"/>
       <span className="ev-gnum" aria-hidden="true">07</span>
       <div className="ev-wrap">
@@ -1094,7 +1100,7 @@ function Footer({setPage}) {
       <div className="ev-wrap">
         <div className="ev-footer__top">
           <div onClick={()=>{setPage("home");window.scrollTo({top:0,behavior:"smooth"})}} className="ev-brand">
-            <Logo light height={26}/>
+            <Logo light height={36}/>
           </div>
           <p className="ev-footer__tag">Connecting Intelligence with Business</p>
           <div className="ev-footer__social">
@@ -1128,7 +1134,7 @@ const ARTS = [
 function InsightsHome({setPage,setSlug}) {
   return (
     <>
-      <section className="ev-ins-hero lt">
+      <section className="ev-ins-hero">
         <FX><Eyebrow>Research &middot; Insights</Eyebrow></FX>
         <FX delay={100}><h1 className="ev-ins-hero__h">Thinking <em>Forward</em></h1></FX>
       </section>
@@ -1191,27 +1197,11 @@ function PrivacyPage() {
   );
 }
 
-/* Subtle title color shift as headlines scroll through the viewport */
-function useTitleShift(page) {
-  useEffect(() => {
-    if (page !== "home" || reduced()) return;
-    let tws = [];
-    const t = setTimeout(() => {
-      tws = gsap.utils.toArray(".lt .ev-h-lg")
-        .filter((el) => !el.closest(".ev-bigcard"))
-        .map((el) => gsap.fromTo(el, { color: "#012624" }, { color: "#10635d", ease: "none",
-          scrollTrigger: { trigger: el, start: "top 75%", end: "top 12%", scrub: 0.7 } }));
-    }, 180);
-    return () => { clearTimeout(t); tws.forEach((tw) => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); }); };
-  }, [page]);
-}
-
 /* APP */
 export default function EvrielSystems() {
   const [page, setPage] = useState("home");
   const [slug, setSlug] = useState(null);
   useSEO();
-  useTitleShift(page);
   return (
     <>
       <style>{`
@@ -1234,12 +1224,12 @@ export default function EvrielSystems() {
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:var(--font);background:#ffffff;color:#4a5a58;font-weight:400;-webkit-font-smoothing:antialiased}
-::selection{background:rgba(0,130,124,0.3);color:#012624}
+body{font-family:var(--font);background:var(--abyss);color:var(--fog);font-weight:400;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(0,130,124,0.45);color:#fff}
 ::-webkit-scrollbar{width:10px}
-::-webkit-scrollbar-track{background:#f2f7f6}
-::-webkit-scrollbar-thumb{background:#c0d3d0;border-radius:5px;border:2px solid #f2f7f6}
-::-webkit-scrollbar-thumb:hover{background:#9dbab6}
+::-webkit-scrollbar-track{background:var(--abyss)}
+::-webkit-scrollbar-thumb{background:var(--reef);border-radius:5px;border:2px solid var(--abyss)}
+::-webkit-scrollbar-thumb:hover{background:#00524d}
 button,input,textarea,select{font-family:inherit;background:none;border:none;cursor:pointer}
 a{text-decoration:none;color:inherit}
 strong{font-weight:500;color:var(--snow)}
@@ -1299,12 +1289,8 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 
 /* ===== nav — transparent, sits on the canvas ===== */
 .ev-nav{position:fixed;top:0;left:0;right:0;z-index:999;padding:14px 0;transition:all 0.5s ${EASE};background:transparent}
-.ev-nav--s{background:rgba(255,255,255,0.88);backdrop-filter:blur(20px);padding:9px 0;border-bottom:1px solid rgba(1,38,36,0.06)}
-.ev-nav--s .ev-nav__link{color:#012624}
-.ev-nav--s .ev-nav__burger{color:#012624}
-.ev-nav--s .ev-btn--ghost{background:linear-gradient(#ffffff,#ffffff) padding-box,var(--g-current) border-box;color:#012624}
-.ev-nav--open .ev-nav__burger{color:#012624}
-.ev-nav__in{max-width:var(--page-w);margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:40px}
+.ev-nav--s{background:rgba(1,29,28,0.82);backdrop-filter:blur(20px);padding:9px 0}
+.ev-nav__in{max-width:var(--page-w);margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:52px}
 .ev-brand{cursor:pointer;display:flex;align-items:center;gap:12px}
 .ev-brand__name{font-size:16px;font-weight:500;color:var(--snow);letter-spacing:0.04em;line-height:1}
 .ev-brand__sub{font-size:10px;font-weight:500;color:var(--fog);letter-spacing:2.4px;text-transform:uppercase;margin-top:3px}
@@ -1312,8 +1298,8 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-nav__link{font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--snow);transition:opacity 0.3s}
 .ev-nav__link:hover{opacity:0.55}
 .ev-nav__burger{display:none;color:var(--snow)}
-.ev-mobile-menu{position:fixed;inset:0;background:#ffffff;z-index:998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding-top:60px}
-.ev-mob-link{font-size:26px;font-weight:500;letter-spacing:-0.01em;color:#012624;transition:opacity 0.3s}
+.ev-mobile-menu{position:fixed;inset:0;background:var(--abyss);z-index:998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding-top:60px}
+.ev-mob-link{font-size:26px;font-weight:500;letter-spacing:-0.01em;color:var(--snow);transition:opacity 0.3s}
 .ev-mob-link:hover{opacity:0.55}
 
 /* ===== hero — particle sphere in the abyss ===== */
@@ -1389,21 +1375,21 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-ind__dot{width:8px;height:8px;border-radius:50%;padding:0;background:rgba(237,255,254,0.15);cursor:pointer;transition:all 0.4s ${EASE}}
 .ev-ind__dot--on{background:var(--cyan);transform:scale(1.4)}
 
-/* rotating industry orbit — white section, teal rings, dark labels */
+/* rotating industry orbit — cyan rings and glowing nodes on the abyss */
 .ev-orbit{--orbR:225px;position:relative;width:540px;height:540px;margin:0 auto}
-.ev-orbit__ring{position:absolute;inset:45px;border:1px solid rgba(0,130,124,0.22);border-radius:50%}
-.ev-orbit__ring--in{inset:150px;border-color:rgba(0,130,124,0.12)}
+.ev-orbit__ring{position:absolute;inset:45px;border:1px solid rgba(203,255,252,0.16);border-radius:50%}
+.ev-orbit__ring--in{inset:150px;border-color:rgba(203,255,252,0.08)}
 .ev-orbit__spin{position:absolute;inset:0;animation:orbSpin 70s linear infinite}
 .ev-orbit:hover .ev-orbit__spin,.ev-orbit:hover .ev-orbit__upright{animation-play-state:paused}
 @keyframes orbSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes orbSpinRev{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
 .ev-orbit__pos{position:absolute;top:50%;left:50%;width:0;height:0}
 .ev-orbit__upright{position:absolute;width:0;height:0;animation:orbSpinRev 70s linear infinite}
-.ev-orbit__node{position:absolute;transform:translate(-50%,-50%);border:1px solid rgba(0,130,124,0.3);background:#ffffff;color:#4a5a58;font-size:10.5px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;padding:9px 14px;border-radius:9999px;cursor:pointer;white-space:nowrap;transition:all 0.4s ${EASE}}
-.ev-orbit__node--on{border-color:#00827c;background:#012624;color:#ffffff}
-.ev-orbit__node:hover{color:#012624;border-color:#00827c}
-.ev-orbit__hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:132px;height:132px;border-radius:50%;border:1px solid rgba(0,130,124,0.35);background:radial-gradient(circle,rgba(0,194,176,0.14),rgba(255,255,255,0.92) 72%);display:flex;align-items:center;justify-content:center;text-align:center}
-.ev-orbit__hub span{font-size:13px;font-weight:500;letter-spacing:0.06em;color:#012624;line-height:1.4}
+.ev-orbit__node{position:absolute;transform:translate(-50%,-50%);border:1px solid rgba(237,255,254,0.18);background:rgba(1,29,28,0.85);color:var(--fog);font-size:10.5px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;padding:9px 14px;border-radius:9999px;cursor:pointer;white-space:nowrap;transition:all 0.4s ${EASE};backdrop-filter:blur(4px)}
+.ev-orbit__node--on{border-color:var(--cyan);background:var(--reef);color:#ffffff}
+.ev-orbit__node:hover{color:#ffffff;border-color:rgba(203,255,252,0.5)}
+.ev-orbit__hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:132px;height:132px;border-radius:50%;border:1px solid rgba(203,255,252,0.3);background:radial-gradient(circle,rgba(0,130,124,0.25),rgba(1,29,28,0.92) 72%);display:flex;align-items:center;justify-content:center;text-align:center}
+.ev-orbit__hub span{font-size:13px;font-weight:500;letter-spacing:0.06em;color:#ffffff;line-height:1.4}
 
 /* ===== services — editorial rows with outlined numerals ===== */
 .ev-svc__rows{margin-top:64px}
@@ -1646,21 +1632,22 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-dash__chart span{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,rgba(203,255,252,0.85),rgba(0,130,124,0.45));transform-origin:bottom}
 .ev-dash__line{width:100%;height:38px;background:var(--abyss);border-radius:6px;padding:6px 10px}
 
-/* ===== tool marquee — brand icons, two rows, opposite directions ===== */
+/* ===== tool marquee — bright panel on the abyss, brand-colored icons ===== */
 @keyframes mqR{from{transform:translateX(-25%)}to{transform:translateX(0)}}
-.ev-tm{background:#ffffff;padding:56px 0 44px;border-bottom:1px solid rgba(1,38,36,0.06)}
-.ev-tm__label{text-align:center;font-size:10px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;color:#6b7c7a;margin-bottom:26px}
+.ev-tm{padding:24px 0 56px}
+.ev-tm__panel{background:linear-gradient(135deg,#f0fffe 0%,#ebfffd 55%,#fdf4ff 100%);border-radius:24px;padding:44px 0 38px;overflow:hidden}
+.ev-tm__label{text-align:center;font-size:10px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;color:#4a5a58;margin-bottom:26px}
 .ev-tm__row{overflow:hidden;padding:6px 0}
 .ev-tm__track{display:flex;gap:14px;white-space:nowrap;width:max-content;animation:mq 28s linear infinite}
 .ev-tm__track--rev{animation:mqR 32s linear infinite}
-.ev-tm__i{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:500;letter-spacing:0.3px;color:#1d3a37;background:#f4fffd;border:1px solid rgba(1,38,36,0.08);border-radius:9999px;padding:10px 18px}
-.ev-tm__i img{width:16px;height:16px;opacity:0.8;display:block}
+.ev-tm__i{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:500;letter-spacing:0.3px;color:#1d3a37;background:#ffffff;border:1px solid rgba(1,38,36,0.08);border-radius:9999px;padding:10px 18px}
+.ev-tm__i img{width:17px;height:17px;display:block}
 
-/* ===== contact — white card floating on a soft mint glow ===== */
-.ev-contact2{position:relative;padding:150px 0 120px;overflow:hidden;background:linear-gradient(180deg,#ffffff 0%,#ebfffd 55%,#e2fcf8 100%)}
-.ev-contact2__glow{position:absolute;inset:0;background:radial-gradient(ellipse 75% 70% at 50% 40%,rgba(0,194,176,0.26),rgba(0,194,176,0.08) 48%,transparent 75%),radial-gradient(ellipse 38% 32% at 50% 34%,rgba(203,255,252,0.4),transparent 70%);pointer-events:none}
+/* ===== contact — white card floating on a bright teal glow ===== */
+.ev-contact2{position:relative;padding:150px 0 120px;overflow:hidden}
+.ev-contact2__glow{position:absolute;inset:0;background:radial-gradient(ellipse 85% 82% at 50% 42%,rgba(0,194,176,0.5),rgba(0,130,124,0.22) 42%,rgba(1,38,36,0) 74%),radial-gradient(ellipse 42% 36% at 50% 36%,rgba(203,255,252,0.28),transparent 70%);pointer-events:none}
 .ev-contact2__in{position:relative;z-index:1}
-.ev-wcard{background:#ffffff;border:1px solid rgba(1,38,36,0.08);border-radius:24px;padding:56px}
+.ev-wcard{background:#fdfffe;border-radius:24px;padding:56px}
 .ev-wcard__grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
 .ev-eyebrow--dark{color:#00615c}
 .ev-wcard__h{font-size:clamp(38px,4.8vw,61px);font-weight:500;line-height:1.05;letter-spacing:-0.02em;color:#011d1c;margin-top:24px}
@@ -1694,146 +1681,7 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-sent--light h3{color:#011d1c}
 .ev-sent--light p{color:#3f4f4e}
 .ev-contact2__foot{display:flex;align-items:center;justify-content:space-between;gap:32px;margin-top:72px;flex-wrap:wrap}
-.ev-contact2__stmt{font-size:clamp(28px,3.6vw,48px);font-weight:500;line-height:1.1;letter-spacing:-0.02em;color:#012624}
-
-/* ===== LIGHT THEME — white-dominant sections ===== */
-.lt{background:#ffffff}
-.lt--mint{background:#ebfffd}
-.lt .ev-h-lg,.lt .ev-h-md{color:#012624}
-.lt em{background:linear-gradient(90deg,#00827c 0%,#014e49 100%);-webkit-background-clip:text;background-clip:text}
-.lt strong{color:#012624}
-.lt .ev-eyebrow{color:#4a5a58}
-.lt .ev-intro{color:#4a5a58}
-.lt .ev-gnum{color:rgba(1,38,36,0.045)}
-
-/* about — light */
-.lt .ev-about__lead{color:#0c3a36}
-.lt .ev-about__quote{color:#00827c}
-.lt .ev-about__p{color:#4a5a58}
-.lt .ev-afeat{background:#ebfffd}
-.lt .ev-afeat__n{color:#012624}
-.lt .ev-afeat__d{color:#4a5a58}
-.lt .ev-afeat--pink{background:linear-gradient(135deg,#fad1ff 0%,#fffdfa 55%,#ffffff 100%)}
-.lt .ev-afeat--pink .ev-afeat__n{color:#012624}
-.lt .ev-afeat--pink .ev-afeat__d{color:#274a47}
-.lt .ev-ch{background:#f0fffe;color:#3f4f4e}
-.lt .ev-ch:hover{background:#ebfffd;color:#012624}
-
-/* outcomes — mint */
-.lt .ev-out__num{background:linear-gradient(90deg,#00827c 0%,#012624 100%);-webkit-background-clip:text;background-clip:text}
-.lt .ev-out__of{color:#4a5a58}
-.lt .ev-out__item{border-top-color:rgba(1,38,36,0.12)}
-.lt .ev-out__item:last-child{border-bottom-color:rgba(1,38,36,0.12)}
-.lt .ev-out__ix{color:#6b7c7a}
-.lt .ev-out__t{color:#012624}
-.lt .ev-out__chev{color:#6b7c7a}
-.lt .ev-out__item--on .ev-out__ix{color:#00827c}
-.lt .ev-out__item--on .ev-out__chev{color:#00827c}
-.lt .ev-out__body p{color:#4a5a58}
-
-/* industries — light */
-.lt .ev-ind__dnum{color:#00827c}
-.lt .ev-ind__dname{color:#012624}
-.lt .ev-ind__ddesc{color:#4a5a58}
-.lt .ev-ind__dot{background:rgba(1,38,36,0.15)}
-.lt .ev-ind__dot--on{background:#00827c}
-
-/* services — clean white cards with teal left border */
-.lt .ev-svc__row{background:#ffffff;border:1px solid rgba(1,38,36,0.08);border-left:3px solid #00827c;border-radius:16px;padding:40px;margin-bottom:16px}
-.lt .ev-svc__rows > div:last-child .ev-svc__row{border-bottom:1px solid rgba(1,38,36,0.08)}
-.lt .ev-svc__gn{-webkit-text-stroke:1px rgba(0,130,124,0.5)}
-.lt .ev-svc__row:hover .ev-svc__gn{-webkit-text-stroke:1px rgba(0,130,124,0.85)}
-.lt .ev-svc__t{color:#012624}
-.lt .ev-svc__d{color:#4a5a58}
-.lt .ev-svc__al{color:#00827c}
-.lt .ev-tag{background:#ebfffd;color:#3f4f4e}
-.lt .ev-tag:hover{color:#012624}
-.lt .ev-flow__node{border-color:rgba(1,38,36,0.15);color:#4a5a58}
-.lt .ev-flow__node--end{background:var(--g-current);color:#012624;border-color:transparent}
-
-/* mockups — mint panels inside white cards */
-.lt .ev-mock{background:linear-gradient(#ebfffd,#ebfffd) padding-box,linear-gradient(135deg,rgba(0,130,124,0.5),rgba(0,194,176,0.15) 45%,rgba(250,209,255,0.55)) border-box}
-.lt .ev-mock__bar{border-bottom-color:rgba(1,38,36,0.08)}
-.lt .ev-mock__bar span{background:rgba(1,38,36,0.15)}
-.lt .ev-mock__bar i{color:#4a5a58}
-.lt .ev-mock__row{background:#ffffff}
-.lt .ev-mock__from{color:#3f4f4e}
-.lt .ev-mock__tag--u{background:rgba(210,60,180,0.1);color:#a839a0}
-.lt .ev-mock__tag--f{background:rgba(0,130,124,0.12);color:#00615c}
-.lt .ev-mock__tag--l{background:rgba(1,38,36,0.06);color:#6b7c7a}
-.lt .ev-mock__out{background:#012624;color:#edfffe}
-.lt .ev-dash__kpi{background:#ffffff}
-.lt .ev-dash__kpi i{color:#6b7c7a}
-.lt .ev-dash__chart{background:#ffffff}
-.lt .ev-dash__chart span{background:linear-gradient(180deg,rgba(0,130,124,0.85),rgba(0,194,176,0.35))}
-.lt .ev-dash__line{background:#ffffff}
-
-/* process — light */
-.lt .ev-proc__num{color:#00827c}
-.lt .ev-proc__ct{color:#012624}
-.lt .ev-proc__cd{color:#4a5a58}
-
-/* borders — light */
-.lt .ev-bdr__p{color:#4a5a58}
-.lt .ev-bdr__tag{background:#ffffff;border:1px solid rgba(0,130,124,0.35)}
-.lt .ev-bdr__tag span{color:#00615c}
-
-/* why — dark signature card stays dark on the mint field */
-.lt .ev-bigcard .ev-h-lg{color:var(--snow)}
-.lt .ev-bigcard em{background:var(--g-text);-webkit-background-clip:text;background-clip:text}
-.lt .ev-bigcard .ev-eyebrow{color:var(--fog)}
-
-/* trust — mint */
-.lt .ev-trust__p{color:#4a5a58}
-.lt .ev-trust__note{background:#ffffff}
-.lt .ev-trust__note p{color:#4a5a58}
-.lt .ev-trust__note svg{color:#00827c}
-.lt .ev-trust__row{border-top-color:rgba(1,38,36,0.12)}
-.lt .ev-trust__row:last-child{border-bottom-color:rgba(1,38,36,0.12)}
-.lt .ev-trust__ci{border-color:rgba(1,38,36,0.18);color:#00827c}
-.lt .ev-trust__ct{color:#012624}
-.lt .ev-trust__cd{color:#4a5a58}
-
-/* what next — light */
-.lt .ev-next__card{background:#ebfffd}
-.lt .ev-next__card:hover{background:#dffbf6}
-.lt .ev-next__num{color:#00827c}
-.lt .ev-next__t{color:#012624}
-.lt .ev-next__d{color:#4a5a58}
-.lt .ev-next__node{background:#00827c}
-
-/* insights + article + privacy — light pages */
-.ev-ins-hero__h{color:#012624}
-.ev-ins-hero em,.ev-art-hero em,.ev-privacy em{background:linear-gradient(90deg,#00827c 0%,#014e49 100%);-webkit-background-clip:text;background-clip:text}
-.ev-art-card{background:#ebfffd}
-.ev-art-card:hover{background:#dffbf6}
-.ev-art-card__go{border-color:rgba(1,38,36,0.2);color:#012624}
-.ev-art-card:hover .ev-art-card__go{border-color:#00827c}
-.ev-art-card__tag{color:#00827c}
-.ev-art-card__date{color:#6b7c7a}
-.ev-art-card__t{color:#012624}
-.ev-art-card__ex{color:#4a5a58}
-.ev-art-card__rd{color:#00827c}
-.ev-art-hero__tag{color:#00827c}
-.ev-art-hero__h{color:#012624}
-.ev-art-hero__date{color:#6b7c7a}
-.ev-art-body__p{color:#3f4f4e}
-.ev-art-body__cta{background:#ebfffd}
-.ev-art-body__cta p{color:#012624}
-.ev-art-side__h{color:#00827c}
-.ev-art-side__item{border-top-color:rgba(1,38,36,0.12)}
-.ev-art-side__tag{color:#00827c}
-.ev-art-side__t{color:#012624}
-.ev-privacy__h{color:#012624}
-.ev-privacy__updated{color:#6b7c7a}
-.ev-privacy__content h2{color:#012624}
-.ev-privacy__content p{color:#4a5a58}
-.ev-privacy__content a{color:#00827c}
-
-/* cookie — light */
-.ev-cookie{background:#ffffff;border:1px solid rgba(1,38,36,0.1)}
-.ev-cookie p{color:#4a5a58}
-.ev-cookie a{color:#00827c}
+.ev-contact2__stmt{font-size:clamp(28px,3.6vw,48px);font-weight:500;line-height:1.1;letter-spacing:-0.02em;color:var(--snow)}
 
 /* ===== responsive ===== */
 @media(max-width:1024px){
@@ -1880,7 +1728,6 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
   .ev-cookie{flex-direction:column;align-items:stretch;text-align:center;padding:18px 20px;gap:14px}
   .ev-about__stats{gap:12px}
   .ev-gnum{display:none}
-  .ev-svc__row{padding:26px 20px}
   .ev-orbit{--orbR:142px;width:340px;height:340px}
   .ev-orbit__ring{inset:28px}
   .ev-orbit__ring--in{inset:96px}
