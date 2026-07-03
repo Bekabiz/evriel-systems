@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Lock, Eye, Shield, CheckCircle2, Target } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Lock, Eye, Shield, CheckCircle2, Target, Instagram, Linkedin } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ChatWidget from "./ChatWidget";
@@ -232,21 +232,9 @@ function useSEO() {
   }, []);
 }
 
-/* LOGO */
-const LogoMark = ({ size = 48, color = "currentColor", spin = false }) => (
-  <svg width={size} height={size} viewBox="0 0 200 200" fill="none" style={spin ? { animation: "logospin 80s linear infinite" } : {}}>
-    {[[180,100,140,169.3],[140,169.3,60,169.3],[60,169.3,20,100],[20,100,60,30.7],[60,30.7,140,30.7],[140,30.7,180,100]].map(([x1,y1,x2,y2],i)=>
-      <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
-    )}
-    {[[100,100,60,30.7],[100,100,20,100],[100,100,60,169.3]].map(([x1,y1,x2,y2],i)=>
-      <line key={`c${i}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
-    )}
-    <line x1="100" y1="100" x2="133.6" y2="100" stroke={color} strokeWidth="1.875" strokeLinecap="round"/>
-    {[[180,100,4.6],[140,169.3,4.6],[60,169.3,4.6],[20,100,4.6],[60,30.7,4.6],[140,30.7,4.6],[133.6,100,3.7]].map(([cx,cy,r],i)=>
-      <circle key={i} cx={cx} cy={cy} r={r} fill={color}/>
-    )}
-    <circle cx="100" cy="100" r="5.6" fill={color} style={{animation:"cpulse 2.5s ease-in-out infinite"}}/>
-  </svg>
+/* LOGO — Evriel wordmark SVG from public/ (white on dark, teal on light) */
+const Logo = ({ light = false, height = 30 }) => (
+  <img src={light ? "/logo-white.svg" : "/logo.svg"} alt="Evriel" style={{ height, width: "auto", display: "block" }} />
 );
 
 /* Section eyebrow — teal dot + tracked caps */
@@ -273,14 +261,10 @@ function Nav({ page, setPage }) {
   useEffect(() => { const h = () => setScrolled(window.scrollY > 50); window.addEventListener("scroll", h, { passive: true }); return () => window.removeEventListener("scroll", h); }, []);
   const go = (id) => { setOpen(false); if (page !== "home") { setPage("home"); setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 250); } else document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };
   return (
-    <nav className={`ev-nav${scrolled?" ev-nav--s":""}`}>
+    <nav className={`ev-nav${scrolled?" ev-nav--s":""}${open?" ev-nav--open":""}`}>
       <div className="ev-nav__in">
         <div onClick={()=>{setPage("home");setOpen(false);window.scrollTo({top:0,behavior:"smooth"})}} className="ev-brand">
-          <LogoMark size={30} color="#ffffff"/>
-          <div>
-            <div className="ev-brand__name">Evriel</div>
-            <div className="ev-brand__sub">Systems</div>
-          </div>
+          <Logo light={!scrolled&&!open} height={30}/>
         </div>
         <div className="ev-nav__links">
           {[["About","about"],["Industries","industries"],["Services","services"],["Projects","projects"]].map(([l,id])=>
@@ -339,14 +323,25 @@ function Marquee() {
   return <div className="ev-mq"><div className="ev-mq__track">{r}{r}{r}{r}</div></div>;
 }
 
-/* TECH MARQUEE — the tools we connect, gliding the other way */
+/* TECH MARQUEE — tools we connect, with brand icons, two rows opposite directions */
+const TOOLS_A = [["Gmail","gmail"],["Outlook","microsoftoutlook"],["Excel","microsoftexcel"],["Google Sheets","googlesheets"],["Slack","slack"],["WhatsApp","whatsapp"],["n8n","n8n"]];
+const TOOLS_B = [["Supabase","supabase"],["OpenAI","openai"],["Anthropic","anthropic"],["Notion","notion"],["Airtable","airtable"],["Zapier","zapier"],["Power BI","powerbi"]];
+
+const ToolChip = ({ name, slug }) => (
+  <span className="ev-tm__i">
+    <img src={`https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/${slug}.svg`} alt="" loading="lazy" onError={(e)=>{e.currentTarget.style.display="none";}}/>
+    {name}
+  </span>
+);
+
 function TechMarquee() {
-  const tools = ["n8n","OpenAI","Anthropic","Supabase","WhatsApp","Gmail","Outlook","Excel","Google Sheets","Slack","Notion","Airtable","Zapier","Power BI"];
-  const r = tools.map((t,i)=><span key={i} className="ev-mq__i ev-mq__i--tech"><span className="ev-mq__dot ev-mq__dot--lav"/>{t}</span>);
+  const r1 = TOOLS_A.map((t,i)=><ToolChip key={i} name={t[0]} slug={t[1]}/>);
+  const r2 = TOOLS_B.map((t,i)=><ToolChip key={i} name={t[0]} slug={t[1]}/>);
   return (
-    <div className="ev-mq ev-mq--tech">
-      <div className="ev-mq__label">We connect the tools you already use</div>
-      <div className="ev-mq__track ev-mq__track--rev">{r}{r}{r}{r}</div>
+    <div className="ev-tm">
+      <div className="ev-tm__label">We connect the tools you already use</div>
+      <div className="ev-tm__row"><div className="ev-tm__track">{r1}{r1}{r1}{r1}</div></div>
+      <div className="ev-tm__row"><div className="ev-tm__track ev-tm__track--rev">{r2}{r2}{r2}{r2}</div></div>
     </div>
   );
 }
@@ -380,18 +375,18 @@ function ConvergenceDiagram() {
           const path = `M124 ${y} C 210 ${y}, 244 170, 324 170`;
           return (
             <g key={label}>
-              <path data-draw d={path} fill="none" stroke="rgba(203,255,252,0.22)" strokeWidth="1"/>
-              <circle r="2.4" fill="#cbfffc" opacity="0.9">
+              <path data-draw d={path} fill="none" stroke="rgba(0,130,124,0.3)" strokeWidth="1"/>
+              <circle r="2.4" fill="#00827c" opacity="0.9">
                 <animateMotion dur="3.4s" begin={`${i * 0.85}s`} repeatCount="indefinite" path={path}/>
               </circle>
-              <circle cx="118" cy={y} r="4" fill="#ffffff"/>
-              <text x="104" y={y + 4} textAnchor="end" fill="#bbc7c6" style={{ font: "500 11px Inter, sans-serif", letterSpacing: "1.44px" }}>{label.toUpperCase()}</text>
+              <circle cx="118" cy={y} r="4" fill="#00827c"/>
+              <text x="104" y={y + 4} textAnchor="end" fill="#4a5a58" style={{ font: "500 11px Inter, sans-serif", letterSpacing: "1.44px" }}>{label.toUpperCase()}</text>
             </g>
           );
         })}
-        <circle cx="332" cy="170" r="7" fill="#cbfffc"/>
-        <circle cx="332" cy="170" r="17" fill="none" stroke="rgba(203,255,252,0.35)" strokeWidth="1" className="ev-pulse-ring"/>
-        <text x="332" y="216" textAnchor="middle" fill="#ffffff" style={{ font: "500 15px Inter, sans-serif", letterSpacing: "0.2px" }}>Intelligent Systems</text>
+        <circle cx="332" cy="170" r="7" fill="#00827c"/>
+        <circle cx="332" cy="170" r="17" fill="none" stroke="rgba(0,130,124,0.45)" strokeWidth="1" className="ev-pulse-ring"/>
+        <text x="332" y="216" textAnchor="middle" fill="#012624" style={{ font: "500 15px Inter, sans-serif", letterSpacing: "0.2px" }}>Intelligent Systems</text>
       </svg>
     </div>
   );
@@ -399,7 +394,7 @@ function ConvergenceDiagram() {
 
 function About() {
   return (
-    <section id="about" className="ev-sec ev-about">
+    <section id="about" className="ev-sec ev-about lt">
       <GlowWash variant="tealRight"/>
       <span className="ev-gnum" aria-hidden="true">01</span>
       <div className="ev-wrap ev-about__grid">
@@ -444,7 +439,7 @@ const OUTCOMES = [
   { t:"Digital Transformation", d:"Build modern operational foundations that support long-term success." },
 ];
 
-const OUT_CYCLE_MS = 4600;
+const OUT_CYCLE_MS = 2600;
 
 function Outcomes() {
   const [act, setAct] = useState(0);
@@ -455,7 +450,7 @@ function Outcomes() {
     return () => clearInterval(id);
   }, [paused]);
   return (
-    <section className="ev-sec ev-out" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
+    <section className="ev-sec ev-out lt lt--mint" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
       <GlowWash variant="tealLeft"/>
       <div className="ev-wrap ev-out__grid">
         <div className="ev-out__left">
@@ -501,18 +496,24 @@ const INDS = [
   { name:"Startups & SMEs", short:"Startups", desc:"Scalable systems designed to support growth and operational maturity at every stage." },
 ];
 
-/* Industry card grid — each card glows with its own hue on hover/active */
-function IndustryGrid({ act, setAct }) {
+/* Rotating industry orbit — labels circle a center hub, click to select */
+function IndustryOrbit({ act, setAct }) {
+  const step = 360/INDS.length;
   return (
-    <StaggerFX className="ev-indgrid" each={0.05} y={26}>
-      {INDS.map((s,i)=>(
-        <button key={i} className={`ev-indcard${i===act?" ev-indcard--on":""}`} onClick={()=>setAct(i)} onMouseEnter={()=>setAct(i)}>
-          <span className="ev-indcard__n">{String(i+1).padStart(2,"0")}</span>
-          <span className="ev-indcard__t">{s.short}</span>
-          <span className="ev-indcard__go"><ArrowUpRight size={12}/></span>
-        </button>
-      ))}
-    </StaggerFX>
+    <div className="ev-orbit">
+      <div className="ev-orbit__ring"/>
+      <div className="ev-orbit__ring ev-orbit__ring--in"/>
+      <div className="ev-orbit__spin">
+        {INDS.map((s,i)=>(
+          <div key={i} className="ev-orbit__pos" style={{transform:`rotate(${i*step}deg) translateY(calc(var(--orbR) * -1)) rotate(${-i*step}deg)`}}>
+            <div className="ev-orbit__upright">
+              <button className={`ev-orbit__node${i===act?" ev-orbit__node--on":""}`} onClick={()=>setAct(i)} onMouseEnter={()=>setAct(i)}>{s.short}</button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="ev-orbit__hub"><span>Evriel<br/>Systems</span></div>
+    </div>
   );
 }
 
@@ -521,11 +522,11 @@ function Industries() {
   const [paused, setPaused] = useState(false);
   useEffect(() => {
     if (paused || reduced()) return;
-    const id = setInterval(() => setAct(a => (a+1)%INDS.length), 3200);
+    const id = setInterval(() => setAct(a => (a+1)%INDS.length), 2800);
     return () => clearInterval(id);
   }, [paused]);
   return (
-    <section id="industries" className="ev-sec ev-ind" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
+    <section id="industries" className="ev-sec ev-ind lt" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
       <GlowWash variant="teal"/>
       <span className="ev-gnum ev-gnum--l" aria-hidden="true">02</span>
       <div className="ev-wrap ev-ind__grid">
@@ -543,7 +544,9 @@ function Industries() {
             ))}
           </div>
         </div>
-        <IndustryGrid act={act} setAct={setAct}/>
+        <FX delay={150} y={40}>
+          <IndustryOrbit act={act} setAct={setAct}/>
+        </FX>
       </div>
     </section>
   );
@@ -566,8 +569,8 @@ function FlowDiagram({ steps }) {
           <span className={`ev-flow__node${i === steps.length - 1 ? " ev-flow__node--end" : ""}`}>{s}</span>
           {i < steps.length - 1 && (
             <svg className="ev-flow__link" width="34" height="10" viewBox="0 0 34 10">
-              <line x1="0" y1="5" x2="26" y2="5" stroke="rgba(203,255,252,0.3)" strokeWidth="1" strokeDasharray="4 4" style={{ animation: "flowDash 1.4s linear infinite" }} />
-              <path d="M26 1.5 L32 5 L26 8.5" fill="none" stroke="rgba(203,255,252,0.45)" strokeWidth="1" />
+              <line x1="0" y1="5" x2="26" y2="5" stroke="rgba(0,130,124,0.4)" strokeWidth="1" strokeDasharray="4 4" style={{ animation: "flowDash 1.4s linear infinite" }} />
+              <path d="M26 1.5 L32 5 L26 8.5" fill="none" stroke="rgba(0,130,124,0.6)" strokeWidth="1" />
             </svg>
           )}
         </div>
@@ -644,7 +647,7 @@ function DashboardMockup() {
 
 function Services() {
   return (
-    <section id="services" className="ev-sec ev-svc">
+    <section id="services" className="ev-sec ev-svc lt">
       <GlowWash variant="lav"/>
       <span className="ev-gnum" aria-hidden="true">03</span>
       <div className="ev-wrap">
@@ -800,7 +803,7 @@ function Process() {
     return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
   }, []);
   return (
-    <section id="process" className="ev-sec ev-proc" ref={secRef}>
+    <section id="process" className="ev-sec ev-proc lt" ref={secRef}>
       <GlowWash variant="mint"/>
       <span className="ev-gnum" aria-hidden="true">05</span>
       <div className="ev-wrap">
@@ -828,7 +831,7 @@ function Process() {
 /* BORDERS — atmospheric statement band */
 function Borders() {
   return (
-    <section className="ev-sec ev-bdr">
+    <section className="ev-sec ev-bdr lt">
       <div className="ev-bdr__wash"/>
       <div className="ev-wrap ev-bdr__body">
         <FX><Eyebrow>Working Across Borders</Eyebrow></FX>
@@ -885,7 +888,7 @@ function DottedSphere() {
 function Why() {
   const go = (e) => { e.preventDefault(); document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }); };
   return (
-    <section className="ev-sec ev-why">
+    <section className="ev-sec ev-why lt lt--mint">
       <div className="ev-wrap">
         <FX y={56}>
           <div className="ev-bigcard">
@@ -913,7 +916,7 @@ function Why() {
 /* TRUST */
 function Trust() {
   return (
-    <section id="trust" className="ev-sec ev-trust">
+    <section id="trust" className="ev-sec ev-trust lt lt--mint">
       <GlowWash variant="tealLeft"/>
       <span className="ev-gnum ev-gnum--l" aria-hidden="true">06</span>
       <div className="ev-wrap ev-trust__grid">
@@ -967,7 +970,7 @@ function WhatNext() {
     return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
   }, []);
   return (
-    <section id="next" className="ev-sec ev-next">
+    <section id="next" className="ev-sec ev-next lt">
       <GlowWash variant="lav"/>
       <span className="ev-gnum" aria-hidden="true">07</span>
       <div className="ev-wrap">
@@ -1084,20 +1087,20 @@ function Contact({setPage}) {
   );
 }
 
-/* FOOTER */
+/* FOOTER — dark teal, white wordmark, social links */
 function Footer({setPage}) {
   return (
     <footer className="ev-footer">
       <div className="ev-wrap">
         <div className="ev-footer__top">
           <div onClick={()=>{setPage("home");window.scrollTo({top:0,behavior:"smooth"})}} className="ev-brand">
-            <LogoMark size={24} color="#ffffff"/>
-            <div>
-              <div className="ev-brand__name" style={{fontSize:14}}>Evriel</div>
-              <div className="ev-brand__sub">Systems</div>
-            </div>
+            <Logo light height={26}/>
           </div>
           <p className="ev-footer__tag">Connecting Intelligence with Business</p>
+          <div className="ev-footer__social">
+            <a href="https://www.instagram.com/evrielsystems" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="ev-soc"><Instagram size={16}/></a>
+            <a href="https://www.linkedin.com/company/evriel-systems/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="ev-soc"><Linkedin size={16}/></a>
+          </div>
         </div>
         <div className="ev-footer__line"/>
         <div className="ev-footer__bot">
@@ -1125,7 +1128,7 @@ const ARTS = [
 function InsightsHome({setPage,setSlug}) {
   return (
     <>
-      <section className="ev-ins-hero">
+      <section className="ev-ins-hero lt">
         <FX><Eyebrow>Research &middot; Insights</Eyebrow></FX>
         <FX delay={100}><h1 className="ev-ins-hero__h">Thinking <em>Forward</em></h1></FX>
       </section>
@@ -1188,11 +1191,27 @@ function PrivacyPage() {
   );
 }
 
+/* Subtle title color shift as headlines scroll through the viewport */
+function useTitleShift(page) {
+  useEffect(() => {
+    if (page !== "home" || reduced()) return;
+    let tws = [];
+    const t = setTimeout(() => {
+      tws = gsap.utils.toArray(".lt .ev-h-lg")
+        .filter((el) => !el.closest(".ev-bigcard"))
+        .map((el) => gsap.fromTo(el, { color: "#012624" }, { color: "#10635d", ease: "none",
+          scrollTrigger: { trigger: el, start: "top 75%", end: "top 12%", scrub: 0.7 } }));
+    }, 180);
+    return () => { clearTimeout(t); tws.forEach((tw) => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); }); };
+  }, [page]);
+}
+
 /* APP */
 export default function EvrielSystems() {
   const [page, setPage] = useState("home");
   const [slug, setSlug] = useState(null);
   useSEO();
+  useTitleShift(page);
   return (
     <>
       <style>{`
@@ -1215,12 +1234,12 @@ export default function EvrielSystems() {
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--abyss);color:var(--fog);font-weight:400;-webkit-font-smoothing:antialiased}
-::selection{background:rgba(0,130,124,0.45);color:#fff}
+body{font-family:var(--font);background:#ffffff;color:#4a5a58;font-weight:400;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(0,130,124,0.3);color:#012624}
 ::-webkit-scrollbar{width:10px}
-::-webkit-scrollbar-track{background:var(--abyss)}
-::-webkit-scrollbar-thumb{background:var(--reef);border-radius:5px;border:2px solid var(--abyss)}
-::-webkit-scrollbar-thumb:hover{background:#00524d}
+::-webkit-scrollbar-track{background:#f2f7f6}
+::-webkit-scrollbar-thumb{background:#c0d3d0;border-radius:5px;border:2px solid #f2f7f6}
+::-webkit-scrollbar-thumb:hover{background:#9dbab6}
 button,input,textarea,select{font-family:inherit;background:none;border:none;cursor:pointer}
 a{text-decoration:none;color:inherit}
 strong{font-weight:500;color:var(--snow)}
@@ -1280,7 +1299,11 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 
 /* ===== nav — transparent, sits on the canvas ===== */
 .ev-nav{position:fixed;top:0;left:0;right:0;z-index:999;padding:14px 0;transition:all 0.5s ${EASE};background:transparent}
-.ev-nav--s{background:rgba(1,29,28,0.82);backdrop-filter:blur(20px);padding:9px 0}
+.ev-nav--s{background:rgba(255,255,255,0.88);backdrop-filter:blur(20px);padding:9px 0;border-bottom:1px solid rgba(1,38,36,0.06)}
+.ev-nav--s .ev-nav__link{color:#012624}
+.ev-nav--s .ev-nav__burger{color:#012624}
+.ev-nav--s .ev-btn--ghost{background:linear-gradient(#ffffff,#ffffff) padding-box,var(--g-current) border-box;color:#012624}
+.ev-nav--open .ev-nav__burger{color:#012624}
 .ev-nav__in{max-width:var(--page-w);margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:40px}
 .ev-brand{cursor:pointer;display:flex;align-items:center;gap:12px}
 .ev-brand__name{font-size:16px;font-weight:500;color:var(--snow);letter-spacing:0.04em;line-height:1}
@@ -1289,12 +1312,12 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-nav__link{font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--snow);transition:opacity 0.3s}
 .ev-nav__link:hover{opacity:0.55}
 .ev-nav__burger{display:none;color:var(--snow)}
-.ev-mobile-menu{position:fixed;inset:0;background:var(--abyss);z-index:998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding-top:60px}
-.ev-mob-link{font-size:26px;font-weight:500;letter-spacing:-0.01em;color:var(--snow);transition:opacity 0.3s}
+.ev-mobile-menu{position:fixed;inset:0;background:#ffffff;z-index:998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding-top:60px}
+.ev-mob-link{font-size:26px;font-weight:500;letter-spacing:-0.01em;color:#012624;transition:opacity 0.3s}
 .ev-mob-link:hover{opacity:0.55}
 
 /* ===== hero — particle sphere in the abyss ===== */
-.ev-hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:172px 0 140px}
+.ev-hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:172px 0 140px;background:var(--abyss)}
 .ev-hero__wash{position:absolute;inset:0;background:radial-gradient(ellipse 75% 50% at 50% 8%,rgba(250,209,255,0.05),rgba(237,255,254,0.03) 45%,transparent 70%);pointer-events:none}
 .ev-hero__sphere{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(88vw,760px);height:min(88vw,760px);pointer-events:none}
 .ev-hero__sphere-glow{position:absolute;inset:8%;border-radius:50%;background:radial-gradient(circle,rgba(0,130,124,0.28),rgba(0,130,124,0.07) 55%,transparent 72%)}
@@ -1366,19 +1389,21 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-ind__dot{width:8px;height:8px;border-radius:50%;padding:0;background:rgba(237,255,254,0.15);cursor:pointer;transition:all 0.4s ${EASE}}
 .ev-ind__dot--on{background:var(--cyan);transform:scale(1.4)}
 
-/* industry card grid — every card glows its own hue */
-.ev-indgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:relative;z-index:1}
-.ev-indcard{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;gap:30px;background:var(--trench);border-radius:16px;padding:20px;text-align:left;transition:background 0.35s ${EASE}}
-.ev-indcard__n{position:relative;z-index:1;font-size:11px;font-weight:500;letter-spacing:1.44px;color:var(--fog);transition:color 0.35s}
-.ev-indcard__t{position:relative;z-index:1;font-size:14px;font-weight:500;letter-spacing:0.2px;color:var(--snow);line-height:1.3}
-.ev-indcard__go{position:absolute;top:14px;right:14px;width:24px;height:24px;border:1px solid rgba(237,255,254,0.3);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--snow);opacity:0;transition:opacity 0.35s;z-index:1}
-.ev-indcard::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.5s ${EASE};background:radial-gradient(ellipse 100% 90% at 50% 0%,rgba(0,194,176,0.3),transparent 72%);pointer-events:none}
-.ev-indcard:nth-child(3n+2)::after{background:radial-gradient(ellipse 100% 90% at 50% 0%,rgba(203,255,252,0.24),transparent 72%)}
-.ev-indcard:nth-child(3n)::after{background:radial-gradient(ellipse 100% 90% at 50% 0%,rgba(250,209,255,0.18),transparent 72%)}
-.ev-indcard--on{background:var(--reef)}
-.ev-indcard--on::after{opacity:1}
-.ev-indcard--on .ev-indcard__n{color:var(--cyan)}
-.ev-indcard--on .ev-indcard__go{opacity:1}
+/* rotating industry orbit — white section, teal rings, dark labels */
+.ev-orbit{--orbR:225px;position:relative;width:540px;height:540px;margin:0 auto}
+.ev-orbit__ring{position:absolute;inset:45px;border:1px solid rgba(0,130,124,0.22);border-radius:50%}
+.ev-orbit__ring--in{inset:150px;border-color:rgba(0,130,124,0.12)}
+.ev-orbit__spin{position:absolute;inset:0;animation:orbSpin 70s linear infinite}
+.ev-orbit:hover .ev-orbit__spin,.ev-orbit:hover .ev-orbit__upright{animation-play-state:paused}
+@keyframes orbSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes orbSpinRev{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+.ev-orbit__pos{position:absolute;top:50%;left:50%;width:0;height:0}
+.ev-orbit__upright{position:absolute;width:0;height:0;animation:orbSpinRev 70s linear infinite}
+.ev-orbit__node{position:absolute;transform:translate(-50%,-50%);border:1px solid rgba(0,130,124,0.3);background:#ffffff;color:#4a5a58;font-size:10.5px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;padding:9px 14px;border-radius:9999px;cursor:pointer;white-space:nowrap;transition:all 0.4s ${EASE}}
+.ev-orbit__node--on{border-color:#00827c;background:#012624;color:#ffffff}
+.ev-orbit__node:hover{color:#012624;border-color:#00827c}
+.ev-orbit__hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:132px;height:132px;border-radius:50%;border:1px solid rgba(0,130,124,0.35);background:radial-gradient(circle,rgba(0,194,176,0.14),rgba(255,255,255,0.92) 72%);display:flex;align-items:center;justify-content:center;text-align:center}
+.ev-orbit__hub span{font-size:13px;font-weight:500;letter-spacing:0.06em;color:#012624;line-height:1.4}
 
 /* ===== services — editorial rows with outlined numerals ===== */
 .ev-svc__rows{margin-top:64px}
@@ -1396,8 +1421,8 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-flow__node--end{background:var(--g-current);color:var(--trench);border-color:transparent}
 .ev-flow__link{flex-shrink:0}
 
-/* ===== projects — trench accordion cards ===== */
-.ev-proj{overflow:hidden}
+/* ===== projects — dark teal accent break ===== */
+.ev-proj{overflow:hidden;background:var(--abyss)}
 .ev-proj__list{margin-top:64px;position:relative;z-index:1}
 .ev-prj{background:var(--trench);border-radius:16px;padding:32px 40px;margin-bottom:16px;cursor:pointer;transition:background 0.3s ${EASE}}
 .ev-prj:hover,.ev-prj--o{background:var(--reef)}
@@ -1473,7 +1498,7 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-trust__cd{font-size:14px;line-height:1.6;letter-spacing:0.3px;color:var(--fog)}
 
 /* ===== statement — display type over twilight wash ===== */
-.ev-stmt{overflow:hidden;text-align:center;padding:160px 0}
+.ev-stmt{overflow:hidden;text-align:center;padding:160px 0;background:var(--abyss)}
 .ev-stmt__wash{position:absolute;inset:0;background:radial-gradient(ellipse 55% 62% at 50% 45%,rgba(250,209,255,0.10),rgba(203,255,252,0.06) 45%,rgba(0,194,176,0.04) 70%,transparent 88%);pointer-events:none}
 .ev-stmt__body{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:52px}
 .ev-stmt__h{font-size:clamp(32px,5.4vw,72px);font-weight:500;line-height:1.08;letter-spacing:-0.03em;color:var(--snow)}
@@ -1528,9 +1553,12 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-sent h3{font-size:24px;font-weight:500;color:var(--snow)}
 .ev-sent p{font-size:14px;color:var(--fog)}
 
-/* ===== footer ===== */
-.ev-footer{border-top:1px solid rgba(237,255,254,0.07);padding:56px 0 36px}
-.ev-footer__top{display:flex;align-items:center;justify-content:space-between;gap:20px}
+/* ===== footer — dark teal ===== */
+.ev-footer{background:var(--abyss);padding:64px 0 40px}
+.ev-footer__top{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.ev-footer__social{display:flex;gap:10px}
+.ev-soc{width:36px;height:36px;border:1px solid rgba(237,255,254,0.25);border-radius:9999px;display:inline-flex;align-items:center;justify-content:center;color:var(--snow);transition:all 0.3s ${EASE}}
+.ev-soc:hover{border-color:var(--cyan);color:var(--cyan);transform:scale(1.06)}
 .ev-footer__tag{font-size:12px;letter-spacing:1.1px;text-transform:uppercase;color:rgba(187,199,198,0.5)}
 .ev-footer__line{height:1px;background:rgba(237,255,254,0.07);margin:28px 0 22px}
 .ev-footer__bot{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;letter-spacing:0.4px;color:rgba(187,199,198,0.55)}
@@ -1618,19 +1646,21 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-dash__chart span{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,rgba(203,255,252,0.85),rgba(0,130,124,0.45));transform-origin:bottom}
 .ev-dash__line{width:100%;height:38px;background:var(--abyss);border-radius:6px;padding:6px 10px}
 
-/* ===== tech marquee — the integration strip ===== */
-.ev-mq--tech{background:transparent;border-top:1px solid rgba(237,255,254,0.07);border-bottom:1px solid rgba(237,255,254,0.07);padding:24px 0}
-.ev-mq__label{text-align:center;font-size:10px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;color:rgba(187,199,198,0.6);margin-bottom:18px}
+/* ===== tool marquee — brand icons, two rows, opposite directions ===== */
 @keyframes mqR{from{transform:translateX(-25%)}to{transform:translateX(0)}}
-.ev-mq__track--rev{animation:mqR 30s linear infinite}
-.ev-mq__i--tech{font-size:15px;letter-spacing:0.3px;text-transform:none;color:var(--ice);font-weight:500}
-.ev-mq__dot--lav{background:var(--lav)}
+.ev-tm{background:#ffffff;padding:56px 0 44px;border-bottom:1px solid rgba(1,38,36,0.06)}
+.ev-tm__label{text-align:center;font-size:10px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;color:#6b7c7a;margin-bottom:26px}
+.ev-tm__row{overflow:hidden;padding:6px 0}
+.ev-tm__track{display:flex;gap:14px;white-space:nowrap;width:max-content;animation:mq 28s linear infinite}
+.ev-tm__track--rev{animation:mqR 32s linear infinite}
+.ev-tm__i{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:500;letter-spacing:0.3px;color:#1d3a37;background:#f4fffd;border:1px solid rgba(1,38,36,0.08);border-radius:9999px;padding:10px 18px}
+.ev-tm__i img{width:16px;height:16px;opacity:0.8;display:block}
 
-/* ===== contact — white card on a bright teal glow ===== */
-.ev-contact2{position:relative;padding:150px 0 120px;overflow:hidden}
-.ev-contact2__glow{position:absolute;inset:0;background:radial-gradient(ellipse 85% 82% at 50% 42%,rgba(0,194,176,0.5),rgba(0,130,124,0.22) 42%,rgba(1,38,36,0) 74%),radial-gradient(ellipse 42% 36% at 50% 36%,rgba(203,255,252,0.28),transparent 70%);pointer-events:none}
+/* ===== contact — white card floating on a soft mint glow ===== */
+.ev-contact2{position:relative;padding:150px 0 120px;overflow:hidden;background:linear-gradient(180deg,#ffffff 0%,#ebfffd 55%,#e2fcf8 100%)}
+.ev-contact2__glow{position:absolute;inset:0;background:radial-gradient(ellipse 75% 70% at 50% 40%,rgba(0,194,176,0.26),rgba(0,194,176,0.08) 48%,transparent 75%),radial-gradient(ellipse 38% 32% at 50% 34%,rgba(203,255,252,0.4),transparent 70%);pointer-events:none}
 .ev-contact2__in{position:relative;z-index:1}
-.ev-wcard{background:#fdfffe;border-radius:24px;padding:56px}
+.ev-wcard{background:#ffffff;border:1px solid rgba(1,38,36,0.08);border-radius:24px;padding:56px}
 .ev-wcard__grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
 .ev-eyebrow--dark{color:#00615c}
 .ev-wcard__h{font-size:clamp(38px,4.8vw,61px);font-weight:500;line-height:1.05;letter-spacing:-0.02em;color:#011d1c;margin-top:24px}
@@ -1664,13 +1694,155 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-sent--light h3{color:#011d1c}
 .ev-sent--light p{color:#3f4f4e}
 .ev-contact2__foot{display:flex;align-items:center;justify-content:space-between;gap:32px;margin-top:72px;flex-wrap:wrap}
-.ev-contact2__stmt{font-size:clamp(28px,3.6vw,48px);font-weight:500;line-height:1.1;letter-spacing:-0.02em;color:var(--snow)}
+.ev-contact2__stmt{font-size:clamp(28px,3.6vw,48px);font-weight:500;line-height:1.1;letter-spacing:-0.02em;color:#012624}
+
+/* ===== LIGHT THEME — white-dominant sections ===== */
+.lt{background:#ffffff}
+.lt--mint{background:#ebfffd}
+.lt .ev-h-lg,.lt .ev-h-md{color:#012624}
+.lt em{background:linear-gradient(90deg,#00827c 0%,#014e49 100%);-webkit-background-clip:text;background-clip:text}
+.lt strong{color:#012624}
+.lt .ev-eyebrow{color:#4a5a58}
+.lt .ev-intro{color:#4a5a58}
+.lt .ev-gnum{color:rgba(1,38,36,0.045)}
+
+/* about — light */
+.lt .ev-about__lead{color:#0c3a36}
+.lt .ev-about__quote{color:#00827c}
+.lt .ev-about__p{color:#4a5a58}
+.lt .ev-afeat{background:#ebfffd}
+.lt .ev-afeat__n{color:#012624}
+.lt .ev-afeat__d{color:#4a5a58}
+.lt .ev-afeat--pink{background:linear-gradient(135deg,#fad1ff 0%,#fffdfa 55%,#ffffff 100%)}
+.lt .ev-afeat--pink .ev-afeat__n{color:#012624}
+.lt .ev-afeat--pink .ev-afeat__d{color:#274a47}
+.lt .ev-ch{background:#f0fffe;color:#3f4f4e}
+.lt .ev-ch:hover{background:#ebfffd;color:#012624}
+
+/* outcomes — mint */
+.lt .ev-out__num{background:linear-gradient(90deg,#00827c 0%,#012624 100%);-webkit-background-clip:text;background-clip:text}
+.lt .ev-out__of{color:#4a5a58}
+.lt .ev-out__item{border-top-color:rgba(1,38,36,0.12)}
+.lt .ev-out__item:last-child{border-bottom-color:rgba(1,38,36,0.12)}
+.lt .ev-out__ix{color:#6b7c7a}
+.lt .ev-out__t{color:#012624}
+.lt .ev-out__chev{color:#6b7c7a}
+.lt .ev-out__item--on .ev-out__ix{color:#00827c}
+.lt .ev-out__item--on .ev-out__chev{color:#00827c}
+.lt .ev-out__body p{color:#4a5a58}
+
+/* industries — light */
+.lt .ev-ind__dnum{color:#00827c}
+.lt .ev-ind__dname{color:#012624}
+.lt .ev-ind__ddesc{color:#4a5a58}
+.lt .ev-ind__dot{background:rgba(1,38,36,0.15)}
+.lt .ev-ind__dot--on{background:#00827c}
+
+/* services — clean white cards with teal left border */
+.lt .ev-svc__row{background:#ffffff;border:1px solid rgba(1,38,36,0.08);border-left:3px solid #00827c;border-radius:16px;padding:40px;margin-bottom:16px}
+.lt .ev-svc__rows > div:last-child .ev-svc__row{border-bottom:1px solid rgba(1,38,36,0.08)}
+.lt .ev-svc__gn{-webkit-text-stroke:1px rgba(0,130,124,0.5)}
+.lt .ev-svc__row:hover .ev-svc__gn{-webkit-text-stroke:1px rgba(0,130,124,0.85)}
+.lt .ev-svc__t{color:#012624}
+.lt .ev-svc__d{color:#4a5a58}
+.lt .ev-svc__al{color:#00827c}
+.lt .ev-tag{background:#ebfffd;color:#3f4f4e}
+.lt .ev-tag:hover{color:#012624}
+.lt .ev-flow__node{border-color:rgba(1,38,36,0.15);color:#4a5a58}
+.lt .ev-flow__node--end{background:var(--g-current);color:#012624;border-color:transparent}
+
+/* mockups — mint panels inside white cards */
+.lt .ev-mock{background:linear-gradient(#ebfffd,#ebfffd) padding-box,linear-gradient(135deg,rgba(0,130,124,0.5),rgba(0,194,176,0.15) 45%,rgba(250,209,255,0.55)) border-box}
+.lt .ev-mock__bar{border-bottom-color:rgba(1,38,36,0.08)}
+.lt .ev-mock__bar span{background:rgba(1,38,36,0.15)}
+.lt .ev-mock__bar i{color:#4a5a58}
+.lt .ev-mock__row{background:#ffffff}
+.lt .ev-mock__from{color:#3f4f4e}
+.lt .ev-mock__tag--u{background:rgba(210,60,180,0.1);color:#a839a0}
+.lt .ev-mock__tag--f{background:rgba(0,130,124,0.12);color:#00615c}
+.lt .ev-mock__tag--l{background:rgba(1,38,36,0.06);color:#6b7c7a}
+.lt .ev-mock__out{background:#012624;color:#edfffe}
+.lt .ev-dash__kpi{background:#ffffff}
+.lt .ev-dash__kpi i{color:#6b7c7a}
+.lt .ev-dash__chart{background:#ffffff}
+.lt .ev-dash__chart span{background:linear-gradient(180deg,rgba(0,130,124,0.85),rgba(0,194,176,0.35))}
+.lt .ev-dash__line{background:#ffffff}
+
+/* process — light */
+.lt .ev-proc__num{color:#00827c}
+.lt .ev-proc__ct{color:#012624}
+.lt .ev-proc__cd{color:#4a5a58}
+
+/* borders — light */
+.lt .ev-bdr__p{color:#4a5a58}
+.lt .ev-bdr__tag{background:#ffffff;border:1px solid rgba(0,130,124,0.35)}
+.lt .ev-bdr__tag span{color:#00615c}
+
+/* why — dark signature card stays dark on the mint field */
+.lt .ev-bigcard .ev-h-lg{color:var(--snow)}
+.lt .ev-bigcard em{background:var(--g-text);-webkit-background-clip:text;background-clip:text}
+.lt .ev-bigcard .ev-eyebrow{color:var(--fog)}
+
+/* trust — mint */
+.lt .ev-trust__p{color:#4a5a58}
+.lt .ev-trust__note{background:#ffffff}
+.lt .ev-trust__note p{color:#4a5a58}
+.lt .ev-trust__note svg{color:#00827c}
+.lt .ev-trust__row{border-top-color:rgba(1,38,36,0.12)}
+.lt .ev-trust__row:last-child{border-bottom-color:rgba(1,38,36,0.12)}
+.lt .ev-trust__ci{border-color:rgba(1,38,36,0.18);color:#00827c}
+.lt .ev-trust__ct{color:#012624}
+.lt .ev-trust__cd{color:#4a5a58}
+
+/* what next — light */
+.lt .ev-next__card{background:#ebfffd}
+.lt .ev-next__card:hover{background:#dffbf6}
+.lt .ev-next__num{color:#00827c}
+.lt .ev-next__t{color:#012624}
+.lt .ev-next__d{color:#4a5a58}
+.lt .ev-next__node{background:#00827c}
+
+/* insights + article + privacy — light pages */
+.ev-ins-hero__h{color:#012624}
+.ev-ins-hero em,.ev-art-hero em,.ev-privacy em{background:linear-gradient(90deg,#00827c 0%,#014e49 100%);-webkit-background-clip:text;background-clip:text}
+.ev-art-card{background:#ebfffd}
+.ev-art-card:hover{background:#dffbf6}
+.ev-art-card__go{border-color:rgba(1,38,36,0.2);color:#012624}
+.ev-art-card:hover .ev-art-card__go{border-color:#00827c}
+.ev-art-card__tag{color:#00827c}
+.ev-art-card__date{color:#6b7c7a}
+.ev-art-card__t{color:#012624}
+.ev-art-card__ex{color:#4a5a58}
+.ev-art-card__rd{color:#00827c}
+.ev-art-hero__tag{color:#00827c}
+.ev-art-hero__h{color:#012624}
+.ev-art-hero__date{color:#6b7c7a}
+.ev-art-body__p{color:#3f4f4e}
+.ev-art-body__cta{background:#ebfffd}
+.ev-art-body__cta p{color:#012624}
+.ev-art-side__h{color:#00827c}
+.ev-art-side__item{border-top-color:rgba(1,38,36,0.12)}
+.ev-art-side__tag{color:#00827c}
+.ev-art-side__t{color:#012624}
+.ev-privacy__h{color:#012624}
+.ev-privacy__updated{color:#6b7c7a}
+.ev-privacy__content h2{color:#012624}
+.ev-privacy__content p{color:#4a5a58}
+.ev-privacy__content a{color:#00827c}
+
+/* cookie — light */
+.ev-cookie{background:#ffffff;border:1px solid rgba(1,38,36,0.1)}
+.ev-cookie p{color:#4a5a58}
+.ev-cookie a{color:#00827c}
 
 /* ===== responsive ===== */
 @media(max-width:1024px){
   .ev-about__grid,.ev-out__grid,.ev-ind__grid,.ev-trust__grid,.ev-contact__grid{grid-template-columns:1fr;gap:56px}
   .ev-bigcard{grid-template-columns:1fr;padding:48px;gap:40px}
   .ev-wcard__grid{grid-template-columns:1fr;gap:44px}
+  .ev-orbit{--orbR:190px;width:460px;height:460px}
+  .ev-orbit__ring{inset:38px}
+  .ev-orbit__ring--in{inset:128px}
   .ev-svc__row{grid-template-columns:70px 1fr;gap:24px}
   .ev-svc__r{grid-column:2}
   .ev-svc__gn{font-size:44px}
@@ -1708,7 +1880,13 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
   .ev-cookie{flex-direction:column;align-items:stretch;text-align:center;padding:18px 20px;gap:14px}
   .ev-about__stats{gap:12px}
   .ev-gnum{display:none}
-  .ev-indgrid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .ev-svc__row{padding:26px 20px}
+  .ev-orbit{--orbR:142px;width:340px;height:340px}
+  .ev-orbit__ring{inset:28px}
+  .ev-orbit__ring--in{inset:96px}
+  .ev-orbit__node{font-size:9px;padding:6px 10px;letter-spacing:0.8px}
+  .ev-orbit__hub{width:96px;height:96px}
+  .ev-orbit__hub span{font-size:11px}
   .ev-bigcard{padding:36px 24px;border-radius:20px}
   .ev-wcard{padding:32px 24px;border-radius:20px}
   .ev-wcard__form{margin-top:36px;padding-top:32px}
@@ -1722,12 +1900,14 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
   .ev-hero__ctas .ev-btn{justify-content:center}
   .ev-radios{flex-direction:column;align-items:flex-start}
   .ev-about__stats{grid-template-columns:1fr}
+  .ev-orbit{--orbR:126px;width:300px;height:300px}
+  .ev-orbit__hub{width:84px;height:84px}
 }
       `}</style>
 
       <ScrollProgress/>
       <Nav page={page} setPage={setPage}/>
-      {page==="home"&&<><Hero/><Marquee/><About/><Outcomes/><Industries/><Services/><Projects/><TechMarquee/><Process/><Borders/><Why/><Trust/><Statement/><WhatNext/><Contact setPage={setPage}/></>}
+      {page==="home"&&<><Hero/><Marquee/><About/><TechMarquee/><Outcomes/><Industries/><Services/><Projects/><Process/><Borders/><Why/><Trust/><Statement/><WhatNext/><Contact setPage={setPage}/></>}
       {page==="insights"&&<InsightsHome setPage={setPage} setSlug={setSlug}/>}
       {page==="article"&&<ArticlePage slug={slug} setPage={setPage} setSlug={setSlug}/>}
       {page==="privacy"&&<PrivacyPage/>}
