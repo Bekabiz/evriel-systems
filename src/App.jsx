@@ -1,108 +1,158 @@
 import { useState, useEffect, useRef } from "react";
-import { Mail, ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Atom, Radar, Boxes, Waypoints, Lock, Eye, Shield, CheckCircle2, Target } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Lock, Eye, Shield, CheckCircle2, Target } from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ChatWidget from "./ChatWidget";
 
+gsap.registerPlugin(ScrollTrigger);
+
 const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
+const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function useReveal(threshold = 0.07) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.unobserve(el); } }, { threshold });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return [ref, visible];
-}
+/* ============ GSAP ScrollTrigger reveal primitives ============ */
 
-function useParallax(speed = 0.05) {
+function FX({ children, className = "", style = {}, delay = 0, y = 64, x = 0, scale = 1 }) {
   const ref = useRef(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    let raf;
-    const onScroll = () => { raf = requestAnimationFrame(() => { const rect = el.getBoundingClientRect(); el.style.transform = `translate3d(0,${(rect.top + rect.height / 2 - window.innerHeight / 2) * speed}px,0)`; }); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
-  }, [speed]);
-  return ref;
+    if (reduced()) { gsap.set(el, { opacity: 1 }); return; }
+    const tw = gsap.fromTo(el,
+      { opacity: 0, y, x, scale },
+      { opacity: 1, y: 0, x: 0, scale: 1, duration: 1.15, ease: "expo.out", delay: delay / 1000,
+        scrollTrigger: { trigger: el, start: "top 88%", once: true } });
+    return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
+  }, []);
+  return <div ref={ref} className={className} style={{ ...style, opacity: 0 }}>{children}</div>;
 }
 
-/* Interactive intelligence network — nodes drift slowly and react to the cursor */
-function NetworkCanvas() {
+function StaggerFX({ children, className = "", style = {}, each = 0.12, y = 48 }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const items = Array.from(el.children);
+    if (!items.length) return;
+    if (reduced()) { gsap.set(items, { opacity: 1 }); return; }
+    const tw = gsap.fromTo(items,
+      { opacity: 0, y },
+      { opacity: 1, y: 0, duration: 1.05, ease: "expo.out", stagger: each,
+        scrollTrigger: { trigger: el, start: "top 88%", once: true } });
+    return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
+  }, []);
+  return <div ref={ref} className={className} style={style}>{children}</div>;
+}
+
+/* Draw SVG strokes when scrolled into view */
+function useDrawLines(ref, selector) {
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const lines = root.querySelectorAll(selector);
+    if (!lines.length) return;
+    lines.forEach((el) => {
+      const len = el.getTotalLength ? el.getTotalLength() : 600;
+      el.style.strokeDasharray = len;
+      el.style.strokeDashoffset = reduced() ? 0 : len;
+    });
+    if (reduced()) return;
+    const tw = gsap.to(lines, { strokeDashoffset: 0, duration: 1.7, ease: "power2.out", stagger: 0.1,
+      scrollTrigger: { trigger: root, start: "top 82%", once: true } });
+    return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
+  }, []);
+}
+
+/* ============ Particle sphere — the hero centerpiece ============ */
+function ParticleSphere() {
   const ref = useRef(null);
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const ctx = canvas.getContext("2d");
-    let raf, w, h, dpr;
-    const mouse = { x: -9999, y: -9999 };
+    const still = reduced();
+    let raf, W, H, R, dpr;
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = canvas.offsetWidth; h = canvas.offsetHeight;
-      canvas.width = w * dpr; canvas.height = h * dpr;
+      W = canvas.offsetWidth; H = canvas.offsetHeight;
+      canvas.width = W * dpr; canvas.height = H * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      R = Math.min(W, H) * 0.365;
     };
     resize();
-    const N = w < 768 ? 34 : 64;
-    const nodes = Array.from({ length: N }, () => ({
-      x: Math.random() * w, y: Math.random() * h,
-      vx: (Math.random() - 0.5) * 0.22, vy: (Math.random() - 0.5) * 0.22,
-      r: 1 + Math.random() * 1.6,
-    }));
-    const LINK = w < 768 ? 110 : 150;
-    const draw = () => {
-      ctx.clearRect(0, 0, w, h);
-      for (const n of nodes) {
-        if (!reduced) {
-          n.x += n.vx; n.y += n.vy;
-          const dx = n.x - mouse.x, dy = n.y - mouse.y, d = Math.hypot(dx, dy);
-          if (d < 160 && d > 0.1) { n.x += (dx / d) * 0.6; n.y += (dy / d) * 0.6; }
-          if (n.x < 0 || n.x > w) n.vx *= -1;
-          if (n.y < 0 || n.y > h) n.vy *= -1;
-          n.x = Math.max(0, Math.min(w, n.x)); n.y = Math.max(0, Math.min(h, n.y));
-        }
-      }
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const a = nodes[i], b = nodes[j];
-          const d = Math.hypot(a.x - b.x, a.y - b.y);
-          if (d < LINK) {
-            const o = (1 - d / LINK) * 0.16;
-            ctx.strokeStyle = `rgba(168,210,255,${o})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-          }
-        }
-      }
-      for (const n of nodes) {
-        const md = Math.hypot(n.x - mouse.x, n.y - mouse.y);
-        const glow = md < 200 ? (1 - md / 200) * 0.5 : 0;
-        ctx.fillStyle = `rgba(168,210,255,${0.28 + glow})`;
-        ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx.fill();
-      }
-      if (!reduced) raf = requestAnimationFrame(draw);
+    const N = W < 700 ? 460 : 820;
+    const GA = Math.PI * (3 - Math.sqrt(5));
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      const t = (i + 0.5) / N;
+      const py = 1 - 2 * t;
+      const pr = Math.sqrt(1 - py * py);
+      const th = GA * i;
+      pts.push({ x: Math.cos(th) * pr, y: py, z: Math.sin(th) * pr, w: Math.random() });
+    }
+    let rotY = 0, offX = -0.3, offY = 0;
+    const mouse = { x: 0, y: 0, on: false };
+    const onMove = (e) => {
+      const r = canvas.getBoundingClientRect();
+      mouse.x = (e.clientX - (r.left + r.width / 2)) / Math.max(r.width, 1);
+      mouse.y = (e.clientY - (r.top + r.height / 2)) / Math.max(r.height, 1);
+      mouse.on = true;
     };
-    const onMove = (e) => { const r = canvas.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; };
-    const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
+    const FOV = 3.4;
+    // deep teal -> aurora cyan, with rare white / lavender sparks
+    const colorFor = (p, depth) => {
+      if (p.w > 0.985) return `rgba(250,209,255,${0.25 + depth * 0.55})`;
+      if (p.w > 0.94) return `rgba(255,255,255,${0.2 + depth * 0.6})`;
+      const m = depth * 0.72 + p.w * 0.28;
+      const r = Math.round(0 + (203 - 0) * m);
+      const g = Math.round(130 + (255 - 130) * m);
+      const b = Math.round(124 + (252 - 124) * m);
+      return `rgba(${r},${g},${b},${0.14 + depth * 0.62})`;
+    };
+    const frame = () => {
+      ctx.clearRect(0, 0, W, H);
+      if (!still) rotY += 0.0021;
+      offY += ((mouse.on ? mouse.x * 0.7 : 0) - offY) * 0.035;
+      offX += ((-0.3 + (mouse.on ? mouse.y * 0.5 : 0)) - offX) * 0.035;
+      const ry = rotY + offY, rx = offX;
+      const sy = Math.sin(ry), cy = Math.cos(ry), sx = Math.sin(rx), cx = Math.cos(rx);
+      ctx.globalCompositeOperation = "lighter";
+      for (const p of pts) {
+        const x1 = p.x * cy - p.z * sy;
+        const z1 = p.x * sy + p.z * cy;
+        const y1 = p.y * cx - z1 * sx;
+        const z2 = p.y * sx + z1 * cx;
+        const s = FOV / (FOV + z2);
+        const px = W / 2 + x1 * R * s;
+        const py = H / 2 + y1 * R * s;
+        const depth = (1 - z2) / 2; // 0 far -> 1 near
+        const rad = (0.6 + depth * 1.5) * (W < 700 ? 0.85 : 1);
+        ctx.fillStyle = colorFor(p, depth);
+        ctx.beginPath();
+        ctx.arc(px, py, rad, 0, Math.PI * 2);
+        ctx.fill();
+        if (p.w > 0.94 && depth > 0.55) {
+          ctx.fillStyle = `rgba(203,255,252,${(depth - 0.55) * 0.14})`;
+          ctx.beginPath();
+          ctx.arc(px, py, rad * 3.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      ctx.globalCompositeOperation = "source-over";
+      if (!still) raf = requestAnimationFrame(frame);
+    };
     window.addEventListener("resize", resize);
-    canvas.parentElement.parentElement.addEventListener("mousemove", onMove);
-    canvas.parentElement.parentElement.addEventListener("mouseleave", onLeave);
-    draw();
+    if (!still) window.addEventListener("pointermove", onMove, { passive: true });
+    frame();
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
-      canvas.parentElement?.parentElement?.removeEventListener("mousemove", onMove);
-      canvas.parentElement?.parentElement?.removeEventListener("mouseleave", onLeave);
+      window.removeEventListener("pointermove", onMove);
     };
   }, []);
-  return <canvas ref={ref} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />;
+  return <canvas ref={ref} className="ev-sphere__canvas" />;
 }
 
-/* Scroll progress bar */
+/* Scroll progress hairline */
 function ScrollProgress() {
   const ref = useRef(null);
   useEffect(() => {
@@ -118,15 +168,18 @@ function ScrollProgress() {
   return <div className="ev-progress"><div ref={ref} className="ev-progress__bar" /></div>;
 }
 
-function Reveal({ children, className = "", style = {}, delay = 0, direction = "up" }) {
-  const [ref, vis] = useReveal(0.06);
-  const t = { up: "translateY(80px)", down: "translateY(-80px)", left: "translateX(80px)", right: "translateX(-80px)", scale: "scale(0.9)", none: "none" };
-  return <div ref={ref} className={className} style={{ ...style, opacity: vis ? 1 : 0, transform: vis ? "none" : t[direction], transition: `opacity 1.2s ${EASE} ${delay}ms, transform 1.2s ${EASE} ${delay}ms` }}>{children}</div>;
-}
-
-function Stagger({ children, className = "", style = {}, delay = 110 }) {
-  const [ref, vis] = useReveal(0.05);
-  return <div ref={ref} className={className} style={style}>{Array.isArray(children) ? children.map((c, i) => <div key={i} style={{ opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(60px)", transition: `opacity 1.1s ${EASE} ${i * delay}ms, transform 1.1s ${EASE} ${i * delay}ms` }}>{c}</div>) : children}</div>;
+/* Scroll-reactive radial glow wash — the background journey */
+function GlowWash({ variant = "teal" }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (reduced()) { gsap.set(el, { opacity: 1 }); return; }
+    const tw = gsap.fromTo(el, { opacity: 0 }, { opacity: 1, ease: "none",
+      scrollTrigger: { trigger: el.parentElement, start: "top 78%", end: "top 15%", scrub: 0.8 } });
+    return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
+  }, []);
+  return <div ref={ref} className={`ev-wash ev-wash--${variant}`} aria-hidden="true" />;
 }
 
 /* SEO meta tags + JSON-LD */
@@ -196,6 +249,9 @@ const LogoMark = ({ size = 48, color = "currentColor", spin = false }) => (
   </svg>
 );
 
+/* Section eyebrow — teal dot + tracked caps */
+const Eyebrow = ({ children }) => <div className="ev-eyebrow"><span className="ev-eyebrow__dot" />{children}</div>;
+
 /* COOKIE CONSENT */
 function CookieConsent({ setPage }) {
   const [show, setShow] = useState(false);
@@ -205,7 +261,7 @@ function CookieConsent({ setPage }) {
   return (
     <div className="ev-cookie">
       <p>We use essential cookies to ensure our website functions properly. We do not use tracking or advertising cookies. By continuing to use this site, you agree to our <a href="#" onClick={e=>{e.preventDefault();setPage("privacy");window.scrollTo({top:0,behavior:"smooth"})}}>Privacy Policy</a>.</p>
-      <button className="ev-cookie__btn" onClick={accept}>Accept & Close</button>
+      <button className="ev-cookie__btn" onClick={accept}>Accept &amp; Close</button>
     </div>
   );
 }
@@ -216,59 +272,60 @@ function Nav({ page, setPage }) {
   const [open, setOpen] = useState(false);
   useEffect(() => { const h = () => setScrolled(window.scrollY > 50); window.addEventListener("scroll", h, { passive: true }); return () => window.removeEventListener("scroll", h); }, []);
   const go = (id) => { setOpen(false); if (page !== "home") { setPage("home"); setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 250); } else document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };
-  const c = "#F4F7FC";
   return (
     <nav className={`ev-nav${scrolled?" ev-nav--s":""}`}>
       <div className="ev-nav__in">
-        <div onClick={()=>{setPage("home");setOpen(false);window.scrollTo({top:0,behavior:"smooth"})}} style={{cursor:"pointer",display:"flex",alignItems:"center",gap:14}}>
-          <LogoMark size={32} color="#C9CFD9"/>
-          <div><div style={{width:24,height:1.5,background:"#C9CFD9",opacity:0.55,marginBottom:4}}/><div style={{fontFamily:"var(--sf)",fontSize:18,fontWeight:400,color:c,letterSpacing:"0.05em",lineHeight:1}}>Evriel</div><div style={{fontFamily:"var(--bd)",fontSize:8,color:"rgba(201,207,217,0.7)",letterSpacing:"0.42em",textTransform:"uppercase",marginTop:3}}>Systems</div></div>
+        <div onClick={()=>{setPage("home");setOpen(false);window.scrollTo({top:0,behavior:"smooth"})}} className="ev-brand">
+          <LogoMark size={30} color="#ffffff"/>
+          <div>
+            <div className="ev-brand__name">Evriel</div>
+            <div className="ev-brand__sub">Systems</div>
+          </div>
         </div>
         <div className="ev-nav__links">
           {[["About","about"],["Industries","industries"],["Services","services"],["Projects","projects"]].map(([l,id])=>
-            <button key={id} onClick={()=>go(id)} className="ev-nav__link" style={{color:c}}>{l}</button>
+            <button key={id} onClick={()=>go(id)} className="ev-nav__link">{l}</button>
           )}
-          <button onClick={()=>{setPage("insights");setOpen(false);window.scrollTo({top:0,behavior:"smooth"})}} className="ev-nav__link" style={{color:c}}>Insights</button>
-          <button onClick={()=>go("contact")} className="ev-nav__cta">Let's Talk</button>
+          <button onClick={()=>{setPage("insights");setOpen(false);window.scrollTo({top:0,behavior:"smooth"})}} className="ev-nav__link">Insights</button>
+          <button onClick={()=>go("contact")} className="ev-btn ev-btn--ghost ev-btn--sm">Let's Talk</button>
         </div>
-        <button className="ev-nav__burger" onClick={()=>setOpen(!open)} style={{color:c}}>{open?<X size={22}/>:<Menu size={22}/>}</button>
+        <button className="ev-nav__burger" onClick={()=>setOpen(!open)} aria-label="Menu">{open?<X size={22}/>:<Menu size={22}/>}</button>
       </div>
       {open&&<div className="ev-mobile-menu">{[["About","about"],["Industries","industries"],["Services","services"],["Projects","projects"]].map(([l,id])=><button key={id} onClick={()=>go(id)} className="ev-mob-link">{l}</button>)}<button onClick={()=>{setPage("insights");setOpen(false);window.scrollTo({top:0,behavior:"smooth"})}} className="ev-mob-link">Insights</button><button onClick={()=>go("contact")} className="ev-mob-link">Contact</button></div>}
     </nav>
   );
 }
 
-/* HERO */
+/* HERO — particle sphere floating in the abyss */
 function Hero() {
-  const [on, setOn] = useState(false);
-  const gRef = useParallax(0.025);
-  useEffect(() => { setTimeout(() => setOn(true), 80); }, []);
-  const a = (d) => ({ opacity:on?1:0, transform:on?"translateY(0)":"translateY(70px)", transition:`opacity 1.3s ${EASE} ${d}ms, transform 1.3s ${EASE} ${d}ms` });
+  const scope = useRef(null);
+  useEffect(() => {
+    if (reduced()) { gsap.set(scope.current.querySelectorAll("[data-hero]"), { opacity: 1 }); return; }
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
+      tl.fromTo("[data-hero='sphere']", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 2.4 }, 0)
+        .fromTo("[data-hero='fade']", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 1.4, stagger: 0.15 }, 0.25);
+    }, scope);
+    return () => ctx.revert();
+  }, []);
+  const go = (id) => (e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };
   return (
-    <section className="ev-hero">
-      <div className="ev-hero__bg"><div className="ev-hero__grid" ref={gRef}/><div className="ev-hero__rad"/><div className="ev-hero__orb"/><div className="ev-hero__ghost"><LogoMark size={700} color="rgba(189,212,240,0.025)" spin/></div><NetworkCanvas/></div>
+    <section className="ev-hero" ref={scope}>
+      <div className="ev-hero__wash" />
+      <div className="ev-hero__sphere" data-hero="sphere" style={{opacity:0}}>
+        <div className="ev-hero__sphere-glow" />
+        <ParticleSphere />
+      </div>
       <div className="ev-hero__body">
-        <div style={{overflow:"hidden"}}><div className="ev-hero__eyebrow" style={a(150)}>AI &bull; Automation &bull; Intelligent Systems</div></div>
-        <div style={{overflow:"hidden"}}>
-          <div style={a(300)} className="ev-hero__brand">
-            <LogoMark size={90} color="#C9CFD9"/>
-            <div className="ev-hero__brand-text">
-              <div className="ev-hero__brand-line"/>
-              <h1 className="ev-hero__brand-name">Evriel</h1>
-              <span className="ev-hero__brand-sub">SYSTEMS</span>
-            </div>
-          </div>
-        </div>
-        <div style={{overflow:"hidden"}}><h2 className="ev-hero__h2" style={a(500)}>Connecting Intelligence<br/>with <em>Business</em></h2></div>
-        <div style={{overflow:"hidden"}}><p className="ev-hero__sub" style={a(680)}>Helping organizations leverage AI, automation, and intelligent systems <br className="dbr"/>to improve efficiency, make better decisions, and build sustainable <br className="dbr"/>competitive advantages.</p></div>
-        <div style={{overflow:"hidden"}}>
-          <div className="ev-hero__ctas" style={a(860)}>
-            <a href="#services" className="ev-btn ev-btn--w" onClick={e=>{e.preventDefault();document.getElementById("services")?.scrollIntoView({behavior:"smooth"})}}>Explore Solutions <ArrowRight size={17}/></a>
-            <a href="#contact" className="ev-btn ev-btn--gh" onClick={e=>{e.preventDefault();document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}}>Let's Discuss Your Project</a>
-          </div>
+        <div className="ev-hero__eyebrow" data-hero="fade" style={{opacity:0}}>AI &middot; Automation &middot; Intelligent Systems</div>
+        <h1 className="ev-hero__h" data-hero="fade" style={{opacity:0}}>Connecting Intelligence<br/>with <em>Business</em></h1>
+        <p className="ev-hero__sub" data-hero="fade" style={{opacity:0}}>Helping organizations leverage AI, automation, and intelligent systems <br className="dbr"/>to improve efficiency, make better decisions, and build sustainable <br className="dbr"/>competitive advantages.</p>
+        <div className="ev-hero__ctas" data-hero="fade" style={{opacity:0}}>
+          <a href="#contact" className="ev-btn ev-btn--grad" onClick={go("contact")}>Start a Conversation <ArrowUpRight size={14}/></a>
+          <a href="#projects" className="ev-btn ev-btn--ghost" onClick={go("projects")}>Our Work</a>
         </div>
       </div>
-      <div className="ev-hero__scroll" style={{opacity:on?1:0,transition:`opacity 1s ${EASE} 1200ms`}}>
+      <div className="ev-hero__scroll" data-hero="fade" style={{opacity:0}}>
         <div className="ev-scr-pill"><div className="ev-scr-dot"/></div><span>Scroll</span>
       </div>
     </section>
@@ -282,6 +339,18 @@ function Marquee() {
   return <div className="ev-mq"><div className="ev-mq__track">{r}{r}{r}{r}</div></div>;
 }
 
+/* TECH MARQUEE — the tools we connect, gliding the other way */
+function TechMarquee() {
+  const tools = ["n8n","OpenAI","Anthropic","Supabase","WhatsApp","Gmail","Outlook","Excel","Google Sheets","Slack","Notion","Airtable","Zapier","Power BI"];
+  const r = tools.map((t,i)=><span key={i} className="ev-mq__i ev-mq__i--tech"><span className="ev-mq__dot ev-mq__dot--lav"/>{t}</span>);
+  return (
+    <div className="ev-mq ev-mq--tech">
+      <div className="ev-mq__label">We connect the tools you already use</div>
+      <div className="ev-mq__track ev-mq__track--rev">{r}{r}{r}{r}</div>
+    </div>
+  );
+}
+
 /* ABOUT */
 const ABOUT_FEATS = [
   { t:"AI-Driven", s:"Innovation", d:"Practical applications of AI for real business challenges." },
@@ -292,50 +361,52 @@ const ABOUT_FEATS = [
 
 /* People + Processes + Information + Technology converge into Intelligent Systems */
 function ConvergenceDiagram() {
-  const [ref, vis] = useReveal(0.25);
+  const ref = useRef(null);
+  useDrawLines(ref, "path[data-draw]");
   const SRC = ["People", "Processes", "Information", "Technology"];
   return (
     <div className="ev-conv" ref={ref}>
       <svg viewBox="0 0 440 340" width="100%" style={{ overflow: "visible" }}>
+        <defs>
+          <radialGradient id="convGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="rgba(0,130,124,0.45)"/>
+            <stop offset="55%" stopColor="rgba(0,130,124,0.1)"/>
+            <stop offset="100%" stopColor="rgba(0,130,124,0)"/>
+          </radialGradient>
+        </defs>
+        <circle cx="332" cy="170" r="92" fill="url(#convGlow)"/>
         {SRC.map((label, i) => {
-          const y = 56 + i * 76;
-          const path = `M138 ${y} C 215 ${y}, 235 170, 290 170`;
+          const y = 50 + i * 80;
+          const path = `M124 ${y} C 210 ${y}, 244 170, 324 170`;
           return (
-            <g key={label} style={{ opacity: vis ? 1 : 0, transition: `opacity 0.9s ${EASE} ${i * 160}ms` }}>
-              <path d={path} fill="none" stroke="rgba(168,210,255,0.22)" strokeWidth="1.2"
-                strokeDasharray="320" strokeDashoffset={vis ? 0 : 320}
-                style={{ transition: `stroke-dashoffset 1.6s ${EASE} ${300 + i * 160}ms` }} />
-              <circle r="2.6" fill="var(--ac)" opacity={vis ? 0.9 : 0}>
-                <animateMotion dur="3.2s" begin={`${i * 0.8}s`} repeatCount="indefinite" path={path} />
+            <g key={label}>
+              <path data-draw d={path} fill="none" stroke="rgba(203,255,252,0.22)" strokeWidth="1"/>
+              <circle r="2.4" fill="#cbfffc" opacity="0.9">
+                <animateMotion dur="3.4s" begin={`${i * 0.85}s`} repeatCount="indefinite" path={path}/>
               </circle>
-              <rect x="6" y={y - 19} width="132" height="38" rx="3" fill="rgba(168,210,255,0.04)" stroke="rgba(168,210,255,0.18)" strokeWidth="1" />
-              <text x="72" y={y + 4.5} textAnchor="middle" fill="rgba(244,247,252,0.78)"
-                style={{ font: "500 13px var(--bd)", letterSpacing: "0.04em" }}>{label}</text>
+              <circle cx="118" cy={y} r="4" fill="#ffffff"/>
+              <text x="104" y={y + 4} textAnchor="end" fill="#bbc7c6" style={{ font: "500 11px Inter, sans-serif", letterSpacing: "1.44px" }}>{label.toUpperCase()}</text>
             </g>
           );
         })}
-        <g style={{ opacity: vis ? 1 : 0, transform: vis ? "none" : "scale(0.85)", transformOrigin: "346px 170px", transition: `opacity 1s ${EASE} 900ms, transform 1s ${EASE} 900ms` }}>
-          <circle cx="346" cy="170" r="62" fill="rgba(77,159,255,0.05)" stroke="rgba(77,159,255,0.35)" strokeWidth="1.2" />
-          <circle cx="346" cy="170" r="74" fill="none" stroke="rgba(77,159,255,0.12)" strokeWidth="1" strokeDasharray="3 6">
-            <animateTransform attributeName="transform" type="rotate" from="0 346 170" to="360 346 170" dur="40s" repeatCount="indefinite" />
-          </circle>
-          <text x="346" y="164" textAnchor="middle" fill="#fff" style={{ font: "italic 400 17px var(--sf)" }}>Intelligent</text>
-          <text x="346" y="186" textAnchor="middle" fill="var(--ac2)" style={{ font: "italic 400 17px var(--sf)" }}>Systems</text>
-        </g>
+        <circle cx="332" cy="170" r="7" fill="#cbfffc"/>
+        <circle cx="332" cy="170" r="17" fill="none" stroke="rgba(203,255,252,0.35)" strokeWidth="1" className="ev-pulse-ring"/>
+        <text x="332" y="216" textAnchor="middle" fill="#ffffff" style={{ font: "500 15px Inter, sans-serif", letterSpacing: "0.2px" }}>Intelligent Systems</text>
       </svg>
     </div>
   );
 }
 
 function About() {
-  const [ref, vis] = useReveal(0.08);
   return (
-    <section id="about" className="ev-about" ref={ref}>
-      <div className="ev-about__wrap">
+    <section id="about" className="ev-sec ev-about">
+      <GlowWash variant="tealRight"/>
+      <span className="ev-gnum" aria-hidden="true">01</span>
+      <div className="ev-wrap ev-about__grid">
         <div className="ev-about__left">
-          <Reveal><div className="ev-label">01 <span>About</span></div></Reveal>
-          <Reveal delay={100} direction="right"><h2 className="ev-about__h">Intelligence<br/>With <em>Purpose</em></h2></Reveal>
-          <Reveal delay={180}>
+          <FX><Eyebrow>About</Eyebrow></FX>
+          <FX delay={90}><h2 className="ev-h-lg">Intelligence<br/>With <em>Purpose</em></h2></FX>
+          <FX delay={170}>
             <p className="ev-about__lead">No two organizations operate the same way, which is why effective solutions must be built around real operational needs rather than one-size-fits-all technology.</p>
             <p className="ev-about__quote">Our role is to understand those challenges and design practical systems that improve how people work, collaborate, and make decisions.</p>
             <p className="ev-about__p">Artificial Intelligence is transforming industries and creating new opportunities to operate more efficiently, make smarter decisions, and remain competitive. <strong>The challenge is not accessing AI. It is implementing it correctly.</strong></p>
@@ -344,29 +415,27 @@ function About() {
             <p className="ev-about__p">Working across industries has shown that while technologies change rapidly, the underlying challenges often remain the same: disconnected information, inefficient workflows, and missed opportunities for better decision-making.</p>
             <p className="ev-about__p">Evriel Systems was created to help bridge that gap through AI, automation, and intelligent systems that connect people, processes, information, and technology into solutions built for efficiency, growth, and long-term success.</p>
             <p className="ev-about__p">Our solutions include AI agents, workflow automation, intelligent knowledge systems, custom software, and digital platforms designed to improve efficiency, streamline operations, and support better decision-making.</p>
-          </Reveal>
-          <Stagger className="ev-about__stats" delay={90}>
+          </FX>
+          <StaggerFX className="ev-about__stats" each={0.1}>
             {ABOUT_FEATS.map((f,i)=>
-              <div key={i} className="ev-afeat"><span className="ev-afeat__n">{f.t}<br/>{f.s}</span><p className="ev-afeat__d">{f.d}</p></div>
+              <div key={i} className={`ev-afeat${i===2?" ev-afeat--pink":""}`}><span className="ev-afeat__n">{f.t}<br/>{f.s}</span><p className="ev-afeat__d">{f.d}</p></div>
             )}
-          </Stagger>
+          </StaggerFX>
         </div>
         <div className="ev-about__right">
-          <Reveal direction="scale" delay={200}>
-            <ConvergenceDiagram/>
-          </Reveal>
-          <Stagger className="ev-challenges" delay={90}>
+          <FX delay={200} y={40}><ConvergenceDiagram/></FX>
+          <StaggerFX className="ev-challenges" each={0.09} y={30}>
             {["Fragmented Information","Repetitive Manual Work","Disconnected Systems","Inefficient Communication","Slow Decision-Making"].map((c,i)=>
-              <div key={i} className="ev-ch"><CheckCircle2 size={15}/><span>{c}</span></div>
+              <div key={i} className="ev-ch"><span className="ev-ch__dot"/><span>{c}</span></div>
             )}
-          </Stagger>
+          </StaggerFX>
         </div>
       </div>
     </section>
   );
 }
 
-/* OUTCOMES */
+/* OUTCOMES — giant gradient index + expanding editorial list */
 const OUTCOMES = [
   { t:"AI-Powered Efficiency", d:"Reduce repetitive work and streamline operations through intelligent automation." },
   { t:"Smarter Decision-Making", d:"Use AI, data, and business intelligence to support informed decisions." },
@@ -379,42 +448,45 @@ const OUT_CYCLE_MS = 4600;
 
 function Outcomes() {
   const [act, setAct] = useState(0);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (paused || reduced()) return;
+    const id = setInterval(() => setAct(a => (a+1)%OUTCOMES.length), OUT_CYCLE_MS);
+    return () => clearInterval(id);
+  }, [paused]);
   return (
-    <section className="ev-out-sec">
-      <div className="ev-out__wrap">
+    <section className="ev-sec ev-out" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
+      <GlowWash variant="tealLeft"/>
+      <div className="ev-wrap ev-out__grid">
         <div className="ev-out__left">
-          <div className="ev-label ev-label--l"><span>What We Help Improve</span></div>
-          <h2 className="ev-out__h">Where intelligence creates <em>real impact</em></h2>
-          <p className="ev-out__intro">Five areas where AI and automation translate directly into measurable business results.</p>
+          <FX><Eyebrow>What We Help Improve</Eyebrow></FX>
+          <FX delay={90}><h2 className="ev-h-lg">Where intelligence creates <em>real impact</em></h2></FX>
+          <FX delay={160}><p className="ev-intro">Five areas where AI and automation translate directly into measurable business results.</p></FX>
+          <FX delay={240} y={30}>
             <div className="ev-out__display">
-              <svg className="ev-out__ring" viewBox="0 0 220 220">
-                <circle cx="110" cy="110" r="102" className="ev-out__ring-bg"/>
-                {OUTCOMES.map((_,i)=>{
-                  const a = (i/OUTCOMES.length)*Math.PI*2 - Math.PI/2;
-                  return <circle key={`d${i}`} cx={110+102*Math.cos(a)} cy={110+102*Math.sin(a)} r={i===act?5:3} fill={i===act?"var(--ac)":"rgba(168,210,255,0.25)"} style={{transition:"all 0.5s"}}/>;
-                })}
-              </svg>
-              <div className="ev-out__bignum">0{act+1}</div>
+              <span className="ev-out__num" key={act}>0{act+1}</span>
+              <span className="ev-out__of">/ 0{OUTCOMES.length}</span>
             </div>
+          </FX>
         </div>
-        <div className="ev-out__list">
+        <StaggerFX className="ev-out__list" each={0.1} y={36}>
           {OUTCOMES.map((o,i)=>(
-              <div key={i} className={`ev-out2${i===act?" ev-out2--on":""}`} onClick={()=>setAct(i)}>
-                <div className="ev-out2__head">
-                  <span className="ev-out2__ix">0{i+1}</span>
-                  <h3 className="ev-out2__t">{o.t}</h3>
-                  <span className="ev-out2__chev"><ArrowRight size={15}/></span>
-                </div>
-                <div className="ev-out2__body"><p>{o.d}</p></div>
+            <div key={i} className={`ev-out__item${i===act?" ev-out__item--on":""}`} onClick={()=>setAct(i)}>
+              <div className="ev-out__head">
+                <span className="ev-out__ix">0{i+1}</span>
+                <h3 className="ev-out__t">{o.t}</h3>
+                <span className="ev-out__chev"><ArrowUpRight size={15}/></span>
               </div>
+              <div className="ev-out__body"><p>{o.d}</p></div>
+            </div>
           ))}
-        </div>
+        </StaggerFX>
       </div>
     </section>
   );
 }
 
-/* INDUSTRIES — rotating orbit wheel */
+/* INDUSTRIES — interactive glow card grid */
 const INDS = [
   { name:"Construction & Engineering", short:"Construction", desc:"Digital project monitoring, documentation systems, and reporting automation built for complex, multi-stakeholder environments." },
   { name:"Manufacturing & Industrial", short:"Manufacturing", desc:"Workflow optimization, operational analytics, and predictive monitoring that improve consistency at scale." },
@@ -429,21 +501,37 @@ const INDS = [
   { name:"Startups & SMEs", short:"Startups", desc:"Scalable systems designed to support growth and operational maturity at every stage." },
 ];
 
+/* Industry card grid — each card glows with its own hue on hover/active */
+function IndustryGrid({ act, setAct }) {
+  return (
+    <StaggerFX className="ev-indgrid" each={0.05} y={26}>
+      {INDS.map((s,i)=>(
+        <button key={i} className={`ev-indcard${i===act?" ev-indcard--on":""}`} onClick={()=>setAct(i)} onMouseEnter={()=>setAct(i)}>
+          <span className="ev-indcard__n">{String(i+1).padStart(2,"0")}</span>
+          <span className="ev-indcard__t">{s.short}</span>
+          <span className="ev-indcard__go"><ArrowUpRight size={12}/></span>
+        </button>
+      ))}
+    </StaggerFX>
+  );
+}
+
 function Industries() {
   const [act, setAct] = useState(0);
   const [paused, setPaused] = useState(false);
   useEffect(() => {
-    if (paused) return;
-    const id = setInterval(() => setAct(a => (a+1)%INDS.length), 3000);
+    if (paused || reduced()) return;
+    const id = setInterval(() => setAct(a => (a+1)%INDS.length), 3200);
     return () => clearInterval(id);
   }, [paused]);
-  const step = 360/INDS.length;
   return (
-    <section id="industries" className="ev-ind-sec">
-      <div className="ev-ind__wrap">
+    <section id="industries" className="ev-sec ev-ind" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
+      <GlowWash variant="teal"/>
+      <span className="ev-gnum ev-gnum--l" aria-hidden="true">02</span>
+      <div className="ev-wrap ev-ind__grid">
         <div className="ev-ind__left">
-          <Reveal><div className="ev-label ev-label--l">02 <span>Industries</span></div></Reveal>
-          <Reveal delay={80} direction="right"><h2 className="ev-ind__h">Industries We <em>Support</em></h2></Reveal>
+          <FX><Eyebrow>Industries</Eyebrow></FX>
+          <FX delay={90}><h2 className="ev-h-lg">Industries We <em>Support</em></h2></FX>
           <div className="ev-ind__detail" key={act}>
             <span className="ev-ind__dnum">{String(act+1).padStart(2,"0")} / {INDS.length}</span>
             <h3 className="ev-ind__dname">{INDS[act].name}</h3>
@@ -455,25 +543,7 @@ function Industries() {
             ))}
           </div>
         </div>
-        <Reveal direction="scale" delay={150}>
-          <div className="ev-orbit" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)}>
-            <div className="ev-orbit__ring"/>
-            <div className="ev-orbit__ring ev-orbit__ring--in"/>
-            <div className="ev-orbit__spin">
-              {INDS.map((s,i)=>(
-                <div key={i} className="ev-orbit__pos" style={{transform:`rotate(${i*step}deg) translateY(calc(var(--orbR) * -1)) rotate(${-i*step}deg)`}}>
-                  <div className="ev-orbit__upright">
-                    <button className={`ev-orbit__node${i===act?" ev-orbit__node--on":""}`} onClick={()=>setAct(i)} onMouseEnter={()=>setAct(i)}>{s.short}</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="ev-orbit__hub">
-              <LogoMark size={30} color="#C9CFD9"/>
-              <span>Evriel<br/>Systems</span>
-            </div>
-          </div>
-        </Reveal>
+        <IndustryGrid act={act} setAct={setAct}/>
       </div>
     </section>
   );
@@ -489,16 +559,15 @@ const SVCS = [
 
 /* Animated workflow diagram — shows how value flows through each service */
 function FlowDiagram({ steps }) {
-  const [ref, vis] = useReveal(0.4);
   return (
-    <div className="ev-flow" ref={ref}>
+    <div className="ev-flow">
       {steps.map((s, i) => (
-        <div key={s} className="ev-flow__seg" style={{ opacity: vis ? 1 : 0, transform: vis ? "none" : "translateX(-14px)", transition: `opacity 0.7s ${EASE} ${i * 180}ms, transform 0.7s ${EASE} ${i * 180}ms` }}>
+        <div key={s} className="ev-flow__seg">
           <span className={`ev-flow__node${i === steps.length - 1 ? " ev-flow__node--end" : ""}`}>{s}</span>
           {i < steps.length - 1 && (
             <svg className="ev-flow__link" width="34" height="10" viewBox="0 0 34 10">
-              <line x1="0" y1="5" x2="26" y2="5" stroke="rgba(168,210,255,0.35)" strokeWidth="1.2" strokeDasharray="4 4" style={vis ? { animation: "flowDash 1.4s linear infinite" } : {}} />
-              <path d="M26 1.5 L32 5 L26 8.5" fill="none" stroke="rgba(168,210,255,0.5)" strokeWidth="1.2" />
+              <line x1="0" y1="5" x2="26" y2="5" stroke="rgba(203,255,252,0.3)" strokeWidth="1" strokeDasharray="4 4" style={{ animation: "flowDash 1.4s linear infinite" }} />
+              <path d="M26 1.5 L32 5 L26 8.5" fill="none" stroke="rgba(203,255,252,0.45)" strokeWidth="1" />
             </svg>
           )}
         </div>
@@ -507,23 +576,101 @@ function FlowDiagram({ steps }) {
   );
 }
 
+/* CSS mockup — inbox chaos becomes AI-triaged order */
+function EmailMockup() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const rows = el.querySelectorAll("[data-mrow]");
+    if (reduced()) { gsap.set(rows, { opacity: 1 }); return; }
+    const tw = gsap.fromTo(rows, { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.7, ease: "power2.out", stagger: 0.14,
+      scrollTrigger: { trigger: el, start: "top 86%", once: true } });
+    return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
+  }, []);
+  return (
+    <div className="ev-mock" ref={ref}>
+      <div className="ev-mock__bar"><span/><span/><span/><i>Inbox — AI Triage</i></div>
+      {[
+        { from:"Client — urgent quote request", tag:"Urgent", cls:"u" },
+        { from:"Supplier — invoice received", tag:"Finance", cls:"f" },
+        { from:"Newsletter — weekly digest", tag:"Low", cls:"l" },
+      ].map((m,i)=>(
+        <div key={i} className="ev-mock__row" data-mrow>
+          <span className="ev-mock__dot"/>
+          <span className="ev-mock__from">{m.from}</span>
+          <span className={`ev-mock__tag ev-mock__tag--${m.cls}`}>{m.tag}</span>
+        </div>
+      ))}
+      <div className="ev-mock__out" data-mrow>
+        <span className="ev-mock__ai">AI</span>
+        <span>Classified, prioritized, draft response ready</span>
+      </div>
+    </div>
+  );
+}
+
+/* CSS mockup — an operations dashboard taking shape */
+function DashboardMockup() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const bars = el.querySelectorAll("[data-bar]");
+    if (reduced()) { gsap.set(bars, { scaleY: 1 }); return; }
+    const tw = gsap.fromTo(bars, { scaleY: 0 }, { scaleY: 1, duration: 0.9, ease: "expo.out", stagger: 0.07,
+      scrollTrigger: { trigger: el, start: "top 86%", once: true } });
+    return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
+  }, []);
+  return (
+    <div className="ev-mock" ref={ref}>
+      <div className="ev-mock__bar"><span/><span/><span/><i>Operations Dashboard</i></div>
+      <div className="ev-dash">
+        <div className="ev-dash__kpis">
+          <div className="ev-dash__kpi"><i>Workflows</i><span/></div>
+          <div className="ev-dash__kpi"><i>Visibility</i><span/></div>
+        </div>
+        <div className="ev-dash__chart">
+          {[34,56,42,70,58,86,64,94].map((h,i)=><span key={i} data-bar style={{height:`${h}%`}}/>)}
+        </div>
+        <svg className="ev-dash__line" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true">
+          <defs><linearGradient id="dashg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#00827c"/><stop offset="1" stopColor="#cbfffc"/></linearGradient></defs>
+          <path d="M0 34 C 30 30, 45 22, 70 24 S 120 12, 150 10 S 185 6, 200 4" fill="none" stroke="url(#dashg)" strokeWidth="2"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
 function Services() {
   return (
-    <section id="services" className="ev-svc-sec">
-      <div className="ev-svc__wrap">
-        <Reveal><div className="ev-label">03 <span>Services</span></div></Reveal>
-        <Reveal delay={80}><h2 className="ev-svc__h">What We <em>Deliver</em></h2></Reveal>
-        <Reveal delay={140}><p className="ev-svc__intro">We help organizations turn emerging technologies into practical business advantages.</p></Reveal>
-        {SVCS.map((s,i)=>(
-          <Reveal key={i} delay={i*90} direction={i%2?"down":"up"}>
-            <div className="ev-svc">
-              <div className="ev-svc__l"><span className="ev-svc__gn">{s.n}</span></div>
-              <div className="ev-svc__m"><h3 className="ev-svc__t">{s.t}</h3><p className="ev-svc__d">{s.d}</p><FlowDiagram steps={s.flow}/></div>
-              <div className="ev-svc__r"><div className="ev-svc__al">Applications</div><ul>{s.a.map((x,j)=><li key={j}>{x}</li>)}</ul></div>
-              <div className="ev-svc__bar"/>
-            </div>
-          </Reveal>
-        ))}
+    <section id="services" className="ev-sec ev-svc">
+      <GlowWash variant="lav"/>
+      <span className="ev-gnum" aria-hidden="true">03</span>
+      <div className="ev-wrap">
+        <FX><Eyebrow>Services</Eyebrow></FX>
+        <FX delay={90}><h2 className="ev-h-lg">What We <em>Deliver</em></h2></FX>
+        <FX delay={160}><p className="ev-intro">We help organizations turn emerging technologies into practical business advantages.</p></FX>
+        <div className="ev-svc__rows">
+          {SVCS.map((s,i)=>(
+            <FX key={i} delay={i*80} y={56}>
+              <div className="ev-svc__row">
+                <span className="ev-svc__gn">{s.n}</span>
+                <div className="ev-svc__m">
+                  <h3 className="ev-svc__t">{s.t}</h3>
+                  <p className="ev-svc__d">{s.d}</p>
+                  <FlowDiagram steps={s.flow}/>
+                  {i===0&&<EmailMockup/>}
+                  {i===1&&<DashboardMockup/>}
+                </div>
+                <div className="ev-svc__r">
+                  <div className="ev-svc__al">Applications</div>
+                  <div className="ev-svc__tags">{s.a.map((x,j)=><span key={j} className="ev-tag">{x}</span>)}</div>
+                </div>
+              </div>
+            </FX>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -574,25 +721,27 @@ function Projects() {
   const [expanded, setExpanded] = useState({});
   const togDetail = (i, e) => { e.stopPropagation(); setExpanded(prev => ({...prev, [i]: !prev[i]})); };
   return (
-    <section id="projects" className="ev-proj-sec">
-      <div className="ev-proj__wrap">
-        <Reveal><div className="ev-label ev-label--l">04 <span>Solutions, Products & Case Studies</span></div></Reveal>
-        <Reveal delay={80}><h2 className="ev-proj__h">Solutions, Products<br/>& <em>Case Studies</em></h2></Reveal>
-        {PROJS.map((p,i)=>(
-          <Reveal key={i} delay={i*60} direction={i%2?"right":"left"}>
-            <div className={`ev-prj${active===i?" ev-prj--o":""}`} onClick={()=>{setActive(active===i?null:i);if(active===i)setExpanded(prev=>({...prev,[i]:false}))}}>
+    <section id="projects" className="ev-sec ev-proj">
+      <GlowWash variant="tealRight"/>
+      <span className="ev-gnum ev-gnum--l" aria-hidden="true">04</span>
+      <div className="ev-wrap">
+        <FX><Eyebrow>Solutions, Products &amp; Case Studies</Eyebrow></FX>
+        <FX delay={90}><h2 className="ev-h-lg">Solutions, Products<br/>&amp; <em>Case Studies</em></h2></FX>
+        <StaggerFX className="ev-proj__list" each={0.09} y={44}>
+          {PROJS.map((p,i)=>(
+            <div key={i} className={`ev-prj${active===i?" ev-prj--o":""}`} onClick={()=>{setActive(active===i?null:i);if(active===i)setExpanded(prev=>({...prev,[i]:false}))}}>
               <div className="ev-prj__hd">
                 <div className="ev-prj__hl">
                   <span className="ev-prj__ix">0{i+1}</span>
                   <h3 className="ev-prj__t">{p.t}</h3>
                   {p.badge&&<span className="ev-prj__badge">{p.badge}</span>}
                 </div>
-                <span className="ev-prj__tog">{active===i?<Minus size={18}/>:<Plus size={18}/>}</span>
+                <span className="ev-prj__tog">{active===i?<Minus size={15}/>:<Plus size={15}/>}</span>
               </div>
-              <div style={{maxHeight:active===i?(expanded[i]?2000:500):0,opacity:active===i?1:0,overflow:"hidden",transition:`max-height 0.7s ${EASE}, opacity 0.4s ${EASE}`}}>
+              <div style={{maxHeight:active===i?(expanded[i]?2200:520):0,opacity:active===i?1:0,overflow:"hidden",transition:`max-height 0.7s ${EASE}, opacity 0.4s ${EASE}`}}>
                 <div className="ev-prj__bd">
                   <p>{p.d}</p>
-                  <div className="ev-prj__caps">{p.c.map((x,j)=><span key={j} className="ev-prj__cap">{x}</span>)}</div>
+                  <div className="ev-prj__caps">{p.c.map((x,j)=><span key={j} className="ev-tag">{x}</span>)}</div>
                   <p className="ev-prj__tl">{p.tl}</p>
                   {!expanded[i] && <button className="ev-prj__more" onClick={(e)=>togDetail(i,e)}>Read More <ArrowRight size={13}/></button>}
                   {expanded[i] && (
@@ -623,14 +772,14 @@ function Projects() {
                 </div>
               </div>
             </div>
-          </Reveal>
-        ))}
+          ))}
+        </StaggerFX>
       </div>
     </section>
   );
 }
 
-/* PROCESS */
+/* PROCESS — horizontal current line with beacons */
 const PROCS = [
   { t:"Discovery",d:"We learn how your organization operates. We identify objectives, challenges, workflows, and opportunities." },
   { t:"Assessment",d:"We analyze operational inefficiencies and identify where intelligent systems create measurable value." },
@@ -640,67 +789,122 @@ const PROCS = [
 ];
 
 function Process() {
+  const secRef = useRef(null);
+  const lineRef = useRef(null);
+  useEffect(() => {
+    const line = lineRef.current;
+    if (!line) return;
+    if (reduced()) { line.style.transform = "scaleX(1)"; return; }
+    const tw = gsap.fromTo(line, { scaleX: 0 }, { scaleX: 1, duration: 1.9, ease: "power3.inOut",
+      scrollTrigger: { trigger: secRef.current, start: "top 70%", once: true } });
+    return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
+  }, []);
   return (
-    <section id="process" className="ev-proc-sec">
-      <div className="ev-proc__wrap">
-        <Reveal><div className="ev-label ev-label--l">05 <span>Process</span></div></Reveal>
-        <Reveal delay={80} direction="down"><h2 className="ev-proc__h">How We <em>Work</em></h2></Reveal>
-        <Reveal delay={140}><p className="ev-proc__intro">Every organization is different. Our process is designed to understand your specific challenges before recommending technology.</p></Reveal>
-        <div className="ev-proc__grid">
-          {PROCS.map((s,i)=>(
-            <Reveal key={i} delay={i*100} direction="down">
-              <div className="ev-proc__card"><div className="ev-proc__num">0{i+1}</div><div className="ev-proc__dot"/><h3 className="ev-proc__ct">{s.t}</h3><p className="ev-proc__cd">{s.d}</p></div>
-            </Reveal>
-          ))}
+    <section id="process" className="ev-sec ev-proc" ref={secRef}>
+      <GlowWash variant="mint"/>
+      <span className="ev-gnum" aria-hidden="true">05</span>
+      <div className="ev-wrap">
+        <FX><Eyebrow>Process</Eyebrow></FX>
+        <FX delay={90}><h2 className="ev-h-lg">How We <em>Work</em></h2></FX>
+        <FX delay={160}><p className="ev-intro">Every organization is different. Our process is designed to understand your specific challenges before recommending technology.</p></FX>
+        <div className="ev-proc__track">
+          <div className="ev-proc__line" ref={lineRef}/>
+          <StaggerFX className="ev-proc__grid" each={0.14} y={44}>
+            {PROCS.map((s,i)=>(
+              <div key={i} className="ev-proc__step">
+                <span className="ev-proc__beacon"/>
+                <span className="ev-proc__num">0{i+1}</span>
+                <h3 className="ev-proc__ct">{s.t}</h3>
+                <p className="ev-proc__cd">{s.d}</p>
+              </div>
+            ))}
+          </StaggerFX>
         </div>
       </div>
     </section>
   );
 }
 
-/* BORDERS */
+/* BORDERS — atmospheric statement band */
 function Borders() {
-  const pRef = useParallax(0.03);
   return (
-    <section className="ev-bdr-sec">
-      <div className="ev-bdr__orb" ref={pRef}><LogoMark size={520} color="rgba(168,210,255,0.035)" spin/></div>
-      <div className="ev-bdr__wrap">
-        <Reveal><div className="ev-label ev-label--l"><span>Working Across Borders</span></div></Reveal>
-        <Reveal delay={100} direction="scale"><h2 className="ev-bdr__h">Built for a <em>Connected</em> World</h2></Reveal>
-        <Reveal delay={180}>
+    <section className="ev-sec ev-bdr">
+      <div className="ev-bdr__wash"/>
+      <div className="ev-wrap ev-bdr__body">
+        <FX><Eyebrow>Working Across Borders</Eyebrow></FX>
+        <FX delay={100} y={40}><h2 className="ev-h-lg">Built for a <em>Connected</em> World</h2></FX>
+        <FX delay={180}>
           <p className="ev-bdr__p">Business challenges rarely stop at national boundaries. Evriel Systems supports organizations operating across different industries, markets, and regions.</p>
           <p className="ev-bdr__p">We understand the importance of clear communication, cultural awareness, and practical solutions that work in diverse environments.</p>
-        </Reveal>
-        <Reveal delay={260}>
+        </FX>
+        <FX delay={260} y={26}>
           <div className="ev-bdr__tag"><span>Projects and communications can be conducted in multiple languages depending on client requirements.</span></div>
-        </Reveal>
+        </FX>
       </div>
     </section>
   );
 }
 
-/* WHY */
+/* WHY — one big signature card with a glowing dotted sphere */
 const WHY = [
   { t:"Practical Solutions", d:"Focused on real business outcomes." },
   { t:"Intelligent Systems", d:"Built around your organization's needs." },
   { t:"Long-Term Thinking", d:"Designed to support sustainable growth and adaptability." },
 ];
 
-function Why() {
+/* Dotted sphere — front-projected lattice of glowing points */
+function DottedSphere() {
+  const dots = [];
+  const R = 132, C = 170;
+  for (let la = -75; la <= 75; la += 12.5) {
+    const phi = (la * Math.PI) / 180;
+    const n = Math.max(8, Math.round(30 * Math.cos(phi)));
+    for (let i = 0; i < n; i++) {
+      const th = (i / n) * Math.PI * 2 + la * 0.045;
+      const X = R * Math.cos(phi) * Math.sin(th);
+      const Y = R * Math.sin(phi);
+      const d = (Math.cos(phi) * Math.cos(th) + 1) / 2;
+      dots.push(<circle key={`${la}:${i}`} cx={C + X} cy={C - Y} r={0.8 + d * 1.4} fill={d > 0.94 ? "#ffffff" : "#cbfffc"} opacity={0.1 + d * 0.65}/>);
+    }
+  }
   return (
-    <section className="ev-why-sec">
-      <div className="ev-why__wrap">
-        <Reveal><div className="ev-label ev-label--l"><span>Why Evriel Systems</span></div></Reveal>
-        <Reveal delay={100} direction="right"><h2 className="ev-why__h">Clarity, Not <em>Complexity</em></h2></Reveal>
-        <Reveal delay={180}>
-          <p className="ev-why__lead">Technology should create clarity, not complexity. Our approach combines business understanding, intelligent technology, and practical implementation to help organizations improve operations, make better decisions, and adapt to a rapidly changing world.</p>
-          <p className="ev-why__lead ev-why__lead--sub">We focus on solutions that deliver measurable value rather than technology for technology's sake.</p>
-        </Reveal>
-        <Stagger className="ev-why__grid" delay={100}>
-          {WHY.map((w,i)=>
-            <div key={i} className="ev-why__card"><Target size={20}/><h3>{w.t}</h3><p>{w.d}</p></div>
-          )}
-        </Stagger>
+    <svg viewBox="0 0 340 340" className="ev-dsphere" aria-hidden="true">
+      <defs>
+        <radialGradient id="dsg" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="rgba(0,194,176,0.42)"/>
+          <stop offset="60%" stopColor="rgba(0,130,124,0.13)"/>
+          <stop offset="100%" stopColor="rgba(0,130,124,0)"/>
+        </radialGradient>
+      </defs>
+      <circle cx="170" cy="170" r="154" fill="url(#dsg)"/>
+      {dots}
+    </svg>
+  );
+}
+
+function Why() {
+  const go = (e) => { e.preventDefault(); document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" }); };
+  return (
+    <section className="ev-sec ev-why">
+      <div className="ev-wrap">
+        <FX y={56}>
+          <div className="ev-bigcard">
+            <div className="ev-bigcard__glow" aria-hidden="true"/>
+            <div className="ev-bigcard__copy">
+              <Eyebrow>Why Evriel Systems</Eyebrow>
+              <h2 className="ev-h-lg" style={{marginTop:22}}>Clarity, Not <em>Complexity</em></h2>
+              <p className="ev-bigcard__p">Technology should create clarity, not complexity. Our approach combines business understanding, intelligent technology, and practical implementation to help organizations improve operations, make better decisions, and adapt to a rapidly changing world.</p>
+              <p className="ev-bigcard__p ev-bigcard__p--sub">We focus on solutions that deliver measurable value rather than technology for technology's sake.</p>
+              <div className="ev-bigcard__feats">
+                {WHY.map((w,i)=>
+                  <div key={i} className="ev-bigfeat"><Target size={17}/><div><h3>{w.t}</h3><p>{w.d}</p></div></div>
+                )}
+              </div>
+              <a href="#contact" className="ev-btn ev-btn--grad" onClick={go}>Start a Conversation <ArrowUpRight size={14}/></a>
+            </div>
+            <div className="ev-bigcard__visual"><DottedSphere/></div>
+          </div>
+        </FX>
       </div>
     </section>
   );
@@ -709,33 +913,34 @@ function Why() {
 /* TRUST */
 function Trust() {
   return (
-    <section id="trust" className="ev-trust-sec">
-      <div className="ev-trust__wrap">
+    <section id="trust" className="ev-sec ev-trust">
+      <GlowWash variant="tealLeft"/>
+      <span className="ev-gnum ev-gnum--l" aria-hidden="true">06</span>
+      <div className="ev-wrap ev-trust__grid">
         <div className="ev-trust__l">
-          <Reveal><div className="ev-label">06 <span>Trust & Security</span></div></Reveal>
-          <Reveal delay={80} direction="left"><h2 className="ev-trust__h">Your Data Remains <em>Yours</em></h2></Reveal>
-          <Reveal delay={160}><p className="ev-trust__p">We believe trust is the foundation of every intelligent system. Client information is used exclusively for the development, operation, and improvement of the agreed solution.</p></Reveal>
-          <Reveal delay={220}><div className="ev-trust__note"><Lock size={16}/><p><strong>Your data remains your property.</strong> Client information is never used for unrelated purposes, unauthorized training, or external development activities.</p></div></Reveal>
+          <FX><Eyebrow>Trust &amp; Security</Eyebrow></FX>
+          <FX delay={90}><h2 className="ev-h-lg">Your Data Remains <em>Yours</em></h2></FX>
+          <FX delay={170}><p className="ev-trust__p">We believe trust is the foundation of every intelligent system. Client information is used exclusively for the development, operation, and improvement of the agreed solution.</p></FX>
+          <FX delay={230} y={30}><div className="ev-trust__note"><Lock size={15}/><p><strong>Your data remains your property.</strong> Client information is never used for unrelated purposes, unauthorized training, or external development activities.</p></div></FX>
         </div>
-        <Stagger className="ev-trust__r" delay={110}>
-          {[{ic:<Lock size={20}/>,t:"Confidentiality",d:"Your information stays protected at every stage."},{ic:<Eye size={20}/>,t:"Transparency",d:"Clear communication about how data is used."},{ic:<Shield size={20}/>,t:"Responsible AI",d:"Ethical implementation at the core."},{ic:<CheckCircle2 size={20}/>,t:"Security-First",d:"Built from the ground up with security as priority."}].map((x,i)=>
-            <div key={i} className="ev-trust__card"><div className="ev-trust__ci">{x.ic}</div><div><h4 className="ev-trust__ct">{x.t}</h4><p className="ev-trust__cd">{x.d}</p></div></div>
+        <StaggerFX className="ev-trust__r" each={0.11} y={36}>
+          {[{ic:<Lock size={18}/>,t:"Confidentiality",d:"Your information stays protected at every stage."},{ic:<Eye size={18}/>,t:"Transparency",d:"Clear communication about how data is used."},{ic:<Shield size={18}/>,t:"Responsible AI",d:"Ethical implementation at the core."},{ic:<CheckCircle2 size={18}/>,t:"Security-First",d:"Built from the ground up with security as priority."}].map((x,i)=>
+            <div key={i} className="ev-trust__row"><div className="ev-trust__ci">{x.ic}</div><div><h4 className="ev-trust__ct">{x.t}</h4><p className="ev-trust__cd">{x.d}</p></div></div>
           )}
-        </Stagger>
+        </StaggerFX>
       </div>
     </section>
   );
 }
 
-/* STATEMENT */
+/* STATEMENT — display type over twilight wash */
 function Statement() {
-  const p = useParallax(0.02);
   return (
-    <section className="ev-stmt">
-      <div className="ev-stmt__bg" ref={p}><LogoMark size={420} color="rgba(168,210,255,0.04)"/></div>
-      <div className="ev-stmt__body">
-        <Reveal direction="scale"><h2 className="ev-stmt__h">The future belongs to<br/>organizations that can adapt,<br/>innovate, and act <em>intelligently.</em></h2></Reveal>
-        <Reveal delay={180}><a href="#contact" className="ev-btn ev-btn--w ev-btn--lg" onClick={e=>{e.preventDefault();document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}}>Start a Conversation <ArrowRight size={18}/></a></Reveal>
+    <section className="ev-sec ev-stmt">
+      <div className="ev-stmt__wash"/>
+      <div className="ev-wrap ev-stmt__body">
+        <FX y={70}><h2 className="ev-stmt__h">The future belongs to<br/>organizations that can adapt,<br/>innovate, and act <em>intelligently.</em></h2></FX>
+        <FX delay={200} y={30}><a href="#contact" className="ev-btn ev-btn--grad ev-btn--lg" onClick={e=>{e.preventDefault();document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}}>Start a Conversation <ArrowUpRight size={16}/></a></FX>
       </div>
     </section>
   );
@@ -751,26 +956,37 @@ const NEXT_STEPS = [
 ];
 
 function WhatNext() {
-  const [ref, vis] = useReveal(0.1);
+  const tlRef = useRef(null);
+  const lineRef = useRef(null);
+  useEffect(() => {
+    const line = lineRef.current;
+    if (!line) return;
+    if (reduced()) { line.style.transform = "scaleY(1)"; return; }
+    const tw = gsap.fromTo(line, { scaleY: 0 }, { scaleY: 1, ease: "none",
+      scrollTrigger: { trigger: tlRef.current, start: "top 78%", end: "bottom 72%", scrub: 0.6 } });
+    return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
+  }, []);
   return (
-    <section id="next" className="ev-next-sec" ref={ref}>
-      <div className="ev-next__wrap">
-        <Reveal><div className="ev-label ev-label--l">07 <span>What Happens Next?</span></div></Reveal>
-        <Reveal delay={80} direction="down"><h2 className="ev-next__h">From First Message<br/>to <em>Working System</em></h2></Reveal>
-        <Reveal delay={140}><p className="ev-next__intro">No mystery, no pressure. Here is exactly what happens after you contact us.</p></Reveal>
-        <div className="ev-next__tl">
-          <div className="ev-next__line" style={{transform:vis?"scaleY(1)":"scaleY(0)"}}/>
+    <section id="next" className="ev-sec ev-next">
+      <GlowWash variant="lav"/>
+      <span className="ev-gnum" aria-hidden="true">07</span>
+      <div className="ev-wrap">
+        <FX><Eyebrow>What Happens Next?</Eyebrow></FX>
+        <FX delay={90}><h2 className="ev-h-lg">From First Message<br/>to <em>Working System</em></h2></FX>
+        <FX delay={160}><p className="ev-intro">No mystery, no pressure. Here is exactly what happens after you contact us.</p></FX>
+        <div className="ev-next__tl" ref={tlRef}>
+          <div className="ev-next__line" ref={lineRef}/>
           {NEXT_STEPS.map((s,i)=>(
-            <Reveal key={i} delay={200+i*160} direction={i%2?"left":"right"}>
+            <FX key={i} delay={80} x={i%2?60:-60} y={0}>
               <div className={`ev-next__row${i%2?" ev-next__row--r":""}`}>
                 <div className="ev-next__card">
                   <span className="ev-next__num">0{i+1}</span>
                   <h3 className="ev-next__t">{s.t}</h3>
                   <p className="ev-next__d">{s.d}</p>
                 </div>
-                <span className="ev-next__node" style={{transitionDelay:`${300+i*160}ms`,transform:vis?"translateX(-50%) scale(1)":"translateX(-50%) scale(0)"}}/>
+                <span className="ev-next__node"/>
               </div>
-            </Reveal>
+            </FX>
           ))}
         </div>
       </div>
@@ -778,14 +994,27 @@ function WhatNext() {
   );
 }
 
-/* CONTACT */
+/* CONTACT — white card floating on a bright teal glow */
+const CONTACT_CATS = [
+  { t: "General Inquiry", v: "Not Sure Yet" },
+  { t: "AI Automation", v: "AI Automation" },
+  { t: "Business Intelligence", v: "Business Intelligence" },
+  { t: "Partnership", v: "European Project Solutions" },
+];
+
 function Contact({setPage}) {
   const [f, setF] = useState({name:"",company:"",email:"",phone:"",language:"English",industry:"",interests:[],challenge:""});
   const [consent, setConsent] = useState(false);
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState(null);
   const [sending, setSending] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const tog = (v) => setF(p=>({...p,interests:p.interests.includes(v)?p.interests.filter(x=>x!==v):[...p.interests,v]}));
+  const pick = (v) => {
+    setShowForm(true);
+    if (v) setF(p=>p.interests.includes(v)?p:{...p,interests:[...p.interests,v]});
+    setTimeout(()=>document.getElementById("ev-form-anchor")?.scrollIntoView({behavior:"smooth",block:"start"}),140);
+  };
   const submit = async (e) => {
     e.preventDefault();
     if (!f.name.trim() || !f.company.trim() || !f.email.trim() || !f.industry || !f.challenge.trim()) { setErr("Please fill in all required fields marked with *."); return; }
@@ -802,36 +1031,54 @@ function Contact({setPage}) {
     } finally { setSending(false); }
   };
   return (
-    <section id="contact" className="ev-contact-sec">
-      <div className="ev-contact__wrap">
-        <div className="ev-contact__l">
-          <Reveal><div className="ev-label ev-label--l">08 <span>Contact</span></div></Reveal>
-          <Reveal delay={80}><h2 className="ev-contact__h">Let's Discuss<br/>Your <em>Project</em></h2></Reveal>
-          <Reveal delay={160}><p className="ev-contact__p">Whether you have a clear project in mind or are simply exploring possibilities, we'd be happy to learn more about your organization and discuss how intelligent systems can support your goals.</p></Reveal>
-          <Stagger className="ev-contact__info" delay={100}>
-            <div><div className="ev-contact__bl">Email</div><a href="mailto:contact@evrielsystems.com" className="ev-contact__bv">contact@evrielsystems.com</a></div>
-            <div><div className="ev-contact__bl">Website</div><a href="https://evrielsystems.com" className="ev-contact__bv" target="_blank" rel="noopener noreferrer">evrielsystems.com</a></div>
-          </Stagger>
-        </div>
-        <div className="ev-contact__r">
-          {sent ? (
-            <Reveal><div className="ev-sent"><CheckCircle2 size={44}/><h3>Message Received</h3><p>Thank you. We'll respond within 24 hours.</p><button className="ev-btn ev-btn--w" style={{marginTop:20}} onClick={()=>setSent(false)}>Send Another</button></div></Reveal>
-          ) : (
-            <Reveal direction="right">
-              <form className="ev-form" onSubmit={submit}>
-                <div className="ev-form__r"><div className="ev-f"><label>Name <span className="req">*</span></label><input required placeholder="Your full name" value={f.name} onChange={e=>setF(p=>({...p,name:e.target.value}))}/></div><div className="ev-f"><label>Company <span className="req">*</span></label><input required placeholder="Organization" value={f.company} onChange={e=>setF(p=>({...p,company:e.target.value}))}/></div></div>
-                <div className="ev-form__r"><div className="ev-f"><label>Email <span className="req">*</span></label><input required type="email" placeholder="your@email.com" value={f.email} onChange={e=>setF(p=>({...p,email:e.target.value}))}/></div><div className="ev-f"><label>Phone <span className="opt">(Optional)</span></label><input placeholder="+1 000 000 0000" value={f.phone} onChange={e=>setF(p=>({...p,phone:e.target.value}))}/></div></div>
-                <div className="ev-f"><label>Preferred Language</label><div className="ev-radios">{["English","Italian","Spanish","Greek","Polish","French","German","Other"].map(l=><label key={l} className={`ev-rad${f.language===l?" ev-rad--on":""}`}><input type="radio" name="lang" checked={f.language===l} onChange={()=>setF(p=>({...p,language:l}))} style={{display:"none"}}/>{l}</label>)}</div></div>
-                <div className="ev-f"><label>Industry <span className="req">*</span></label><select required className="ev-sel" value={f.industry} onChange={e=>setF(p=>({...p,industry:e.target.value}))}><option value="">Select your industry</option>{["Construction & Engineering","Manufacturing","Tourism & Hospitality","Retail & Commerce","Import & Export","Marketing & SEO","European Projects","NGO & Associations","Professional Services","Startup / SME","Education & Training","Other"].map(x=><option key={x}>{x}</option>)}</select></div>
-                <div className="ev-f"><label>What are you interested in? <span className="req">*</span></label><div className="ev-checks">{["AI Automation","Business Intelligence","Digital Transformation","Custom Business Systems","European Project Solutions","Not Sure Yet"].map(x=><label key={x} className={`ev-chk${f.interests.includes(x)?" ev-chk--on":""}`} onClick={()=>tog(x)}><span className="ev-chk__b">{f.interests.includes(x)&&<CheckCircle2 size={12}/>}</span>{x}</label>)}</div></div>
-                <div className="ev-f"><label>Tell us about your challenge <span className="req">*</span></label><textarea required rows={5} placeholder="Describe your project, challenge, or business objective..." value={f.challenge} onChange={e=>setF(p=>({...p,challenge:e.target.value}))}/></div>
-                <label className="ev-consent"><input type="checkbox" required checked={consent} onChange={e=>setConsent(e.target.checked)}/><span>I agree that Evriel Systems may store and process the information I submit to respond to my inquiry, as described in the <a href="#" onClick={e=>{e.preventDefault();setPage&&setPage("privacy");window.scrollTo({top:0,behavior:"smooth"})}}>Privacy Policy</a>. <span className="req">*</span></span></label>
-                {err && <p className="ev-form__err">{err}</p>}
-                <button type="submit" className="ev-btn ev-btn--w ev-btn--lg" style={{width:"100%",justifyContent:"center",marginTop:4}} disabled={sending}>{sending ? "Sending..." : "Start the Conversation"} {!sending && <ArrowRight size={17}/>}</button>
-              </form>
-            </Reveal>
-          )}
-        </div>
+    <section id="contact" className="ev-contact2">
+      <div className="ev-contact2__glow" aria-hidden="true"/>
+      <div className="ev-wrap ev-contact2__in">
+        <FX y={56}>
+          <div className="ev-wcard">
+            <div className="ev-wcard__grid">
+              <div className="ev-wcard__l">
+                <div className="ev-eyebrow ev-eyebrow--dark"><span className="ev-eyebrow__dot"/>Have a Question?</div>
+                <h2 className="ev-wcard__h">Contact Us</h2>
+                <p className="ev-wcard__p">Whether you have a clear project in mind or are simply exploring possibilities, we'd be happy to learn more about your organization and discuss how intelligent systems can support your goals.</p>
+                <a href="mailto:contact@evrielsystems.com" className="ev-wcard__mail">contact@evrielsystems.com</a>
+              </div>
+              <div className="ev-cats">
+                {CONTACT_CATS.map(c=>(
+                  <button key={c.t} className="ev-cat" onClick={()=>pick(c.v)}>
+                    <span>{c.t}</span>
+                    <span className="ev-cat__go"><ArrowUpRight size={16}/></span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            {(showForm || sent) && (
+              <div className="ev-wcard__form" id="ev-form-anchor">
+                {sent ? (
+                  <div className="ev-sent ev-sent--light"><CheckCircle2 size={40}/><h3>Message Received</h3><p>Thank you. We'll respond within 24 hours.</p><button className="ev-btn ev-btn--grad" style={{marginTop:20}} onClick={()=>setSent(false)}>Send Another</button></div>
+                ) : (
+                  <form className="ev-form ev-form--light" onSubmit={submit}>
+                    <div className="ev-form__r"><div className="ev-f"><label>Name <span className="req">*</span></label><input required placeholder="Your full name" value={f.name} onChange={e=>setF(p=>({...p,name:e.target.value}))}/></div><div className="ev-f"><label>Company <span className="req">*</span></label><input required placeholder="Organization" value={f.company} onChange={e=>setF(p=>({...p,company:e.target.value}))}/></div></div>
+                    <div className="ev-form__r"><div className="ev-f"><label>Email <span className="req">*</span></label><input required type="email" placeholder="your@email.com" value={f.email} onChange={e=>setF(p=>({...p,email:e.target.value}))}/></div><div className="ev-f"><label>Phone <span className="opt">(Optional)</span></label><input placeholder="+1 000 000 0000" value={f.phone} onChange={e=>setF(p=>({...p,phone:e.target.value}))}/></div></div>
+                    <div className="ev-f"><label>Preferred Language</label><div className="ev-radios">{["English","Italian","Spanish","Greek","Polish","French","German","Other"].map(l=><label key={l} className={`ev-rad${f.language===l?" ev-rad--on":""}`}><input type="radio" name="lang" checked={f.language===l} onChange={()=>setF(p=>({...p,language:l}))} style={{display:"none"}}/>{l}</label>)}</div></div>
+                    <div className="ev-f"><label>Industry <span className="req">*</span></label><select required className="ev-sel" value={f.industry} onChange={e=>setF(p=>({...p,industry:e.target.value}))}><option value="">Select your industry</option>{["Construction & Engineering","Manufacturing","Tourism & Hospitality","Retail & Commerce","Import & Export","Marketing & SEO","European Projects","NGO & Associations","Professional Services","Startup / SME","Education & Training","Other"].map(x=><option key={x}>{x}</option>)}</select></div>
+                    <div className="ev-f"><label>What are you interested in? <span className="req">*</span></label><div className="ev-checks">{["AI Automation","Business Intelligence","Digital Transformation","Custom Business Systems","European Project Solutions","Not Sure Yet"].map(x=><label key={x} className={`ev-chk${f.interests.includes(x)?" ev-chk--on":""}`} onClick={()=>tog(x)}><span className="ev-chk__b">{f.interests.includes(x)&&<CheckCircle2 size={12}/>}</span>{x}</label>)}</div></div>
+                    <div className="ev-f"><label>Tell us about your challenge <span className="req">*</span></label><textarea required rows={5} placeholder="Describe your project, challenge, or business objective..." value={f.challenge} onChange={e=>setF(p=>({...p,challenge:e.target.value}))}/></div>
+                    <label className="ev-consent"><input type="checkbox" required checked={consent} onChange={e=>setConsent(e.target.checked)}/><span>I agree that Evriel Systems may store and process the information I submit to respond to my inquiry, as described in the <a href="#" onClick={e=>{e.preventDefault();setPage&&setPage("privacy");window.scrollTo({top:0,behavior:"smooth"})}}>Privacy Policy</a>. <span className="req">*</span></span></label>
+                    {err && <p className="ev-form__err">{err}</p>}
+                    <button type="submit" className="ev-btn ev-btn--grad ev-btn--lg" style={{width:"100%",justifyContent:"center",marginTop:4}} disabled={sending}>{sending ? "Sending..." : "Start the Conversation"} {!sending && <ArrowUpRight size={16}/>}</button>
+                  </form>
+                )}
+              </div>
+            )}
+          </div>
+        </FX>
+        <FX delay={140} y={30}>
+          <div className="ev-contact2__foot">
+            <h3 className="ev-contact2__stmt">Connecting Intelligence<br/>with Business</h3>
+            <button className="ev-btn ev-btn--grad ev-btn--lg" onClick={()=>pick(null)}>Get in Touch <ArrowUpRight size={16}/></button>
+          </div>
+        </FX>
       </div>
     </section>
   );
@@ -841,13 +1088,16 @@ function Contact({setPage}) {
 function Footer({setPage}) {
   return (
     <footer className="ev-footer">
-      <div className="ev-footer__in">
+      <div className="ev-wrap">
         <div className="ev-footer__top">
-          <div onClick={()=>{setPage("home");window.scrollTo({top:0,behavior:"smooth"})}} style={{cursor:"pointer",display:"flex",alignItems:"center",gap:12}}>
-            <LogoMark size={26} color="#C9CFD9"/>
-            <div><div style={{width:20,height:1,background:"rgba(201,207,217,0.45)",marginBottom:3}}/><div style={{fontFamily:"var(--sf)",fontSize:14,color:"#fff",letterSpacing:"0.05em"}}>Evriel</div><div style={{fontFamily:"var(--bd)",fontSize:7,color:"rgba(201,207,217,0.55)",letterSpacing:"0.4em",textTransform:"uppercase",marginTop:2}}>Systems</div></div>
+          <div onClick={()=>{setPage("home");window.scrollTo({top:0,behavior:"smooth"})}} className="ev-brand">
+            <LogoMark size={24} color="#ffffff"/>
+            <div>
+              <div className="ev-brand__name" style={{fontSize:14}}>Evriel</div>
+              <div className="ev-brand__sub">Systems</div>
+            </div>
           </div>
-          <p style={{fontSize:12,color:"rgba(255,255,255,0.2)",fontStyle:"italic",fontFamily:"var(--sf)"}}>Connecting Intelligence with Business</p>
+          <p className="ev-footer__tag">Connecting Intelligence with Business</p>
         </div>
         <div className="ev-footer__line"/>
         <div className="ev-footer__bot">
@@ -875,8 +1125,11 @@ const ARTS = [
 function InsightsHome({setPage,setSlug}) {
   return (
     <>
-      <section className="ev-ins-hero"><Reveal><div className="ev-label ev-label--l">Research <span>Insights</span></div></Reveal><Reveal delay={100}><h1 className="ev-ins-hero__h">Thinking <em>Forward</em></h1></Reveal></section>
-      <section className="ev-ins-grid"><div className="ev-ins-grid__in">{ARTS.map((a,i)=>(<Reveal key={i} delay={i*70}><article className="ev-art-card" onClick={()=>{setSlug(a.slug);setPage("article");window.scrollTo({top:0,behavior:"smooth"})}}><div className="ev-art-card__meta"><span className="ev-art-card__tag">{a.tag}</span><span className="ev-art-card__date">{a.date}</span></div><h2 className="ev-art-card__t">{a.title}</h2><p className="ev-art-card__ex">{a.excerpt}</p><div className="ev-art-card__rd">Read Article <ArrowRight size={13}/></div></article></Reveal>))}</div></section>
+      <section className="ev-ins-hero">
+        <FX><Eyebrow>Research &middot; Insights</Eyebrow></FX>
+        <FX delay={100}><h1 className="ev-ins-hero__h">Thinking <em>Forward</em></h1></FX>
+      </section>
+      <section className="ev-ins-grid"><div className="ev-wrap ev-ins-grid__in">{ARTS.map((a,i)=>(<FX key={i} delay={i*70} y={44}><article className="ev-art-card" onClick={()=>{setSlug(a.slug);setPage("article");window.scrollTo({top:0,behavior:"smooth"})}}><span className="ev-art-card__go"><ArrowUpRight size={13}/></span><div className="ev-art-card__meta"><span className="ev-art-card__tag">{a.tag}</span><span className="ev-art-card__date">{a.date}</span></div><h2 className="ev-art-card__t">{a.title}</h2><p className="ev-art-card__ex">{a.excerpt}</p><div className="ev-art-card__rd">Read Article <ArrowRight size={13}/></div></article></FX>))}</div></section>
     </>
   );
 }
@@ -887,8 +1140,8 @@ function ArticlePage({slug,setPage,setSlug}) {
   const others = ARTS.filter(a=>a.slug!==slug).slice(0,3);
   return (
     <>
-      <section className="ev-art-hero"><Reveal><span className="ev-art-hero__tag">{art.tag}</span></Reveal><Reveal delay={100}><h1 className="ev-art-hero__h">{art.title}</h1></Reveal><Reveal delay={160}><span className="ev-art-hero__date">{art.date}</span></Reveal></section>
-      <section className="ev-art-body"><div className="ev-art-body__in"><div className="ev-art-body__content">{art.body.map((p,i)=><Reveal key={i} delay={i*30}><p className="ev-art-body__p">{p}</p></Reveal>)}<Reveal delay={200}><div className="ev-art-body__cta"><p>Ready to implement intelligent systems?</p><a href="#" className="ev-btn ev-btn--dk" onClick={e=>{e.preventDefault();setPage("home");setTimeout(()=>document.getElementById("contact")?.scrollIntoView({behavior:"smooth"}),300)}}>Let's Discuss Your Project <ArrowRight size={15}/></a></div></Reveal></div><div className="ev-art-body__side"><h4 className="ev-art-side__h">More Articles</h4>{others.map((a,i)=><Reveal key={i} delay={i*70}><div className="ev-art-side__item" onClick={()=>{setSlug(a.slug);window.scrollTo({top:0,behavior:"smooth"})}}><span className="ev-art-side__tag">{a.tag}</span><p className="ev-art-side__t">{a.title}</p></div></Reveal>)}</div></div></section>
+      <section className="ev-art-hero"><FX><span className="ev-art-hero__tag">{art.tag}</span></FX><FX delay={100}><h1 className="ev-art-hero__h">{art.title}</h1></FX><FX delay={160}><span className="ev-art-hero__date">{art.date}</span></FX></section>
+      <section className="ev-art-body"><div className="ev-wrap ev-art-body__in"><div className="ev-art-body__content">{art.body.map((p,i)=><FX key={i} delay={i*20} y={30}><p className="ev-art-body__p">{p}</p></FX>)}<FX delay={200} y={30}><div className="ev-art-body__cta"><p>Ready to implement intelligent systems?</p><a href="#" className="ev-btn ev-btn--grad" onClick={e=>{e.preventDefault();setPage("home");setTimeout(()=>document.getElementById("contact")?.scrollIntoView({behavior:"smooth"}),300)}}>Let's Discuss Your Project <ArrowUpRight size={14}/></a></div></FX></div><div className="ev-art-body__side"><h4 className="ev-art-side__h">More Articles</h4>{others.map((a,i)=><FX key={i} delay={i*70} y={26}><div className="ev-art-side__item" onClick={()=>{setSlug(a.slug);window.scrollTo({top:0,behavior:"smooth"})}}><span className="ev-art-side__tag">{a.tag}</span><p className="ev-art-side__t">{a.title}</p></div></FX>)}</div></div></section>
     </>
   );
 }
@@ -898,37 +1151,37 @@ function PrivacyPage() {
   return (
     <section className="ev-privacy">
       <div className="ev-privacy__wrap">
-        <Reveal><h1 className="ev-privacy__h">Privacy <em>Policy</em></h1></Reveal>
-        <Reveal delay={60}><p className="ev-privacy__updated">Last updated: June 2026</p></Reveal>
+        <FX><h1 className="ev-privacy__h">Privacy <em>Policy</em></h1></FX>
+        <FX delay={60}><p className="ev-privacy__updated">Last updated: June 2026</p></FX>
         <div className="ev-privacy__content">
-          <Reveal delay={100}>
+          <FX delay={100}>
             <h2>Who We Are</h2>
             <p>Evriel Systems is an AI and digital transformation consultancy based in Europe. This policy explains how we collect, use, and protect your information when you use our website (evrielsystems.com).</p>
-          </Reveal>
-          <Reveal delay={140}>
+          </FX>
+          <FX delay={140}>
             <h2>Information We Collect</h2>
             <p>When you submit our contact form, we collect: your name, company name, email address, phone number (optional), preferred language, industry, areas of interest, and project description. We collect this information solely to respond to your inquiry.</p>
-          </Reveal>
-          <Reveal delay={180}>
+          </FX>
+          <FX delay={180}>
             <h2>How We Use Your Information</h2>
             <p>We use the information you provide exclusively to respond to your inquiry, discuss potential projects, and provide requested services. We do not sell, rent, or share your personal information with third parties. We do not use your information for marketing purposes unless you explicitly consent.</p>
-          </Reveal>
-          <Reveal delay={220}>
+          </FX>
+          <FX delay={220}>
             <h2>Cookies</h2>
             <p>This website uses only essential cookies required for basic functionality (such as remembering your cookie consent preference). We do not use tracking cookies, advertising cookies, or third-party analytics that track individual users.</p>
-          </Reveal>
-          <Reveal delay={260}>
+          </FX>
+          <FX delay={260}>
             <h2>Your Rights (GDPR)</h2>
             <p>Under the General Data Protection Regulation (GDPR), you have the right to access, correct, or delete any personal data we hold about you. You may also withdraw consent at any time. To exercise any of these rights, contact us at <a href="mailto:contact@evrielsystems.com">contact@evrielsystems.com</a>.</p>
-          </Reveal>
-          <Reveal delay={300}>
+          </FX>
+          <FX delay={300}>
             <h2>Data Retention</h2>
             <p>We retain contact form submissions only as long as necessary to respond to your inquiry and for legitimate business purposes. You may request deletion of your data at any time.</p>
-          </Reveal>
-          <Reveal delay={340}>
+          </FX>
+          <FX delay={340}>
             <h2>Contact</h2>
             <p>For any privacy-related questions or data requests, contact us at <a href="mailto:contact@evrielsystems.com">contact@evrielsystems.com</a>.</p>
-          </Reveal>
+          </FX>
         </div>
       </div>
     </section>
@@ -943,496 +1196,538 @@ export default function EvrielSystems() {
   return (
     <>
       <style>{`
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
-:root{--bk:#070B15;--wh:#F4F7FC;--pt:#BCD4F0;--pl:#C9CFD9;--ac:#4D9FFF;--ac2:#A8D2FF;--acg:rgba(77,159,255,0.14);--dk:#0B1220;--mg:#0A0F1C;--sf:'DM Serif Display',Georgia,serif;--bd:'Inter',-apple-system,sans-serif}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
+/* ===== EVRIEL DESIGN SYSTEM — abyssal observatory ===== */
+:root{
+  /* surfaces */
+  --abyss:#012624;--trench:#011d1c;--reef:#003734;
+  /* text & ui */
+  --snow:#ffffff;--fog:#bbc7c6;--ice:#edfffe;--ash:#333333;
+  /* accents */
+  --lilac:#fde9ff;--teal:#00827c;--cyan:#cbfffc;--lav:#fad1ff;
+  /* gradients */
+  --g-current:linear-gradient(90deg,#00827c 0%,#cbfffc 100%);
+  --g-aurora:linear-gradient(90deg,rgba(203,255,252,0.85) 0%,rgba(237,255,254,0.5) 26%,rgba(255,253,250,0.4) 48%,rgba(250,209,255,0.85) 89%);
+  --g-text:linear-gradient(90deg,#cbfffc 0%,#fad1ff 100%);
+  --font:'Inter',ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --page-w:1200px;
+}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:var(--bd);background:var(--bk);color:var(--bk);-webkit-font-smoothing:antialiased}
-::selection{background:rgba(77,159,255,0.3);color:#fff}
+body{font-family:var(--font);background:var(--abyss);color:var(--fog);font-weight:400;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(0,130,124,0.45);color:#fff}
 ::-webkit-scrollbar{width:10px}
-::-webkit-scrollbar-track{background:var(--bk)}
-::-webkit-scrollbar-thumb{background:#1B2940;border-radius:5px;border:2px solid var(--bk)}
-::-webkit-scrollbar-thumb:hover{background:#2A3D5E}
+::-webkit-scrollbar-track{background:var(--abyss)}
+::-webkit-scrollbar-thumb{background:var(--reef);border-radius:5px;border:2px solid var(--abyss)}
+::-webkit-scrollbar-thumb:hover{background:#00524d}
 button,input,textarea,select{font-family:inherit;background:none;border:none;cursor:pointer}
 a{text-decoration:none;color:inherit}
-em{font-family:var(--sf);font-style:italic}
+strong{font-weight:500;color:var(--snow)}
+em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;background-clip:text;color:transparent}
 .dbr{display:block}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}html{scroll-behavior:auto}}
-@keyframes logospin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes logospin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes cpulse{0%,100%{opacity:1}50%{opacity:0.4}}
-@keyframes ringP{0%,100%{transform:scale(1);opacity:0.5}50%{transform:scale(1.06);opacity:0.15}}
 @keyframes mq{from{transform:translateX(0)}to{transform:translateX(-25%)}}
 @keyframes scBob{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(10px);opacity:0.3}}
 @keyframes flowDash{to{stroke-dashoffset:-24}}
-@keyframes acPulse{0%,100%{box-shadow:0 0 0 0 rgba(77,159,255,0.35)}50%{box-shadow:0 0 0 7px rgba(77,159,255,0)}}
-@keyframes orbDrift{0%,100%{transform:translate(0,0)}33%{transform:translate(30px,-40px)}66%{transform:translate(-25px,30px)}}
-
-/* NAV */
-.ev-nav{position:fixed;top:0;left:0;right:0;z-index:999;padding:18px 0;transition:all 0.5s ${EASE}}
-.ev-nav--s{background:rgba(8,13,24,0.82);backdrop-filter:blur(24px);padding:10px 0;box-shadow:0 1px 0 rgba(168,210,255,0.08)}
-.ev-nav__in{max-width:1440px;margin:0 auto;padding:0 48px;display:flex;align-items:center;justify-content:space-between}
-.ev-nav__links{display:flex;align-items:center;gap:30px}
-.ev-nav__link{font-size:12px;font-weight:400;letter-spacing:0.07em;text-transform:uppercase;transition:opacity 0.3s}.ev-nav__link:hover{opacity:0.5}
-.ev-nav__cta{font-size:11px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;padding:10px 22px;background:var(--ac);color:#04101F;border-radius:2px;transition:all 0.3s ${EASE}}.ev-nav__cta:hover{background:var(--ac2);box-shadow:0 0 24px rgba(77,159,255,0.35)}
-.ev-nav__burger{display:none}
-.ev-mobile-menu{position:fixed;inset:0;background:var(--bk);z-index:998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding-top:60px}
-.ev-mob-link{font-family:var(--sf);font-size:32px;color:#fff;transition:opacity 0.3s}.ev-mob-link:hover{opacity:0.5}
-
-/* HERO */
-.ev-hero{position:relative;height:100vh;min-height:680px;display:flex;align-items:center;justify-content:center;background:var(--bk);overflow:hidden}
-.ev-hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 90% 55% at 50% -12%,rgba(225,240,255,0.13),rgba(120,180,255,0.05) 45%,transparent 70%);pointer-events:none}
-.ev-hero__bg{position:absolute;inset:0;pointer-events:none}
-.ev-hero__grid{position:absolute;inset:0;background-image:linear-gradient(rgba(168,210,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(168,210,255,0.03) 1px,transparent 1px);background-size:80px 80px}
-.ev-hero__rad{position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% 50%,rgba(77,159,255,0.07),transparent)}
-.ev-hero__orb{position:absolute;top:12%;right:8%;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(77,159,255,0.08),transparent 65%);animation:orbDrift 18s ease-in-out infinite;pointer-events:none}
-.ev-hero__ghost{position:absolute;top:50%;left:50%;animation:logospin 90s linear infinite}
-.ev-hero__body{position:relative;z-index:2;text-align:center;padding:0 24px;max-width:1100px}
-.ev-hero__eyebrow{font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:var(--ac2);opacity:0.75;margin-bottom:36px}
-.ev-hero__brand{display:flex;align-items:center;gap:24px;justify-content:center;margin-bottom:28px}
-.ev-hero__brand-text{text-align:left}
-.ev-hero__brand-line{width:48px;height:2px;background:linear-gradient(90deg,var(--pl),transparent);margin-bottom:8px}
-.ev-hero__brand-name{font-family:var(--sf);font-size:clamp(52px,8vw,100px);font-weight:400;color:#fff;letter-spacing:0.03em;line-height:0.9}
-.ev-hero__brand-sub{font-family:var(--bd);font-size:clamp(12px,1.8vw,20px);font-weight:300;letter-spacing:0.55em;color:var(--pl);display:block;margin-top:6px}
-.ev-hero__h2{font-family:var(--sf);font-size:clamp(20px,2.6vw,34px);font-weight:400;color:rgba(255,255,255,0.7);line-height:1.35;letter-spacing:0.01em}
-.ev-hero__h2 em{color:var(--pt)}
-.ev-hero__sub{font-size:clamp(14px,1.4vw,17px);font-weight:300;color:rgba(255,255,255,0.32);margin-top:24px;line-height:1.7}
-.ev-hero__ctas{display:flex;gap:14px;justify-content:center;margin-top:40px;flex-wrap:wrap}
-.ev-hero__scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,0.25);font-size:10px;letter-spacing:0.22em;text-transform:uppercase}
-.ev-scr-pill{width:20px;height:30px;border:1px solid rgba(255,255,255,0.15);border-radius:10px;display:flex;justify-content:center;padding-top:6px}
-.ev-scr-dot{width:3px;height:7px;background:var(--ac);border-radius:2px;animation:scBob 2s ease-in-out infinite}
-
-/* BUTTONS */
-.ev-btn{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:500;letter-spacing:0.09em;text-transform:uppercase;padding:15px 30px;transition:all 0.4s ${EASE};border:1px solid transparent;cursor:pointer}
-.ev-btn--w{background:var(--ac);color:#04101F;border-radius:2px}.ev-btn--w:hover{background:var(--ac2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(77,159,255,0.35)}
-.ev-btn--gh{border-color:rgba(168,210,255,0.25);color:#fff;border-radius:2px}.ev-btn--gh:hover{border-color:var(--ac);box-shadow:inset 0 0 24px rgba(77,159,255,0.08)}
-.ev-btn--dk{background:var(--ac);color:#04101F;border-radius:2px}.ev-btn--dk:hover{background:var(--ac2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(77,159,255,0.35)}
-.ev-btn--lg{padding:18px 42px;font-size:13px}
-.ev-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-
-/* PROGRESS */
-.ev-progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:1001;background:transparent;pointer-events:none}
-.ev-progress__bar{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));transform-origin:left;transform:scaleX(0)}
-
-/* LABELS */
-.ev-label{font-size:12px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--ac);margin-bottom:20px;display:flex;gap:10px}
-.ev-label span{color:rgba(244,247,252,0.45)}
-.ev-label--l{color:var(--ac)}.ev-label--l span{color:rgba(244,247,252,0.45)}
-
-/* MARQUEE */
-.ev-mq{background:var(--mg);padding:13px 0;overflow:hidden;border-top:1px solid rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.04)}
-.ev-mq__track{display:flex;gap:48px;white-space:nowrap;animation:mq 16s linear infinite}
-.ev-mq__i{display:inline-flex;align-items:center;gap:12px;font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
-.ev-mq__dot{width:4px;height:4px;border-radius:50%;background:var(--ac);opacity:0.6}
-
-/* About */
-.ev-about{background:var(--bk);position:relative;overflow:hidden}
-.ev-about::after{content:'';position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(to bottom,transparent,var(--dk));pointer-events:none}
-.ev-about__wrap{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;min-height:90vh;align-items:center}
-.ev-about__left{padding:120px 60px 100px 48px}
-.ev-about__h{font-family:var(--sf);font-size:clamp(42px,4.8vw,72px);font-weight:400;line-height:1.08;color:#fff;margin-bottom:28px}
-.ev-about__lead{font-size:17px;color:rgba(255,255,255,0.5);margin-bottom:6px;line-height:1.5}
-.ev-about__quote{font-family:var(--sf);font-size:24px;font-style:italic;color:var(--pt);margin-bottom:24px;line-height:1.35}
-.ev-about__p{font-size:15px;line-height:1.78;color:rgba(255,255,255,0.4);margin-bottom:14px;max-width:500px}
-.ev-about__p strong{color:rgba(255,255,255,0.8);font-weight:600}
-.ev-about__stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:36px;padding-top:28px;border-top:1px solid rgba(255,255,255,0.06)}
-.ev-afeat{padding:20px;border:1px solid rgba(255,255,255,0.05);transition:all 0.4s ${EASE}}
-.ev-afeat:hover{border-color:rgba(255,255,255,0.14);background:rgba(255,255,255,0.02);transform:translateY(-3px)}
-.ev-afeat__n{display:block;font-family:var(--sf);font-size:19px;color:var(--pt);line-height:1.25;margin-bottom:8px}
-.ev-afeat__d{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.35)}
-.ev-about__right{padding:120px 48px 100px 48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;position:relative}
-.ev-about__right::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,rgba(255,255,255,0.03),transparent 70%);pointer-events:none}
-.ev-conv{width:100%;max-width:460px}
-.ev-challenges{width:100%;display:flex;flex-direction:column;gap:8px}
-.ev-ch{display:flex;align-items:center;gap:12px;padding:11px 16px;border:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.55);font-size:13px;transition:all 0.35s ${EASE}}
-.ev-ch:hover{border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.03);color:#fff}
-.ev-ch svg{color:var(--ac);flex-shrink:0}
-
-/* Industries */
-.ev-ind-sec{background:linear-gradient(to bottom,var(--dk),var(--bk));padding:120px 0 140px;position:relative;overflow:hidden}
-.ev-ind-sec::before{content:'';position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(to bottom,var(--dk),transparent);pointer-events:none;z-index:1}
-.ev-ind__wrap{max-width:1440px;margin:0 auto;padding:0 48px;position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-.ev-ind__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:40px}
-.ev-ind__h em{color:var(--pt)}
-.ev-ind__detail{min-height:170px;animation:indFade 0.55s ${EASE}}
+@keyframes numFade{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes indFade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.ev-ind__dnum{font-family:var(--sf);font-size:13px;color:var(--ac);letter-spacing:0.15em;display:block;margin-bottom:14px}
-.ev-ind__dname{font-family:var(--sf);font-size:clamp(26px,2.8vw,38px);font-weight:400;color:#fff;line-height:1.15;margin-bottom:14px}
-.ev-ind__ddesc{font-size:14px;line-height:1.75;color:rgba(255,255,255,0.42);max-width:440px}
-.ev-ind__dots{display:flex;gap:9px;margin-top:30px;flex-wrap:wrap}
-.ev-ind__dot{width:8px;height:8px;border-radius:50%;border:none;padding:0;background:rgba(168,210,255,0.18);cursor:pointer;transition:all 0.4s ${EASE}}
-.ev-ind__dot--on{background:var(--ac);transform:scale(1.45);box-shadow:0 0 10px rgba(77,159,255,0.6)}
-/* orbit wheel */
-.ev-orbit{--orbR:235px;position:relative;width:560px;height:560px;margin:0 auto}
-.ev-orbit__ring{position:absolute;inset:45px;border:1px solid rgba(168,210,255,0.14);border-radius:50%}
-.ev-orbit__ring--in{inset:150px;border-color:rgba(168,210,255,0.07)}
-.ev-orbit__spin{position:absolute;inset:0;animation:orbSpin 70s linear infinite}
-.ev-orbit:hover .ev-orbit__spin,.ev-orbit:hover .ev-orbit__upright{animation-play-state:paused}
-@keyframes orbSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes orbSpinRev{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
-.ev-orbit__pos{position:absolute;top:50%;left:50%;width:0;height:0}
-.ev-orbit__node{position:absolute;transform:translate(-50%,-50%);border:1px solid rgba(168,210,255,0.18);background:rgba(10,16,29,0.85);color:rgba(255,255,255,0.55);font-family:var(--bd);font-size:10.5px;letter-spacing:0.06em;text-transform:uppercase;padding:9px 14px;border-radius:99px;cursor:pointer;white-space:nowrap;transition:all 0.4s ${EASE};backdrop-filter:blur(4px)}
-.ev-orbit__node--on{border-color:var(--ac);background:rgba(77,159,255,0.14);color:#fff;box-shadow:0 0 24px rgba(77,159,255,0.35)}
-.ev-orbit__node:hover{color:#fff;border-color:rgba(168,210,255,0.5)}
-.ev-orbit__upright{position:absolute;width:0;height:0;animation:orbSpinRev 70s linear infinite}
-.ev-orbit__hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:130px;height:130px;border-radius:50%;border:1px solid rgba(168,210,255,0.25);background:radial-gradient(circle,rgba(77,159,255,0.12),rgba(10,16,29,0.9) 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;animation:acPulse 4s ease-in-out infinite}
-.ev-orbit__hub span{font-family:var(--sf);font-size:12px;letter-spacing:0.08em;color:rgba(255,255,255,0.8);line-height:1.35}
+@keyframes ringPulse{0%{transform:scale(0.7);opacity:0.8}100%{transform:scale(1.7);opacity:0}}
+.ev-pulse-ring{transform-box:fill-box;transform-origin:center;animation:ringPulse 2.4s ${EASE} infinite}
 
-/* Outcomes — auto-cycling spotlight */
-@keyframes outRing{from{stroke-dashoffset:641}to{stroke-dashoffset:0}}
-@keyframes outFill{from{width:0}to{width:100%}}
-@keyframes outNum{from{opacity:0;transform:translateY(18px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes beamDrift{0%,100%{opacity:0.25;transform:translateY(0)}50%{opacity:0.55;transform:translateY(-30px)}}
-.ev-out-sec{background:linear-gradient(to bottom,var(--bk),var(--dk));padding:130px 0;position:relative;overflow:hidden}
-.ev-out-sec::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");opacity:0.05;mix-blend-mode:overlay;pointer-events:none}
+/* ===== layout primitives ===== */
+.ev-wrap{max-width:var(--page-w);margin:0 auto;padding:0 32px}
+.ev-sec{position:relative;padding:120px 0}
+.ev-intro{font-size:16px;line-height:1.5;color:var(--fog);max-width:520px;margin-top:24px}
 
-.ev-out__wrap{max-width:1240px;margin:0 auto;padding:0 48px;position:relative;z-index:2;display:grid;grid-template-columns:0.9fr 1.1fr;gap:80px;align-items:start}
-.ev-out__h{font-family:var(--sf);font-size:clamp(28px,3.4vw,44px);font-weight:400;color:#fff;line-height:1.18;margin-top:26px}
-.ev-out__h em{color:var(--pt)}
-.ev-out__intro{font-size:14px;font-weight:300;line-height:1.75;color:rgba(255,255,255,0.38);margin-top:18px;max-width:380px}
-.ev-out__display{position:relative;width:220px;height:220px;margin-top:44px}
-.ev-out__ring{position:absolute;inset:0;transform:rotate(-90deg)}
-.ev-out__ring-bg{fill:none;stroke:rgba(168,210,255,0.1);stroke-width:1}
-.ev-out__bignum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--sf);font-size:74px;color:#fff}
+/* type scale */
+.ev-h-lg{font-size:clamp(38px,4.8vw,61px);font-weight:500;line-height:1.1;letter-spacing:-0.02em;color:var(--snow);margin-top:28px}
+.ev-h-md{font-size:clamp(28px,3vw,36px);font-weight:400;line-height:1.3;letter-spacing:-0.013em;color:var(--snow)}
+
+/* eyebrow — teal dot + tracked caps */
+.ev-eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--fog)}
+.ev-eyebrow__dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0}
+
+/* giant decorative numerals — display-xl */
+.ev-gnum{position:absolute;top:28px;right:-10px;font-size:clamp(140px,22vw,295px);font-weight:500;line-height:1;letter-spacing:-0.046em;color:rgba(237,255,254,0.035);pointer-events:none;user-select:none;z-index:0}
+.ev-gnum--l{right:auto;left:-10px}
+
+/* ===== buttons ===== */
+.ev-btn{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;padding:14px 28px;border-radius:6px;transition:all 0.3s ${EASE};cursor:pointer}
+.ev-btn svg{transition:transform 0.3s ${EASE}}
+.ev-btn--grad{background:var(--g-current);color:var(--trench)}
+.ev-btn--grad:hover{filter:brightness(1.07)}
+.ev-btn--grad:hover svg{transform:translate(2px,-2px)}
+.ev-btn--ghost{border:1px solid transparent;background:linear-gradient(var(--abyss),var(--abyss)) padding-box,var(--g-aurora) border-box;color:var(--snow);padding:13px 24px}
+.ev-btn--ghost:hover{background:linear-gradient(var(--reef),var(--reef)) padding-box,linear-gradient(90deg,#cbfffc 0%,#edfffe 26%,#fffdfa 48%,#fad1ff 89%) border-box}
+.ev-btn--sm{padding:9px 18px;font-size:11px}
+.ev-btn--lg{padding:17px 38px}
+.ev-btn:disabled{opacity:0.5;cursor:not-allowed}
+
+/* small ghost arrow square */
+.ev-sq{width:28px;height:28px;border:1px solid rgba(237,255,254,0.25);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:var(--snow);transition:all 0.3s ${EASE}}
+.ev-sq:hover{border-color:var(--ice);transform:scale(1.06)}
+
+/* tags */
+.ev-tag{display:inline-flex;font-size:11px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;color:var(--fog);background:var(--reef);border-radius:6px;padding:7px 12px;transition:all 0.3s ${EASE}}
+.ev-tag:hover{color:var(--snow)}
+
+/* ===== progress hairline ===== */
+.ev-progress{position:fixed;top:0;left:0;right:0;height:2px;z-index:1001;pointer-events:none}
+.ev-progress__bar{height:100%;background:var(--g-current);transform-origin:left;transform:scaleX(0)}
+
+/* ===== nav — transparent, sits on the canvas ===== */
+.ev-nav{position:fixed;top:0;left:0;right:0;z-index:999;padding:14px 0;transition:all 0.5s ${EASE};background:transparent}
+.ev-nav--s{background:rgba(1,29,28,0.82);backdrop-filter:blur(20px);padding:9px 0}
+.ev-nav__in{max-width:var(--page-w);margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:40px}
+.ev-brand{cursor:pointer;display:flex;align-items:center;gap:12px}
+.ev-brand__name{font-size:16px;font-weight:500;color:var(--snow);letter-spacing:0.04em;line-height:1}
+.ev-brand__sub{font-size:10px;font-weight:500;color:var(--fog);letter-spacing:2.4px;text-transform:uppercase;margin-top:3px}
+.ev-nav__links{display:flex;align-items:center;gap:28px}
+.ev-nav__link{font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--snow);transition:opacity 0.3s}
+.ev-nav__link:hover{opacity:0.55}
+.ev-nav__burger{display:none;color:var(--snow)}
+.ev-mobile-menu{position:fixed;inset:0;background:var(--abyss);z-index:998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding-top:60px}
+.ev-mob-link{font-size:26px;font-weight:500;letter-spacing:-0.01em;color:var(--snow);transition:opacity 0.3s}
+.ev-mob-link:hover{opacity:0.55}
+
+/* ===== hero — particle sphere in the abyss ===== */
+.ev-hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:172px 0 140px}
+.ev-hero__wash{position:absolute;inset:0;background:radial-gradient(ellipse 75% 50% at 50% 8%,rgba(250,209,255,0.05),rgba(237,255,254,0.03) 45%,transparent 70%);pointer-events:none}
+.ev-hero__sphere{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(88vw,760px);height:min(88vw,760px);pointer-events:none}
+.ev-hero__sphere-glow{position:absolute;inset:8%;border-radius:50%;background:radial-gradient(circle,rgba(0,130,124,0.28),rgba(0,130,124,0.07) 55%,transparent 72%)}
+.ev-sphere__canvas{position:absolute;inset:0;width:100%;height:100%;-webkit-mask-image:radial-gradient(circle,#000 58%,transparent 74%);mask-image:radial-gradient(circle,#000 58%,transparent 74%)}
+.ev-hero__body{position:relative;z-index:2;text-align:center;padding:0 24px;max-width:1000px}
+.ev-hero__eyebrow{font-size:12px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;color:var(--cyan);margin-bottom:36px}
+.ev-hero__h{font-size:clamp(44px,7.4vw,86px);font-weight:500;line-height:1.02;letter-spacing:-0.032em;color:var(--snow)}
+.ev-hero__sub{font-size:16px;font-weight:400;color:var(--fog);margin-top:28px;line-height:1.5}
+.ev-hero__ctas{display:flex;gap:16px;justify-content:center;margin-top:48px;flex-wrap:wrap}
+.ev-hero__scroll{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--fog);font-size:10px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;z-index:2}
+.ev-scr-pill{width:20px;height:30px;border:1px solid rgba(237,255,254,0.2);border-radius:10px;display:flex;justify-content:center;padding-top:6px}
+.ev-scr-dot{width:3px;height:7px;background:var(--teal);border-radius:2px;animation:scBob 2s ease-in-out infinite}
+
+/* ===== marquee ===== */
+.ev-mq{background:var(--trench);padding:14px 0;overflow:hidden}
+.ev-mq__track{display:flex;gap:48px;white-space:nowrap;animation:mq 24s linear infinite}
+.ev-mq__i{display:inline-flex;align-items:center;gap:12px;font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--fog)}
+.ev-mq__dot{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+
+/* ===== about — asymmetric editorial + convergence nodes ===== */
+.ev-about{overflow:hidden}
+.ev-about__grid{display:grid;grid-template-columns:1.08fr 0.92fr;gap:80px;position:relative;z-index:1}
+.ev-about__lead{font-size:20px;font-weight:400;line-height:1.4;color:var(--ice);margin-top:36px}
+.ev-about__quote{font-size:24px;font-weight:400;line-height:1.4;letter-spacing:-0.29px;color:var(--cyan);margin-top:20px;margin-bottom:28px}
+.ev-about__p{font-size:14px;line-height:1.75;letter-spacing:0.2px;color:var(--fog);margin-bottom:14px;max-width:520px}
+.ev-about__stats{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:48px}
+.ev-afeat{background:var(--reef);border-radius:16px;padding:28px;transition:filter 0.3s ${EASE}}
+.ev-afeat:hover{filter:brightness(1.12)}
+.ev-afeat__n{display:block;font-size:20px;font-weight:500;line-height:1.3;color:var(--lav);margin-bottom:10px}
+.ev-afeat__d{font-size:12px;line-height:1.6;letter-spacing:0.3px;color:var(--fog)}
+.ev-afeat--pink{background:linear-gradient(135deg,#fad1ff 0%,#fffdfa 62%,#edfffe 100%)}
+.ev-afeat--pink:hover{filter:brightness(1.02)}
+.ev-afeat--pink .ev-afeat__n{color:#011d1c}
+.ev-afeat--pink .ev-afeat__d{color:#274a47}
+.ev-about__right{display:flex;flex-direction:column;justify-content:center;gap:48px}
+.ev-conv{width:100%;max-width:470px}
+.ev-challenges{display:flex;flex-direction:column;gap:10px}
+.ev-ch{display:flex;align-items:center;gap:14px;padding:13px 18px;background:var(--trench);border-radius:6px;color:var(--fog);font-size:14px;letter-spacing:0.3px;transition:all 0.3s ${EASE}}
+.ev-ch:hover{background:var(--reef);color:var(--snow)}
+.ev-ch__dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0}
+
+/* ===== outcomes — giant gradient index + expanding list ===== */
+.ev-out{background:var(--trench)}
+.ev-out__grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.ev-out__display{display:flex;align-items:baseline;gap:14px;margin-top:56px}
+.ev-out__num{font-size:clamp(110px,13vw,190px);font-weight:500;line-height:1;letter-spacing:-0.05em;background:var(--g-current);-webkit-background-clip:text;background-clip:text;color:transparent;animation:numFade 0.6s ${EASE}}
+.ev-out__of{font-size:20px;font-weight:500;color:var(--fog)}
 .ev-out__list{display:flex;flex-direction:column}
-.ev-out2{border-top:1px solid rgba(255,255,255,0.07);position:relative;cursor:pointer;transition:background 0.5s ${EASE}}
-.ev-out2:last-child{border-bottom:1px solid rgba(255,255,255,0.07)}
-.ev-out2--on{background:linear-gradient(90deg,rgba(77,159,255,0.05),transparent 70%)}
-.ev-out2__head{display:flex;align-items:center;gap:24px;padding:24px 14px}
-.ev-out2__ix{font-family:var(--sf);font-size:14px;color:rgba(255,255,255,0.22);transition:color 0.4s}
-.ev-out2--on .ev-out2__ix{color:var(--ac)}
-.ev-out2__t{font-family:var(--sf);font-size:clamp(19px,2.2vw,26px);font-weight:400;color:rgba(255,255,255,0.45);transition:color 0.5s ${EASE};flex:1}
-.ev-out2--on .ev-out2__t{color:#fff}
-.ev-out2__chev{color:var(--ac);opacity:0;transform:translateX(-8px);transition:all 0.45s ${EASE};display:flex}
-.ev-out2--on .ev-out2__chev{opacity:1;transform:translateX(0)}
-.ev-out2__body{max-height:0;overflow:hidden;transition:max-height 0.7s ${EASE}}
-.ev-out2--on .ev-out2__body{max-height:120px}
-.ev-out2__body p{font-size:13.5px;font-weight:300;line-height:1.7;color:rgba(255,255,255,0.42);padding:0 14px 24px 52px;max-width:520px}
+.ev-out__item{border-top:1px solid rgba(237,255,254,0.08);cursor:pointer;transition:background 0.3s ${EASE}}
+.ev-out__item:last-child{border-bottom:1px solid rgba(237,255,254,0.08)}
+.ev-out__head{display:flex;align-items:center;gap:20px;padding:24px 8px}
+.ev-out__ix{font-size:12px;font-weight:500;letter-spacing:1.44px;color:var(--fog);transition:color 0.3s}
+.ev-out__t{font-size:24px;font-weight:400;letter-spacing:-0.29px;color:var(--snow);flex:1}
+.ev-out__chev{color:var(--fog);opacity:0.5;transition:all 0.3s ${EASE}}
+.ev-out__item--on .ev-out__ix{color:var(--cyan)}
+.ev-out__item--on .ev-out__chev{color:var(--cyan);opacity:1;transform:translate(2px,-2px)}
+.ev-out__body{max-height:0;overflow:hidden;transition:max-height 0.55s ${EASE}}
+.ev-out__item--on .ev-out__body{max-height:120px}
+.ev-out__body p{font-size:14px;line-height:1.6;letter-spacing:0.3px;color:var(--fog);padding:0 8px 26px 46px;max-width:440px}
 
+/* ===== industries — constellation ===== */
+.ev-ind{overflow:hidden}
+.ev-ind__grid{display:grid;grid-template-columns:0.95fr 1.05fr;gap:60px;align-items:center;position:relative;z-index:1}
+.ev-ind__detail{min-height:180px;margin-top:44px;animation:indFade 0.55s ${EASE}}
+.ev-ind__dnum{font-size:12px;font-weight:500;letter-spacing:1.44px;color:var(--cyan);display:block;margin-bottom:16px}
+.ev-ind__dname{font-size:clamp(26px,2.9vw,36px);font-weight:400;letter-spacing:-0.47px;color:var(--snow);line-height:1.2;margin-bottom:14px}
+.ev-ind__ddesc{font-size:14px;line-height:1.7;letter-spacing:0.3px;color:var(--fog);max-width:440px}
+.ev-ind__dots{display:flex;gap:9px;margin-top:28px;flex-wrap:wrap}
+.ev-ind__dot{width:8px;height:8px;border-radius:50%;padding:0;background:rgba(237,255,254,0.15);cursor:pointer;transition:all 0.4s ${EASE}}
+.ev-ind__dot--on{background:var(--cyan);transform:scale(1.4)}
 
-/* Services */
-.ev-svc-sec{background:linear-gradient(to bottom,var(--bk),#0E1626,var(--bk));padding:140px 0;position:relative}
-.ev-svc__wrap{max-width:1440px;margin:0 auto;padding:0 48px}
-.ev-svc__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:18px}
-.ev-svc__h em{color:var(--pt)}
-.ev-svc__intro{font-family:var(--sf);font-size:18px;font-style:italic;color:var(--pt);margin-bottom:40px;max-width:560px;line-height:1.5}
-.ev-svc{display:grid;grid-template-columns:90px 1fr 1fr;gap:36px;padding:40px 0;border-top:1px solid rgba(255,255,255,0.06);position:relative;transition:padding-left 0.4s ${EASE};align-items:start}
-.ev-svc:last-child{border-bottom:1px solid rgba(255,255,255,0.06)}
-.ev-svc:hover{padding-left:14px}
-.ev-svc__bar{position:absolute;left:0;top:0;width:2px;height:0;background:var(--ac);box-shadow:0 0 12px rgba(77,159,255,0.4);transition:height 0.6s ${EASE}}
-.ev-svc:hover .ev-svc__bar{height:100%}
-.ev-svc__l{display:flex;flex-direction:column;gap:12px;padding-top:4px}
-.ev-svc__gn{font-family:var(--sf);font-size:44px;color:rgba(255,255,255,0.04);line-height:1}
-.ev-svc__l svg{color:var(--pt)}
-.ev-svc__t{font-family:var(--sf);font-size:26px;font-weight:400;color:#fff;margin-bottom:10px}
-.ev-svc__d{font-size:14px;line-height:1.72;color:rgba(255,255,255,0.4)}
-.ev-flow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:18px}
-.ev-flow__seg{display:flex;align-items:center;gap:6px}
-.ev-flow__node{font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:6px 12px;border:1px solid rgba(168,210,255,0.2);border-radius:2px;color:rgba(244,247,252,0.6);background:rgba(168,210,255,0.03);white-space:nowrap}
-.ev-flow__node--end{border-color:var(--ac);color:var(--ac2);background:rgba(77,159,255,0.08)}
+/* industry card grid — every card glows its own hue */
+.ev-indgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:relative;z-index:1}
+.ev-indcard{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;gap:30px;background:var(--trench);border-radius:16px;padding:20px;text-align:left;transition:background 0.35s ${EASE}}
+.ev-indcard__n{position:relative;z-index:1;font-size:11px;font-weight:500;letter-spacing:1.44px;color:var(--fog);transition:color 0.35s}
+.ev-indcard__t{position:relative;z-index:1;font-size:14px;font-weight:500;letter-spacing:0.2px;color:var(--snow);line-height:1.3}
+.ev-indcard__go{position:absolute;top:14px;right:14px;width:24px;height:24px;border:1px solid rgba(237,255,254,0.3);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--snow);opacity:0;transition:opacity 0.35s;z-index:1}
+.ev-indcard::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.5s ${EASE};background:radial-gradient(ellipse 100% 90% at 50% 0%,rgba(0,194,176,0.3),transparent 72%);pointer-events:none}
+.ev-indcard:nth-child(3n+2)::after{background:radial-gradient(ellipse 100% 90% at 50% 0%,rgba(203,255,252,0.24),transparent 72%)}
+.ev-indcard:nth-child(3n)::after{background:radial-gradient(ellipse 100% 90% at 50% 0%,rgba(250,209,255,0.18),transparent 72%)}
+.ev-indcard--on{background:var(--reef)}
+.ev-indcard--on::after{opacity:1}
+.ev-indcard--on .ev-indcard__n{color:var(--cyan)}
+.ev-indcard--on .ev-indcard__go{opacity:1}
+
+/* ===== services — editorial rows with outlined numerals ===== */
+.ev-svc__rows{margin-top:64px}
+.ev-svc__row{display:grid;grid-template-columns:110px 1.15fr 0.85fr;gap:40px;padding:56px 0;border-top:1px solid rgba(237,255,254,0.08);transition:background 0.3s ${EASE}}
+.ev-svc__rows > div:last-child .ev-svc__row{border-bottom:1px solid rgba(237,255,254,0.08)}
+.ev-svc__gn{font-size:61px;font-weight:500;line-height:1;letter-spacing:-1.22px;color:transparent;-webkit-text-stroke:1px rgba(203,255,252,0.35);transition:all 0.4s ${EASE}}
+.ev-svc__row:hover .ev-svc__gn{-webkit-text-stroke:1px rgba(203,255,252,0.75)}
+.ev-svc__t{font-size:clamp(26px,3vw,36px);font-weight:400;letter-spacing:-0.47px;color:var(--snow);margin-bottom:14px}
+.ev-svc__d{font-size:14px;line-height:1.7;letter-spacing:0.3px;color:var(--fog);max-width:420px}
+.ev-svc__al{font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--cyan);margin-bottom:16px}
+.ev-svc__tags{display:flex;flex-wrap:wrap;gap:8px}
+.ev-flow{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:28px}
+.ev-flow__seg{display:flex;align-items:center;gap:8px}
+.ev-flow__node{font-size:11px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;color:var(--fog);border:1px solid rgba(237,255,254,0.15);border-radius:6px;padding:7px 12px;white-space:nowrap}
+.ev-flow__node--end{background:var(--g-current);color:var(--trench);border-color:transparent}
 .ev-flow__link{flex-shrink:0}
-.ev-svc__al{font-size:10px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:12px}
-.ev-svc__r ul{list-style:none;display:flex;flex-direction:column;gap:7px}
-.ev-svc__r li{font-size:13px;color:rgba(255,255,255,0.4);padding-left:14px;position:relative}
-.ev-svc__r li::before{content:'';position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.12)}
 
-/* Projects */
-.ev-proj-sec{background:linear-gradient(to bottom,var(--bk),var(--dk),var(--mg));padding:140px 0}
-.ev-proj__wrap{max-width:1200px;margin:0 auto;padding:0 48px}
-.ev-proj__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:56px}
-.ev-proj__h em{color:var(--pt)}
-.ev-prj{border-top:1px solid rgba(255,255,255,0.06);padding:24px 0;cursor:pointer;transition:all 0.3s}
-.ev-prj:last-child{border-bottom:1px solid rgba(255,255,255,0.06)}
-.ev-prj:hover{padding-left:14px}
-.ev-prj__hd{display:flex;justify-content:space-between;align-items:center}
-.ev-prj__hl{display:flex;align-items:center;gap:18px}
-.ev-prj__ix{font-family:var(--sf);font-size:15px;color:rgba(255,255,255,0.15)}
-.ev-prj__t{font-family:var(--sf);font-size:clamp(18px,2vw,24px);font-weight:400;color:#fff}
-.ev-prj__badge{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(77,159,255,0.4);color:var(--ac2);font-weight:500;font-family:var(--bd);background:rgba(77,159,255,0.06)}
-.ev-prj__tog{color:rgba(255,255,255,0.3)}
-.ev-prj__bd{padding:16px 0 4px 46px}
-.ev-prj__bd>p:first-child{font-size:14px;line-height:1.72;color:rgba(255,255,255,0.38);margin-bottom:14px;max-width:560px}
-.ev-prj__caps{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.ev-prj__cap{font-size:10px;letter-spacing:0.06em;text-transform:uppercase;padding:5px 12px;border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);transition:all 0.3s}
-.ev-prj__cap:hover{border-color:rgba(77,159,255,0.5);color:var(--ac2)}
-.ev-prj__tl{font-family:var(--sf);font-size:14px;font-style:italic;color:rgba(217,217,217,0.5)}
-.ev-prj__more{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;color:var(--pt);margin-top:16px;transition:gap 0.3s ${EASE};background:none;border:none;cursor:pointer;padding:0}
-.ev-prj__more:hover{gap:14px}
-.ev-prj__detail{margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06)}
-.ev-prj__detail-sec{margin-bottom:22px}
-.ev-prj__detail-sec h4{font-family:var(--sf);font-size:16px;font-weight:400;color:var(--pt);margin-bottom:10px}
-.ev-prj__detail-sec p{font-size:14px;line-height:1.72;color:rgba(255,255,255,0.38);max-width:600px}
-.ev-prj__detail-sec ul{list-style:none;display:flex;flex-direction:column;gap:6px}
-.ev-prj__detail-sec li{font-size:13px;color:rgba(255,255,255,0.4);padding-left:14px;position:relative}
-.ev-prj__detail-sec li::before{content:'';position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:var(--ac)}
+/* ===== projects — trench accordion cards ===== */
+.ev-proj{overflow:hidden}
+.ev-proj__list{margin-top:64px;position:relative;z-index:1}
+.ev-prj{background:var(--trench);border-radius:16px;padding:32px 40px;margin-bottom:16px;cursor:pointer;transition:background 0.3s ${EASE}}
+.ev-prj:hover,.ev-prj--o{background:var(--reef)}
+.ev-prj__hd{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.ev-prj__hl{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.ev-prj__ix{font-size:12px;font-weight:500;letter-spacing:1.44px;color:var(--cyan)}
+.ev-prj__t{font-size:24px;font-weight:400;letter-spacing:-0.29px;color:var(--snow)}
+.ev-prj__badge{font-size:10px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;color:var(--lav);border:1px solid transparent;background:linear-gradient(var(--trench),var(--trench)) padding-box,var(--g-aurora) border-box;border-radius:6px;padding:5px 10px}
+.ev-prj--o .ev-prj__badge,.ev-prj:hover .ev-prj__badge{background:linear-gradient(var(--reef),var(--reef)) padding-box,var(--g-aurora) border-box}
+.ev-prj__tog{width:28px;height:28px;border:1px solid rgba(237,255,254,0.25);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:var(--snow);flex-shrink:0;transition:border-color 0.3s}
+.ev-prj:hover .ev-prj__tog{border-color:var(--ice)}
+.ev-prj__bd{padding:26px 0 8px 0}
+.ev-prj__bd > p{font-size:16px;line-height:1.5;color:var(--ice);max-width:600px}
+.ev-prj__caps{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.ev-prj--o .ev-tag{background:var(--trench)}
+.ev-prj__tl{font-size:14px;line-height:1.7;letter-spacing:0.3px;color:var(--fog);margin-top:18px;max-width:600px}
+.ev-prj__more{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--cyan);margin-top:20px;transition:opacity 0.3s}
+.ev-prj__more:hover{opacity:0.7}
+.ev-prj__detail{margin-top:26px;display:flex;flex-direction:column;gap:22px}
+.ev-prj__detail-sec h4{font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--cyan);margin-bottom:10px}
+.ev-prj__detail-sec p{font-size:14px;line-height:1.7;letter-spacing:0.2px;color:var(--fog);max-width:640px}
+.ev-prj__detail-sec ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.ev-prj__detail-sec li{font-size:14px;line-height:1.5;letter-spacing:0.2px;color:var(--fog);padding-left:18px;position:relative}
+.ev-prj__detail-sec li::before{content:'';position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--teal)}
 
-/* Process */
-.ev-proc-sec{background:linear-gradient(to bottom,var(--mg),var(--dk),var(--bk));padding:140px 0}
-.ev-proc__wrap{max-width:1440px;margin:0 auto;padding:0 48px}
-.ev-proc__h{font-family:var(--sf);font-size:clamp(40px,4.5vw,68px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:18px}
-.ev-proc__h em{color:var(--pt)}
-.ev-proc__intro{font-size:15px;line-height:1.7;color:rgba(255,255,255,0.35);max-width:560px;margin-bottom:56px}
-.ev-proc__grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative}
-.ev-proc__grid::before{content:'';position:absolute;top:20px;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--ac),rgba(168,210,255,0.25) 55%,rgba(168,210,255,0.06))}
-.ev-proc__grid::after{content:'';position:absolute;top:18.5px;left:0;width:42px;height:4px;border-radius:2px;background:var(--ac);filter:blur(1px);animation:procRun 7s ${EASE} infinite}
-@keyframes procRun{0%{left:0;opacity:0}8%{opacity:1}92%{opacity:1}100%{left:calc(100% - 42px);opacity:0}}
-.ev-proc__card{padding:0 24px 36px;border-right:1px solid rgba(255,255,255,0.04);transition:background 0.4s}
-.ev-proc__card:last-child{border-right:none}
-.ev-proc__card:hover{background:rgba(255,255,255,0.015)}
-.ev-proc__num{font-family:var(--sf);font-size:12px;color:rgba(168,210,255,0.4);margin-bottom:24px;padding-top:10px;letter-spacing:0.1em}
-.ev-proc__dot{width:8px;height:8px;border-radius:50%;background:var(--ac);margin-bottom:20px;transition:transform 0.4s;animation:acPulse 3s ease-in-out infinite}
-.ev-proc__card:hover .ev-proc__dot{transform:scale(1.5)}
-.ev-proc__ct{font-family:var(--sf);font-size:20px;font-weight:400;color:#fff;margin-bottom:10px}
-.ev-proc__cd{font-size:13px;line-height:1.65;color:rgba(255,255,255,0.35)}
+/* ===== process — horizontal current line with beacons ===== */
+.ev-proc{background:var(--trench);overflow:hidden}
+.ev-proc__track{position:relative;margin-top:80px}
+.ev-proc__line{position:absolute;top:5px;left:0;right:0;height:1px;background:linear-gradient(90deg,#00827c 0%,#cbfffc 55%,#fad1ff 100%);transform-origin:left;transform:scaleX(0)}
+.ev-proc__grid{display:grid;grid-template-columns:repeat(5,1fr);gap:28px}
+.ev-proc__step{padding-top:32px;position:relative}
+.ev-proc__beacon{position:absolute;top:0;left:0;width:11px;height:11px;border-radius:50%;background:var(--teal)}
+.ev-proc__num{font-size:12px;font-weight:500;letter-spacing:1.44px;color:var(--cyan);display:block;margin-bottom:12px}
+.ev-proc__ct{font-size:20px;font-weight:500;color:var(--snow);margin-bottom:10px}
+.ev-proc__cd{font-size:14px;line-height:1.6;letter-spacing:0.2px;color:var(--fog)}
 
-/* Borders */
-.ev-bdr-sec{background:linear-gradient(to bottom,var(--bk),var(--dk),var(--mg));padding:140px 0;position:relative;overflow:hidden}
-.ev-bdr__orb{position:absolute;top:50%;right:-8%;transform:translateY(-50%)}
-.ev-bdr__wrap{max-width:760px;margin:0 auto;padding:0 48px;position:relative;z-index:2;text-align:center}
-.ev-bdr__h{font-family:var(--sf);font-size:clamp(36px,4.4vw,60px);font-weight:400;color:#fff;line-height:1.1;margin-bottom:28px}
-.ev-bdr__h em{color:var(--pt)}
-.ev-bdr__p{font-size:15px;line-height:1.8;color:rgba(255,255,255,0.4);margin-bottom:14px}
-.ev-bdr__tag{display:inline-flex;align-items:center;gap:12px;margin-top:22px;padding:16px 26px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:rgba(255,255,255,0.5);font-size:13px;line-height:1.6;text-align:left}
+/* ===== borders — atmospheric band ===== */
+.ev-bdr{overflow:hidden;text-align:center}
+.ev-bdr__wash{position:absolute;inset:0;background:radial-gradient(ellipse 62% 58% at 50% 50%,rgba(0,194,176,0.22),rgba(203,255,252,0.07) 45%,transparent 74%),radial-gradient(ellipse 30% 30% at 50% 46%,rgba(250,209,255,0.08),transparent 70%);pointer-events:none}
+.ev-bdr__body{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+.ev-bdr__p{font-size:16px;line-height:1.6;color:var(--fog);max-width:620px;margin-top:24px}
+.ev-bdr__p + .ev-bdr__p{margin-top:14px}
+.ev-bdr__tag{display:inline-flex;margin-top:40px;border:1px solid transparent;background:linear-gradient(var(--abyss),var(--abyss)) padding-box,var(--g-aurora) border-box;border-radius:6px;padding:14px 24px}
+.ev-bdr__tag span{font-size:12px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;color:var(--ice);line-height:1.6}
 
-/* Why */
-.ev-why-sec{background:linear-gradient(to bottom,var(--mg),var(--bk));padding:140px 0}
-.ev-why__wrap{max-width:1100px;margin:0 auto;padding:0 48px}
-.ev-why__h{font-family:var(--sf);font-size:clamp(38px,4.4vw,62px);font-weight:400;color:#fff;line-height:1.1;margin-bottom:24px}
-.ev-why__h em{color:var(--pt)}
-.ev-why__lead{font-size:15px;line-height:1.8;color:rgba(255,255,255,0.4);max-width:680px;margin-bottom:10px}
-.ev-why__lead--sub{color:rgba(255,255,255,0.3);font-style:italic;font-family:var(--sf);font-size:16px}
-.ev-why__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
-.ev-why__card{padding:30px 26px;border:1px solid rgba(255,255,255,0.06);transition:all 0.4s ${EASE}}
-.ev-why__card:hover{border-color:rgba(255,255,255,0.16);background:rgba(255,255,255,0.025);transform:translateY(-4px)}
-.ev-why__card svg{color:var(--ac);margin-bottom:18px}
-.ev-why__card h3{font-family:var(--sf);font-size:19px;color:#fff;margin-bottom:8px;font-weight:400}
-.ev-why__card p{font-size:13px;line-height:1.6;color:rgba(255,255,255,0.32)}
+/* ===== why — one big signature card with dotted sphere ===== */
+.ev-bigcard{position:relative;overflow:hidden;display:grid;grid-template-columns:1.05fr 0.95fr;gap:48px;background:var(--trench);border-radius:24px;padding:64px;align-items:center}
+.ev-bigcard__glow{position:absolute;inset:0;background:radial-gradient(ellipse 55% 85% at 84% 50%,rgba(203,255,252,0.22),rgba(0,194,176,0.08) 45%,transparent 72%);pointer-events:none}
+.ev-bigcard__copy{position:relative;z-index:1}
+.ev-bigcard__p{font-size:16px;line-height:1.6;color:var(--ice);margin-top:26px;max-width:520px}
+.ev-bigcard__p--sub{font-size:14px;color:var(--fog);margin-top:14px}
+.ev-bigcard__feats{margin:34px 0 38px}
+.ev-bigfeat{display:flex;gap:16px;align-items:flex-start;padding:18px 0;border-top:1px solid rgba(237,255,254,0.08)}
+.ev-bigfeat:last-child{border-bottom:1px solid rgba(237,255,254,0.08)}
+.ev-bigfeat svg{color:var(--cyan);flex-shrink:0;margin-top:2px}
+.ev-bigfeat h3{font-size:16px;font-weight:500;color:var(--snow);margin-bottom:4px}
+.ev-bigfeat p{font-size:13px;line-height:1.6;letter-spacing:0.2px;color:var(--fog)}
+.ev-bigcard__visual{position:relative;z-index:1;display:flex;justify-content:center}
+.ev-dsphere{width:min(100%,380px)}
 
-/* Trust */
-.ev-trust-sec{background:linear-gradient(to bottom,var(--bk),#0A111F);padding:140px 0}
-.ev-trust__wrap{max-width:1440px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
-.ev-trust__h{font-family:var(--sf);font-size:clamp(38px,4.2vw,62px);font-weight:400;color:#fff;line-height:1.08;margin-bottom:24px}
-.ev-trust__h em{color:var(--pt)}
-.ev-trust__p{font-size:15px;line-height:1.75;color:rgba(255,255,255,0.35);margin-bottom:12px}
-.ev-trust__note{display:flex;gap:14px;align-items:flex-start;margin-top:24px;padding:18px 20px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02)}
-.ev-trust__note svg{color:var(--ac);flex-shrink:0;margin-top:2px}
-.ev-trust__note p{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.4)}
-.ev-trust__note p strong{color:#fff;font-weight:600}
-.ev-trust__r{display:flex;flex-direction:column;gap:14px}
-.ev-trust__card{display:flex;gap:14px;padding:20px 18px;border:1px solid rgba(255,255,255,0.05);transition:all 0.4s ${EASE}}
-.ev-trust__card:hover{border-color:rgba(255,255,255,0.12);background:rgba(255,255,255,0.02)}
-.ev-trust__ci{color:var(--ac);flex-shrink:0;margin-top:2px}
-.ev-trust__ct{font-family:var(--sf);font-size:16px;color:#fff;margin-bottom:3px}
-.ev-trust__cd{font-size:12px;color:rgba(255,255,255,0.3);line-height:1.55}
+/* ===== trust — ledger rows ===== */
+.ev-trust{background:var(--trench);overflow:hidden}
+.ev-trust__grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;position:relative;z-index:1}
+.ev-trust__p{font-size:16px;line-height:1.6;color:var(--fog);margin-top:28px;max-width:480px}
+.ev-trust__note{display:flex;gap:14px;margin-top:32px;background:var(--reef);border-radius:16px;padding:24px 26px;max-width:500px}
+.ev-trust__note svg{color:var(--cyan);flex-shrink:0;margin-top:3px}
+.ev-trust__note p{font-size:14px;line-height:1.65;letter-spacing:0.2px;color:var(--fog)}
+.ev-trust__r{display:flex;flex-direction:column;justify-content:center}
+.ev-trust__row{display:flex;gap:22px;align-items:flex-start;padding:26px 0;border-top:1px solid rgba(237,255,254,0.08)}
+.ev-trust__row:last-child{border-bottom:1px solid rgba(237,255,254,0.08)}
+.ev-trust__ci{width:44px;height:44px;border:1px solid rgba(237,255,254,0.2);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--cyan);flex-shrink:0}
+.ev-trust__ct{font-size:20px;font-weight:500;color:var(--snow);margin-bottom:6px}
+.ev-trust__cd{font-size:14px;line-height:1.6;letter-spacing:0.3px;color:var(--fog)}
 
-/* Statement */
-.ev-stmt{position:relative;background:var(--bk);padding:150px 48px;display:flex;align-items:center;justify-content:center;min-height:60vh;overflow:hidden}
-.ev-stmt__bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
-.ev-stmt__body{position:relative;z-index:2;text-align:center}
-.ev-stmt__h{font-family:var(--sf);font-size:clamp(30px,4.2vw,60px);font-weight:400;color:#fff;line-height:1.2;margin-bottom:40px}
-.ev-stmt__h em{color:var(--pt)}
+/* ===== statement — display type over twilight wash ===== */
+.ev-stmt{overflow:hidden;text-align:center;padding:160px 0}
+.ev-stmt__wash{position:absolute;inset:0;background:radial-gradient(ellipse 55% 62% at 50% 45%,rgba(250,209,255,0.10),rgba(203,255,252,0.06) 45%,rgba(0,194,176,0.04) 70%,transparent 88%);pointer-events:none}
+.ev-stmt__body{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:52px}
+.ev-stmt__h{font-size:clamp(32px,5.4vw,72px);font-weight:500;line-height:1.08;letter-spacing:-0.03em;color:var(--snow)}
 
-/* What Happens Next */
-.ev-next-sec{background:linear-gradient(to bottom,var(--bk),var(--dk));padding:140px 0 120px;overflow:hidden}
-.ev-next__wrap{max-width:1000px;margin:0 auto;padding:0 48px}
-.ev-next__h{font-family:var(--sf);font-size:clamp(38px,4.4vw,62px);font-weight:400;color:#fff;line-height:1.1;margin-bottom:18px}
-.ev-next__h em{color:var(--pt)}
-.ev-next__intro{font-size:15px;line-height:1.7;color:rgba(255,255,255,0.4);max-width:520px;margin-bottom:64px}
-.ev-next__tl{position:relative;padding:10px 0 4px}
-.ev-next__line{position:absolute;top:0;bottom:0;left:50%;width:1px;background:linear-gradient(to bottom,var(--ac),rgba(168,210,255,0.25) 60%,rgba(168,210,255,0.05));transform-origin:top;transition:transform 2.4s ${EASE} 200ms}
-.ev-next__row{position:relative;display:flex;justify-content:flex-start;padding:26px 0}
+/* ===== what next — drawn timeline ===== */
+.ev-next{overflow:hidden}
+.ev-next__tl{position:relative;margin-top:80px;padding:10px 0}
+.ev-next__line{position:absolute;top:0;bottom:0;left:50%;width:1px;background:linear-gradient(180deg,#00827c 0%,#cbfffc 60%,#fad1ff 100%);transform-origin:top;transform:scaleY(0)}
+.ev-next__row{position:relative;display:flex;justify-content:flex-start;padding:22px 0;width:100%}
 .ev-next__row--r{justify-content:flex-end}
-.ev-next__card{width:44%;padding:28px 30px;border:1px solid rgba(168,210,255,0.12);background:rgba(168,210,255,0.025);transition:all 0.45s ${EASE}}
-.ev-next__card:hover{border-color:rgba(77,159,255,0.45);background:rgba(168,210,255,0.05);transform:translateY(-4px);box-shadow:0 14px 40px rgba(0,0,0,0.35)}
-.ev-next__num{font-family:var(--sf);font-size:13px;color:var(--ac);letter-spacing:0.12em;display:block;margin-bottom:12px}
-.ev-next__t{font-family:var(--sf);font-size:21px;font-weight:400;color:#fff;margin-bottom:10px;line-height:1.25}
-.ev-next__d{font-size:13.5px;line-height:1.7;color:rgba(255,255,255,0.4)}
-.ev-next__node{position:absolute;top:50%;left:50%;width:11px;height:11px;border-radius:50%;background:var(--ac);box-shadow:0 0 0 5px rgba(77,159,255,0.12);transition:transform 0.6s ${EASE};animation:acPulse 3s ease-in-out infinite}
+.ev-next__card{width:calc(50% - 44px);background:var(--trench);border-radius:16px;padding:32px 36px;transition:background 0.3s ${EASE}}
+.ev-next__card:hover{background:var(--reef)}
+.ev-next__num{font-size:12px;font-weight:500;letter-spacing:1.44px;color:var(--cyan);display:block;margin-bottom:12px}
+.ev-next__t{font-size:20px;font-weight:500;color:var(--snow);margin-bottom:10px}
+.ev-next__d{font-size:14px;line-height:1.65;letter-spacing:0.2px;color:var(--fog)}
+.ev-next__node{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;background:var(--cyan)}
 
-/* Contact */
-.ev-contact-sec{background:linear-gradient(to bottom,var(--bk),#091020);padding:140px 0}
-.ev-contact__wrap{max-width:1440px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:5fr 7fr;gap:80px;align-items:start}
-.ev-contact__h{font-family:var(--sf);font-size:clamp(36px,4vw,60px);font-weight:400;color:#fff;line-height:1.1;margin-bottom:16px}
-.ev-contact__h em{color:var(--pt)}
-.ev-contact__p{font-size:14px;line-height:1.72;color:rgba(255,255,255,0.35);margin-bottom:36px;max-width:380px}
-.ev-contact__info{display:flex;flex-direction:column;gap:20px}
-.ev-contact__bl{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:4px}
-.ev-contact__bv{font-family:var(--sf);font-size:17px;color:rgba(255,255,255,0.7);transition:opacity 0.3s}.ev-contact__bv:hover{opacity:0.5}
-.ev-form{display:flex;flex-direction:column;gap:22px;padding:36px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02)}
+/* ===== contact ===== */
+.ev-contact{overflow:hidden}
+.ev-contact__grid{display:grid;grid-template-columns:0.85fr 1.15fr;gap:80px;position:relative;z-index:1}
+.ev-contact__p{font-size:16px;line-height:1.6;color:var(--fog);margin-top:28px;max-width:440px}
+.ev-contact__info{display:flex;flex-direction:column;gap:24px;margin-top:48px}
+.ev-contact__bl{font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--cyan);margin-bottom:6px}
+.ev-contact__bv{font-size:16px;color:var(--snow);transition:opacity 0.3s}
+.ev-contact__bv:hover{opacity:0.6}
+.ev-form{background:var(--trench);border-radius:16px;padding:40px;display:flex;flex-direction:column;gap:22px}
 .ev-form__r{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.ev-form__err{font-size:13px;color:#e55;line-height:1.5;padding:12px 16px;border:1px solid rgba(255,100,100,0.2);background:rgba(255,100,100,0.05)}
-.ev-f{display:flex;flex-direction:column;gap:7px}
-.ev-f label{font-size:10px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
-.opt{font-weight:400;opacity:0.5;letter-spacing:0;text-transform:none}
-.req{color:var(--ac)}
-.ev-consent{display:flex;gap:11px;align-items:flex-start;font-size:12px;line-height:1.65;color:rgba(255,255,255,0.45);cursor:pointer;margin-top:2px}
-.ev-consent input{margin-top:3px;accent-color:var(--ac);width:14px;height:14px;flex-shrink:0;cursor:pointer}
-.ev-consent a{color:var(--pt);text-decoration:underline;text-underline-offset:2px}
-.ev-consent a:hover{color:#fff}
-.ev-f input{border:none;border-bottom:1px solid rgba(255,255,255,0.1);background:transparent;padding:10px 0;font-size:14px;color:#fff;outline:none;transition:border-color 0.3s}
-.ev-f input:focus{border-bottom-color:var(--ac)}
-.ev-f input::placeholder{color:rgba(255,255,255,0.2)}
-.ev-sel{border:none;border-bottom:1px solid rgba(255,255,255,0.1);background:transparent;padding:10px 0;font-size:14px;color:rgba(255,255,255,0.6);outline:none;appearance:none}
-.ev-sel option{background:var(--bk);color:#fff}
-.ev-f textarea{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);padding:14px;font-size:14px;color:#fff;line-height:1.65;resize:vertical;outline:none;transition:border-color 0.3s}
-.ev-f textarea:focus{border-color:rgba(77,159,255,0.5)}
-.ev-f textarea::placeholder{color:rgba(255,255,255,0.18)}
-.ev-radios{display:flex;flex-wrap:wrap;gap:7px}
-.ev-rad{font-size:12px;padding:7px 14px;border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.45);transition:all 0.3s;user-select:none}
-.ev-rad--on{background:rgba(77,159,255,0.12);color:#fff;border-color:rgba(77,159,255,0.45)}
-.ev-checks{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.ev-chk{display:flex;align-items:center;gap:9px;font-size:12px;padding:8px 12px;border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.3s;user-select:none}
-.ev-chk--on{background:rgba(77,159,255,0.08);border-color:rgba(77,159,255,0.35);color:#fff}
-.ev-chk__b{width:16px;height:16px;border:1px solid rgba(255,255,255,0.15);border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.3s}
-.ev-chk--on .ev-chk__b{background:var(--ac);border-color:var(--ac);color:#04101F}
-.ev-sent{display:flex;flex-direction:column;align-items:center;text-align:center;padding:80px 40px;color:#fff}
-.ev-sent h3{font-family:var(--sf);font-size:30px;margin:20px 0 10px}
-.ev-sent p{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.6;max-width:340px}
-.ev-sent svg{color:var(--ac)}
+.ev-f{display:flex;flex-direction:column;gap:9px}
+.ev-f label{font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--fog)}
+.req{color:var(--lav)}
+.opt{color:var(--fog);opacity:0.6;text-transform:none;letter-spacing:0.3px}
+.ev-f input,.ev-f textarea,.ev-sel{background:var(--abyss);border:1px solid transparent;border-radius:6px;padding:13px 16px;font-size:14px;letter-spacing:0.2px;color:var(--snow);cursor:text;transition:border-color 0.3s ${EASE}}
+.ev-f input::placeholder,.ev-f textarea::placeholder{color:rgba(187,199,198,0.4)}
+.ev-f input:focus,.ev-f textarea:focus,.ev-sel:focus{outline:none;border-color:rgba(237,255,254,0.35)}
+.ev-f textarea{resize:vertical;min-height:110px}
+.ev-sel{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23bbc7c6' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center}
+.ev-sel option{background:var(--trench);color:var(--snow)}
+.ev-radios{display:flex;flex-wrap:wrap;gap:8px}
+.ev-rad{font-size:12px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;color:var(--fog);border-radius:6px;background:var(--abyss);padding:9px 14px;cursor:pointer;transition:all 0.3s ${EASE}}
+.ev-rad--on{background:var(--reef);color:var(--snow)}
+.ev-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ev-chk{display:flex;align-items:center;gap:10px;font-size:13px;letter-spacing:0.3px;color:var(--fog);background:var(--abyss);border-radius:6px;padding:11px 14px;cursor:pointer;transition:all 0.3s ${EASE}}
+.ev-chk--on{background:var(--reef);color:var(--snow)}
+.ev-chk__b{width:16px;height:16px;border:1px solid rgba(237,255,254,0.3);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:var(--cyan);flex-shrink:0}
+.ev-consent{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.ev-consent input{margin-top:3px;accent-color:#00827c}
+.ev-consent span{font-size:12px;line-height:1.6;letter-spacing:0.3px;color:var(--fog)}
+.ev-consent a{color:var(--cyan);text-decoration:underline}
+.ev-form__err{font-size:13px;color:var(--lav);letter-spacing:0.2px}
+.ev-sent{background:var(--trench);border-radius:16px;padding:64px 40px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.ev-sent svg{color:var(--cyan)}
+.ev-sent h3{font-size:24px;font-weight:500;color:var(--snow)}
+.ev-sent p{font-size:14px;color:var(--fog)}
 
-/* Footer */
-.ev-footer{background:var(--bk);padding:44px 0 28px;border-top:1px solid rgba(255,255,255,0.04)}
-.ev-footer__in{max-width:1440px;margin:0 auto;padding:0 48px}
-.ev-footer__top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
-.ev-footer__line{height:1px;background:rgba(255,255,255,0.04);margin-bottom:20px}
-.ev-footer__bot{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.15)}
-.ev-footer__link{color:rgba(255,255,255,0.25);transition:color 0.3s}.ev-footer__link:hover{color:var(--pt)}
+/* ===== footer ===== */
+.ev-footer{border-top:1px solid rgba(237,255,254,0.07);padding:56px 0 36px}
+.ev-footer__top{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.ev-footer__tag{font-size:12px;letter-spacing:1.1px;text-transform:uppercase;color:rgba(187,199,198,0.5)}
+.ev-footer__line{height:1px;background:rgba(237,255,254,0.07);margin:28px 0 22px}
+.ev-footer__bot{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;letter-spacing:0.4px;color:rgba(187,199,198,0.55)}
+.ev-footer__link{transition:color 0.3s}
+.ev-footer__link:hover{color:var(--snow)}
 
-/* Cookie Banner */
-.ev-cookie{position:fixed;bottom:0;left:0;right:0;z-index:1000;background:rgba(10,16,29,0.97);backdrop-filter:blur(16px);padding:18px 48px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-top:1px solid rgba(168,210,255,0.1);animation:cookieUp 0.5s ${EASE}}
-@keyframes cookieUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.ev-cookie p{font-size:12px;line-height:1.6;color:rgba(255,255,255,0.45);max-width:700px}
-.ev-cookie a{color:var(--pt);text-decoration:underline;text-underline-offset:2px}
-.ev-cookie__btn{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:10px 22px;background:var(--ac);color:#04101F;border-radius:2px;white-space:nowrap;transition:all 0.3s ${EASE};flex-shrink:0}
-.ev-cookie__btn:hover{background:var(--ac2);transform:translateY(-1px)}
+/* ===== insights ===== */
+.ev-ins-hero{padding:200px 32px 80px;max-width:var(--page-w);margin:0 auto}
+.ev-ins-hero__h{font-size:clamp(48px,8vw,96px);font-weight:500;line-height:1;letter-spacing:-0.04em;color:var(--snow);margin-top:28px}
+.ev-ins-grid{padding-bottom:140px}
+.ev-ins-grid__in{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.ev-art-card{position:relative;background:var(--trench);border-radius:16px;padding:40px;cursor:pointer;transition:background 0.3s ${EASE}}
+.ev-art-card:hover{background:var(--reef)}
+.ev-art-card__go{position:absolute;top:24px;right:24px;width:28px;height:28px;border:1px solid rgba(237,255,254,0.25);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--snow);transition:all 0.3s ${EASE}}
+.ev-art-card:hover .ev-art-card__go{border-color:var(--ice);transform:scale(1.07)}
+.ev-art-card__meta{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.ev-art-card__tag{font-size:11px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--cyan)}
+.ev-art-card__date{font-size:11px;letter-spacing:1.1px;color:rgba(187,199,198,0.5)}
+.ev-art-card__t{font-size:24px;font-weight:400;letter-spacing:-0.29px;line-height:1.35;color:var(--snow);margin-bottom:14px;padding-right:36px}
+.ev-art-card__ex{font-size:14px;line-height:1.65;letter-spacing:0.3px;color:var(--fog);margin-bottom:24px}
+.ev-art-card__rd{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--cyan)}
 
-/* Privacy Policy */
-.ev-privacy{background:var(--bk);padding:180px 48px 120px;min-height:100vh}
-.ev-privacy__wrap{max-width:760px;margin:0 auto}
-.ev-privacy__h{font-family:var(--sf);font-size:clamp(40px,5vw,72px);font-weight:400;color:#fff;line-height:1.1;margin-bottom:12px}
-.ev-privacy__h em{color:var(--pt)}
-.ev-privacy__updated{font-size:12px;color:rgba(255,255,255,0.25);letter-spacing:0.1em;margin-bottom:48px}
-.ev-privacy__content h2{font-family:var(--sf);font-size:22px;font-weight:400;color:#fff;margin-top:36px;margin-bottom:12px}
-.ev-privacy__content p{font-size:15px;line-height:1.82;color:rgba(255,255,255,0.45);margin-bottom:16px}
-.ev-privacy__content a{color:var(--pt);text-decoration:underline;text-underline-offset:2px}
+/* ===== article page ===== */
+.ev-art-hero{padding:200px 32px 70px;max-width:820px;margin:0 auto;text-align:center}
+.ev-art-hero__tag{font-size:12px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;color:var(--cyan)}
+.ev-art-hero__h{font-size:clamp(30px,4.6vw,52px);font-weight:500;line-height:1.15;letter-spacing:-0.02em;color:var(--snow);margin:24px 0}
+.ev-art-hero__date{font-size:12px;letter-spacing:1.44px;color:rgba(187,199,198,0.55)}
+.ev-art-body{padding-bottom:140px}
+.ev-art-body__in{display:grid;grid-template-columns:1fr 280px;gap:64px}
+.ev-art-body__p{font-size:16px;line-height:1.8;color:var(--fog);margin-bottom:22px;max-width:680px}
+.ev-art-body__cta{background:var(--trench);border-radius:16px;padding:36px 40px;margin-top:36px;display:flex;flex-direction:column;gap:20px;align-items:flex-start}
+.ev-art-body__cta p{font-size:20px;font-weight:500;color:var(--snow)}
+.ev-art-side__h{font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--cyan);margin-bottom:22px}
+.ev-art-side__item{padding:20px 0;border-top:1px solid rgba(237,255,254,0.08);cursor:pointer;transition:opacity 0.3s}
+.ev-art-side__item:hover{opacity:0.65}
+.ev-art-side__tag{font-size:10px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;color:var(--cyan)}
+.ev-art-side__t{font-size:15px;line-height:1.5;color:var(--snow);margin-top:8px}
 
-/* Insights */
-.ev-ins-hero{background:var(--bk);padding:200px 48px 90px;text-align:center}
-.ev-ins-hero__h{font-family:var(--sf);font-size:clamp(52px,7vw,110px);font-weight:400;color:#fff;line-height:1;margin-top:16px}.ev-ins-hero__h em{color:var(--pt)}
-.ev-ins-grid{background:var(--dk);padding:80px 0 120px}
-.ev-ins-grid__in{max-width:1440px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,0.04)}
-.ev-art-card{background:var(--bk);padding:36px 32px;cursor:pointer;transition:all 0.45s ${EASE};position:relative;overflow:hidden}
-.ev-art-card::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:var(--ac);transition:width 0.5s ${EASE}}
-.ev-art-card:hover{background:rgba(255,255,255,0.03);transform:translateY(-3px)}.ev-art-card:hover::after{width:100%}
-.ev-art-card__meta{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.ev-art-card__tag{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4)}
-.ev-art-card__date{font-size:11px;color:rgba(255,255,255,0.2)}
-.ev-art-card__t{font-family:var(--sf);font-size:19px;font-weight:400;color:#fff;line-height:1.35;margin-bottom:10px}
-.ev-art-card__ex{font-size:13px;line-height:1.6;color:rgba(255,255,255,0.35);margin-bottom:18px}
-.ev-art-card__rd{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;color:rgba(255,255,255,0.5);transition:gap 0.3s}
-.ev-art-card:hover .ev-art-card__rd{gap:14px;color:var(--pt)}
+/* ===== privacy ===== */
+.ev-privacy{padding:200px 32px 140px}
+.ev-privacy__wrap{max-width:720px;margin:0 auto}
+.ev-privacy__h{font-size:clamp(38px,5vw,61px);font-weight:500;letter-spacing:-0.02em;color:var(--snow)}
+.ev-privacy__updated{font-size:12px;letter-spacing:1.44px;text-transform:uppercase;color:rgba(187,199,198,0.55);margin-top:16px}
+.ev-privacy__content{margin-top:48px;display:flex;flex-direction:column;gap:36px}
+.ev-privacy__content h2{font-size:20px;font-weight:500;color:var(--snow);margin-bottom:12px}
+.ev-privacy__content p{font-size:14px;line-height:1.75;letter-spacing:0.2px;color:var(--fog)}
+.ev-privacy__content a{color:var(--cyan);text-decoration:underline}
 
-/* Article */
-.ev-art-hero{background:var(--bk);padding:180px 48px 90px;text-align:center}
-.ev-art-hero__tag{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);display:block;margin-bottom:22px}
-.ev-art-hero__h{font-family:var(--sf);font-size:clamp(30px,4vw,56px);font-weight:400;color:#fff;line-height:1.2;max-width:860px;margin:0 auto 18px}
-.ev-art-hero__date{font-size:12px;color:rgba(255,255,255,0.2);letter-spacing:0.1em}
-.ev-art-body{background:var(--dk);padding:80px 0 120px}
-.ev-art-body__in{max-width:1200px;margin:0 auto;padding:0 48px;display:grid;grid-template-columns:1fr 320px;gap:72px;align-items:start}
-.ev-art-body__p{font-size:16px;line-height:1.82;color:rgba(255,255,255,0.55);margin-bottom:22px;max-width:640px}
-.ev-art-body__cta{margin-top:48px;padding:36px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)}
-.ev-art-body__cta p{font-family:var(--sf);font-size:19px;color:#fff;margin-bottom:18px}
-.ev-art-body__side{position:sticky;top:110px}
-.ev-art-side__h{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06)}
-.ev-art-side__item{padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:all 0.3s}
-.ev-art-side__item:hover{padding-left:8px}
-.ev-art-side__tag{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);display:block;margin-bottom:5px}
-.ev-art-side__t{font-family:var(--sf);font-size:14px;color:rgba(255,255,255,0.6);line-height:1.35}
+/* ===== cookie consent ===== */
+.ev-cookie{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:1002;width:min(720px,calc(100vw - 32px));background:var(--trench);border-radius:16px;padding:20px 26px;display:flex;align-items:center;gap:22px}
+.ev-cookie p{font-size:12px;line-height:1.6;letter-spacing:0.3px;color:var(--fog)}
+.ev-cookie a{color:var(--cyan);text-decoration:underline}
+.ev-cookie__btn{flex-shrink:0;background:var(--g-current);color:var(--trench);font-size:11px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;border-radius:6px;padding:11px 18px;transition:filter 0.3s}
+.ev-cookie__btn:hover{filter:brightness(1.07)}
 
-/* RESPONSIVE */
-@media(max-width:1100px){
-  .ev-about__wrap{grid-template-columns:1fr}
-  .ev-about__left{padding:100px 40px 48px}
-  .ev-about__right{padding:48px 40px}
-  .ev-ind__wrap{grid-template-columns:1fr;gap:40px}
-  .ev-orbit{--orbR:148px;width:340px;height:340px;max-width:90vw}
-  .ev-orbit__ring{inset:24px}
-  .ev-orbit__ring--in{inset:90px}
-  .ev-orbit__node{font-size:8px;padding:6px 9px;letter-spacing:0.04em}
-  .ev-orbit__hub{width:92px;height:92px;gap:5px}
-  .ev-orbit__hub span{font-size:10px}
-  .ev-ind__ds{grid-column:2/3;max-width:none}
-  .ev-ind__ar{display:none}
-  .ev-out__wrap{grid-template-columns:1fr;gap:48px}
-  .ev-out__display{margin:36px auto 0}
-  .ev-why__grid{grid-template-columns:1fr 1fr}
-  .ev-svc{grid-template-columns:70px 1fr;gap:20px}
-  .ev-svc__r{grid-column:1/-1;padding-left:70px}
-  .ev-trust__wrap{grid-template-columns:1fr;gap:40px}
-  .ev-contact__wrap{grid-template-columns:1fr;gap:40px}
-  .ev-art-body__in{grid-template-columns:1fr;gap:40px}
-  .ev-art-body__side{position:static}
-  .ev-ins-grid__in{grid-template-columns:1fr 1fr}
+/* ===== glow washes — the background journey ===== */
+.ev-wash{position:absolute;inset:0;pointer-events:none;opacity:0}
+.ev-wash--teal{background:radial-gradient(ellipse 72% 62% at 50% 26%,rgba(0,194,176,0.17),rgba(0,130,124,0.05) 45%,transparent 72%)}
+.ev-wash--tealLeft{background:radial-gradient(ellipse 58% 72% at 8% 42%,rgba(0,194,176,0.16),rgba(0,130,124,0.05) 48%,transparent 74%)}
+.ev-wash--tealRight{background:radial-gradient(ellipse 58% 72% at 92% 38%,rgba(0,194,176,0.15),rgba(203,255,252,0.05) 45%,transparent 74%)}
+.ev-wash--mint{background:radial-gradient(ellipse 52% 64% at 76% 34%,rgba(203,255,252,0.18),rgba(0,194,176,0.06) 45%,transparent 72%)}
+.ev-wash--lav{background:radial-gradient(ellipse 62% 58% at 50% 58%,rgba(250,209,255,0.10),rgba(237,255,254,0.05) 50%,transparent 76%)}
+
+/* ===== service mockups — dark cards with glowing edges ===== */
+.ev-mock{position:relative;margin-top:28px;max-width:440px;border-radius:16px;padding:16px;border:1px solid transparent;background:linear-gradient(var(--trench),var(--trench)) padding-box,linear-gradient(135deg,rgba(0,194,176,0.55),rgba(203,255,252,0.12) 45%,rgba(250,209,255,0.4)) border-box}
+.ev-mock__bar{display:flex;align-items:center;gap:6px;padding-bottom:12px;border-bottom:1px solid rgba(237,255,254,0.07);margin-bottom:12px}
+.ev-mock__bar span{width:7px;height:7px;border-radius:50%;background:rgba(237,255,254,0.18)}
+.ev-mock__bar i{font-style:normal;margin-left:8px;font-size:10px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--fog)}
+.ev-mock__row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;background:var(--abyss);margin-bottom:8px}
+.ev-mock__dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.ev-mock__from{font-size:12px;letter-spacing:0.2px;color:var(--fog);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-mock__tag{font-size:9px;font-weight:500;letter-spacing:1.1px;text-transform:uppercase;border-radius:6px;padding:3px 7px;flex-shrink:0}
+.ev-mock__tag--u{background:rgba(250,209,255,0.14);color:var(--lav)}
+.ev-mock__tag--f{background:rgba(0,194,176,0.16);color:var(--cyan)}
+.ev-mock__tag--l{background:rgba(237,255,254,0.08);color:var(--fog)}
+.ev-mock__out{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:6px;background:var(--reef);font-size:12px;letter-spacing:0.2px;color:var(--ice)}
+.ev-mock__ai{font-size:9px;font-weight:500;letter-spacing:1.4px;background:var(--g-current);color:var(--trench);border-radius:6px;padding:3px 7px;flex-shrink:0}
+.ev-dash{display:flex;flex-direction:column;gap:10px}
+.ev-dash__kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ev-dash__kpi{background:var(--abyss);border-radius:6px;padding:10px 12px}
+.ev-dash__kpi i{display:block;font-style:normal;font-size:9px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:var(--fog);margin-bottom:9px}
+.ev-dash__kpi span{display:block;height:6px;border-radius:3px;background:var(--g-current);width:72%}
+.ev-dash__kpi:last-child span{width:46%;background:linear-gradient(90deg,#cbfffc,#fad1ff)}
+.ev-dash__chart{display:flex;align-items:flex-end;gap:6px;height:72px;background:var(--abyss);border-radius:6px;padding:10px 12px}
+.ev-dash__chart span{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,rgba(203,255,252,0.85),rgba(0,130,124,0.45));transform-origin:bottom}
+.ev-dash__line{width:100%;height:38px;background:var(--abyss);border-radius:6px;padding:6px 10px}
+
+/* ===== tech marquee — the integration strip ===== */
+.ev-mq--tech{background:transparent;border-top:1px solid rgba(237,255,254,0.07);border-bottom:1px solid rgba(237,255,254,0.07);padding:24px 0}
+.ev-mq__label{text-align:center;font-size:10px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;color:rgba(187,199,198,0.6);margin-bottom:18px}
+@keyframes mqR{from{transform:translateX(-25%)}to{transform:translateX(0)}}
+.ev-mq__track--rev{animation:mqR 30s linear infinite}
+.ev-mq__i--tech{font-size:15px;letter-spacing:0.3px;text-transform:none;color:var(--ice);font-weight:500}
+.ev-mq__dot--lav{background:var(--lav)}
+
+/* ===== contact — white card on a bright teal glow ===== */
+.ev-contact2{position:relative;padding:150px 0 120px;overflow:hidden}
+.ev-contact2__glow{position:absolute;inset:0;background:radial-gradient(ellipse 85% 82% at 50% 42%,rgba(0,194,176,0.5),rgba(0,130,124,0.22) 42%,rgba(1,38,36,0) 74%),radial-gradient(ellipse 42% 36% at 50% 36%,rgba(203,255,252,0.28),transparent 70%);pointer-events:none}
+.ev-contact2__in{position:relative;z-index:1}
+.ev-wcard{background:#fdfffe;border-radius:24px;padding:56px}
+.ev-wcard__grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+.ev-eyebrow--dark{color:#00615c}
+.ev-wcard__h{font-size:clamp(38px,4.8vw,61px);font-weight:500;line-height:1.05;letter-spacing:-0.02em;color:#011d1c;margin-top:24px}
+.ev-wcard__p{font-size:15px;line-height:1.65;color:#3f4f4e;margin-top:22px;max-width:420px}
+.ev-wcard__mail{display:inline-block;margin-top:26px;font-size:15px;font-weight:500;color:#00615c;border-bottom:1px solid rgba(0,97,92,0.35);padding-bottom:2px;transition:opacity 0.3s}
+.ev-wcard__mail:hover{opacity:0.6}
+.ev-cats{display:flex;flex-direction:column}
+.ev-cat{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px 4px;border-top:1px solid rgba(1,38,36,0.12);font-size:clamp(18px,2vw,24px);font-weight:400;letter-spacing:-0.2px;color:#011d1c;text-align:left;transition:padding 0.35s ${EASE},color 0.3s}
+.ev-cat:last-child{border-bottom:1px solid rgba(1,38,36,0.12)}
+.ev-cat:hover{color:#00827c;padding-left:12px}
+.ev-cat__go{width:34px;height:34px;border:1px solid rgba(1,38,36,0.2);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#011d1c;flex-shrink:0;transition:all 0.3s ${EASE}}
+.ev-cat:hover .ev-cat__go{background:var(--g-current);border-color:transparent}
+.ev-wcard__form{margin-top:48px;border-top:1px solid rgba(1,38,36,0.1);padding-top:44px}
+.ev-form--light{background:transparent;padding:0}
+.ev-form--light .ev-f label{color:#3f4f4e}
+.ev-form--light .ev-f input,.ev-form--light .ev-f textarea,.ev-form--light .ev-sel{background:#eef4f3;color:#011d1c}
+.ev-form--light .ev-f input::placeholder,.ev-form--light .ev-f textarea::placeholder{color:rgba(63,79,78,0.5)}
+.ev-form--light .ev-f input:focus,.ev-form--light .ev-f textarea:focus,.ev-form--light .ev-sel:focus{border-color:rgba(0,130,124,0.5)}
+.ev-form--light .ev-sel option{background:#ffffff;color:#011d1c}
+.ev-form--light .ev-rad{background:#eef4f3;color:#3f4f4e}
+.ev-form--light .ev-rad--on{background:#012624;color:#ffffff}
+.ev-form--light .ev-chk{background:#eef4f3;color:#3f4f4e}
+.ev-form--light .ev-chk--on{background:#012624;color:#ffffff}
+.ev-form--light .ev-chk__b{border-color:rgba(1,38,36,0.3)}
+.ev-form--light .ev-consent span{color:#3f4f4e}
+.ev-form--light .ev-consent a{color:#00615c}
+.ev-form--light .req{color:#b44db0}
+.ev-form--light .ev-form__err{color:#b44db0}
+.ev-sent--light{background:transparent;padding:24px 0}
+.ev-sent--light svg{color:#00827c}
+.ev-sent--light h3{color:#011d1c}
+.ev-sent--light p{color:#3f4f4e}
+.ev-contact2__foot{display:flex;align-items:center;justify-content:space-between;gap:32px;margin-top:72px;flex-wrap:wrap}
+.ev-contact2__stmt{font-size:clamp(28px,3.6vw,48px);font-weight:500;line-height:1.1;letter-spacing:-0.02em;color:var(--snow)}
+
+/* ===== responsive ===== */
+@media(max-width:1024px){
+  .ev-about__grid,.ev-out__grid,.ev-ind__grid,.ev-trust__grid,.ev-contact__grid{grid-template-columns:1fr;gap:56px}
+  .ev-bigcard{grid-template-columns:1fr;padding:48px;gap:40px}
+  .ev-wcard__grid{grid-template-columns:1fr;gap:44px}
+  .ev-svc__row{grid-template-columns:70px 1fr;gap:24px}
+  .ev-svc__r{grid-column:2}
+  .ev-svc__gn{font-size:44px}
+  .ev-proc__grid{grid-template-columns:repeat(2,1fr);gap:40px 28px}
+  .ev-proc__line{display:none}
+  .ev-ins-grid__in{grid-template-columns:1fr}
+  .ev-art-body__in{grid-template-columns:1fr}
+  .ev-gnum{font-size:clamp(120px,18vw,200px)}
 }
 @media(max-width:768px){
-  .ev-nav__links{display:none}.ev-nav__burger{display:block}
-  .ev-nav__in{padding:0 20px}
-  .dbr{display:none}
-  .ev-hero__brand{flex-direction:column;gap:12px}
-  .ev-hero__brand-text{text-align:center}
-  .ev-hero__brand-line{margin:0 auto 6px}
-  .ev-hero__h2{font-size:clamp(18px,4vw,26px)}
-  .ev-about__left{padding:80px 20px 36px}
-  .ev-about__h{font-size:clamp(34px,8vw,48px)}
-  .ev-about__right{padding:36px 20px}
-  .ev-conv{max-width:340px;margin:0 auto}
-  .ev-about__stats{grid-template-columns:1fr 1fr;gap:10px}
-  .ev-ind__wrap,.ev-svc__wrap,.ev-proj__wrap,.ev-proc__wrap,.ev-trust__wrap,.ev-contact__wrap,.ev-footer__in,.ev-out__wrap,.ev-bdr__wrap,.ev-why__wrap{padding:0 20px}
-  .ev-ind__h,.ev-svc__h,.ev-proj__h,.ev-proc__h,.ev-trust__h,.ev-contact__h,.ev-bdr__h,.ev-why__h{font-size:clamp(34px,8vw,48px)}
-  .ev-out__display{width:180px;height:180px}
-  .ev-out__bignum{font-size:60px}
-  .ev-out2__body p{padding-left:14px}
-  .ev-ind{grid-template-columns:1fr;text-align:left}
-  .ev-ind__ds{grid-column:auto}
-  .ev-why__grid{grid-template-columns:1fr}
-  .ev-about__stats{grid-template-columns:1fr 1fr}
-  .ev-svc{grid-template-columns:1fr;gap:14px;padding:28px 0}
-  .ev-svc__l{flex-direction:row;align-items:center;gap:10px}
-  .ev-svc__gn{font-size:32px}
-  .ev-svc__r{padding-left:0}
-  .ev-prj__bd{padding-left:0}
-  .ev-proc__grid{grid-template-columns:1fr}.ev-proc__card{border-right:none;border-bottom:1px solid rgba(255,255,255,0.04);padding:24px 0}
-  .ev-stmt{padding:100px 20px;min-height:50vh}.ev-stmt__h{font-size:clamp(24px,6vw,40px)}
-  .ev-next__wrap{padding:0 20px}
-  .ev-next__h{font-size:clamp(34px,8vw,48px)}
+  .ev-sec{padding:88px 0}
+  .ev-wrap,.ev-nav__in{padding:0 20px}
+  .ev-nav__links{display:none}
+  .ev-nav__burger{display:block}
+  .ev-hero{padding:140px 0 100px}
+  .ev-hero__sphere{width:130vw;height:130vw;opacity:0.55}
+  .ev-hero__sub br{display:none}
+  .ev-out__num{font-size:96px}
+  .ev-out__t{font-size:20px}
+  .ev-out__body p{padding-left:38px}
+  .ev-svc__row{grid-template-columns:1fr;gap:18px;padding:40px 0}
+  .ev-prj{padding:24px 22px}
+  .ev-prj__t{font-size:20px}
+  .ev-proc__grid{grid-template-columns:1fr}
   .ev-next__line{left:5px}
-  .ev-next__row,.ev-next__row--r{justify-content:flex-start;padding:18px 0 18px 28px}
+  .ev-next__row,.ev-next__row--r{justify-content:flex-start;padding:14px 0 14px 30px}
   .ev-next__card{width:100%}
-  .ev-next__node{left:5px;top:38px}
-  .ev-contact-sec{padding:100px 0}
-  .ev-form{padding:22px}
-  .ev-form__r{grid-template-columns:1fr}
-  .ev-checks{grid-template-columns:1fr}
-  .ev-footer__top{flex-direction:column;gap:14px;align-items:flex-start}
-  .ev-footer__bot{flex-direction:column;gap:6px}
-  .ev-ins-hero{padding:160px 20px 70px}
-  .ev-ins-grid__in{grid-template-columns:1fr;padding:0 20px}
-  .ev-art-hero{padding:150px 20px 70px}
-  .ev-art-body__in{padding:0 20px}
-  .ev-cookie{flex-direction:column;padding:16px 20px;gap:14px;text-align:center}
-  .ev-privacy{padding:140px 20px 80px}
+  .ev-next__node{left:5px}
+  .ev-form{padding:24px 20px}
+  .ev-form__r,.ev-checks{grid-template-columns:1fr}
+  .ev-footer__top,.ev-footer__bot{flex-direction:column;align-items:flex-start;gap:12px}
+  .ev-ins-hero{padding:160px 20px 60px}
+  .ev-art-hero{padding:150px 20px 60px}
+  .ev-privacy{padding:150px 20px 100px}
+  .ev-cookie{flex-direction:column;align-items:stretch;text-align:center;padding:18px 20px;gap:14px}
+  .ev-about__stats{gap:12px}
+  .ev-gnum{display:none}
+  .ev-indgrid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .ev-bigcard{padding:36px 24px;border-radius:20px}
+  .ev-wcard{padding:32px 24px;border-radius:20px}
+  .ev-wcard__form{margin-top:36px;padding-top:32px}
+  .ev-cat{padding:20px 2px;font-size:18px}
+  .ev-contact2{padding:110px 0 96px}
+  .ev-contact2__foot{flex-direction:column;align-items:flex-start;gap:24px;margin-top:56px}
+  .ev-mock{max-width:100%}
 }
 @media(max-width:480px){
-  .ev-hero{min-height:100svh}
-  .ev-hero__brand-name{font-size:48px}
-  .ev-hero__ctas{flex-direction:column;align-items:center}
-  .ev-btn{width:100%;justify-content:center}
-  .ev-radios{flex-direction:column}
+  .ev-hero__ctas{flex-direction:column;align-items:stretch}
+  .ev-hero__ctas .ev-btn{justify-content:center}
+  .ev-radios{flex-direction:column;align-items:flex-start}
+  .ev-about__stats{grid-template-columns:1fr}
 }
       `}</style>
 
       <ScrollProgress/>
       <Nav page={page} setPage={setPage}/>
-      {page==="home"&&<><Hero/><Marquee/><About/><Outcomes/><Industries/><Services/><Projects/><Process/><Borders/><Why/><Trust/><Statement/><WhatNext/><Contact setPage={setPage}/></>}
+      {page==="home"&&<><Hero/><Marquee/><About/><Outcomes/><Industries/><Services/><Projects/><TechMarquee/><Process/><Borders/><Why/><Trust/><Statement/><WhatNext/><Contact setPage={setPage}/></>}
       {page==="insights"&&<InsightsHome setPage={setPage} setSlug={setSlug}/>}
       {page==="article"&&<ArticlePage slug={slug} setPage={setPage} setSlug={setSlug}/>}
       {page==="privacy"&&<PrivacyPage/>}

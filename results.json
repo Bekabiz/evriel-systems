@@ -1,0 +1,599 @@
+{
+  "scanDate": "2026-06-27",
+  "studentProfile": {
+    "name": "Bereket Bizuayehu Teshome",
+    "degree": "L-33 Digital Economics and Business",
+    "university": "UNIVPM",
+    "gpa": "25.50/30",
+    "projectedFinal": "88-90/110",
+    "english": "C1 certified",
+    "cfuCompleted": 123,
+    "residencyStatus": "EU-equivalent (permesso di soggiorno per studio in Italy)"
+  },
+  "summary": {
+    "totalUniversitiesScanned": 40,
+    "programsFound": 22,
+    "easyPrograms": 6,
+    "mediumPrograms": 8,
+    "hardPrograms": 4,
+    "blockedPrograms": 2,
+    "avoidMath": 2,
+    "discontinued": 1
+  },
+  "programs": [
+    {
+      "id": 1,
+      "university": "Ca' Foscari Venice",
+      "program": "International Management",
+      "degreeClass": "LM-77-R",
+      "language": "English",
+      "duration": "2 years (120 ECTS)",
+      "admission": "Limited (entry test)",
+      "url": "https://www.unive.it/degree/emr18",
+      "applyUrl": "https://apply.unive.it/courses/course/651-ma-international-management",
+      "tuition": "€2,300/year (ISEE 0 = likely reduced to near zero)",
+      "requirements": {
+        "minCGPA": "70% (Bereket: ~85% → OK)",
+        "english": "B2 minimum (Bereket: C1 → OK)",
+        "curricularECTS": "60/180 total in relevant fields: at least 20 ECTS in Business (with Business Economics), at least 40 ECTS in Economics + Law + Math/Stats (at least 1 course per field)",
+        "otherRequirements": "Motivation letter + online written entry test",
+        "l33Accepted": "Yes (Economics/Business degrees accepted)"
+      },
+      "cfuAnalysis": {
+        "businessECTS": "Bereket has: SECS-P/07 (27 CFU) + SECS-P/08 (0 now, 18 pending) + SECS-P/10 (12) = 39+ CFU in business → EXCEEDS 20 minimum",
+        "economicsECTS": "SECS-P/01 (18) + SECS-P/02 (9) + SECS-P/06 (6) = 33 CFU → OK",
+        "lawECTS": "IUS/01 (6) + IUS/09 (12) = 18 CFU → OK",
+        "mathStatsECTS": "SECS-S/01 (6, +9 pending) + SECS-S/06 (0, +15 pending) = 6 now, 30 after pending → OK if pending exams passed",
+        "totalRelevant": "96+ CFU out of 123 = well over 60/180 threshold"
+      },
+      "mathDifficulty": 3,
+      "mathNotes": "Management-focused, not quantitative. Courses include Strategy, Marketing, Organization, HR — minimal math.",
+      "deadlines": {
+        "springRound": "March 2026 call (spring entry test)",
+        "summerRound": "June 2026 call (summer entry test)",
+        "euDeadline": "Apply via DreamApply, deadline Sept 1 2026"
+      },
+      "doubleDegree": ["France", "UK", "Australia", "Germany"],
+      "score": "EASY",
+      "scoreReason": "L-33 accepted, C1 exceeds B2, grade exceeds 70%, CFU requirements met. Entry test is the only hurdle but profile is strong. EQUIS-accredited, QS-ranked program in Venice.",
+      "ranking": 1
+    },
+    {
+      "id": 2,
+      "university": "Pavia",
+      "program": "International Business and Entrepreneurship (MIBE)",
+      "degreeClass": "LM-77-R",
+      "language": "English",
+      "duration": "2 years (120 ECTS)",
+      "admission": "Programmed (limited places)",
+      "url": "https://mibe.cdl.unipv.it/en",
+      "applyUrl": "https://mibe.cdl.unipv.it/en/enroll/how-apply/eu-students",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "minCGPA": "No specific minimum stated",
+        "english": "B2 minimum (Bereket: C1 → OK)",
+        "curricularECTS": "ECTS in Business/Management/Economics areas (image-based requirements, ~6 CFU tolerance allowed)",
+        "otherRequirements": "GMAT >550 = direct admission (optional but strongly recommended)",
+        "l33Accepted": "Yes (Economics/Business degrees accepted)"
+      },
+      "cfuAnalysis": {
+        "note": "Requirements image not fully readable from scrape, but L-33 is a standard economics degree that meets typical LM-77 entry requirements. 10% tolerance (6 CFU) allowed on any gaps."
+      },
+      "mathDifficulty": 3,
+      "mathNotes": "Three curricula: Digital Management, International Management, Sustainable Management. Business-focused, not math-heavy.",
+      "deadlines": {
+        "euStudents": "Applications from 13 April 2026 (still open as of June 2026)",
+        "nonEU": "From 9 February 2026"
+      },
+      "doubleDegree": ["Vaasa (Finland) - scholarship available"],
+      "score": "EASY",
+      "scoreReason": "L-33 accepted, C1 exceeds B2, 3 practical curricula (digital/international/sustainable), tolerance on CFU gaps. 30km from Milan. Strong international orientation.",
+      "ranking": 2
+    },
+    {
+      "id": 3,
+      "university": "Ferrara",
+      "program": "Small Business Management in International Markets",
+      "degreeClass": "LM-77",
+      "language": "English",
+      "duration": "2 years (120 ECTS)",
+      "admission": "Open with requirements check",
+      "url": "https://corsi.unife.it/en/lm-small-business",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "minCGPA": "85/110 = no interview needed (Bereket: 88-90 projected → OK, no interview needed)",
+        "english": "B2 minimum (Bereket: C1 → OK)",
+        "curricularECTS": "L-33 DIRECTLY ACCEPTED (direct admission for L-33 graduates). For non-L-33: 50 ECTS minimum in business (30), economics (10), math/stats (5), law (5)",
+        "otherRequirements": "None for L-33 graduates with grade ≥85/110",
+        "l33Accepted": "YES - L-33 explicitly listed as direct admission degree class"
+      },
+      "cfuAnalysis": {
+        "note": "L-33 = automatic admission. No CFU cross-reference needed. This is the easiest entry path available."
+      },
+      "mathDifficulty": 2,
+      "mathNotes": "Focus on small business management and international markets. Practical orientation, not quantitative.",
+      "deadlines": {
+        "note": "Check university website for 2026/27 enrollment periods. Typically open enrollment for Italian/EU residents."
+      },
+      "score": "EASY",
+      "scoreReason": "L-33 EXPLICITLY ACCEPTED with direct admission. Grade ≥85/110 means no interview. C1 English exceeds B2. Zero friction enrollment. Very strong match.",
+      "ranking": 3
+    },
+    {
+      "id": 4,
+      "university": "Macerata",
+      "program": "International Finance & Economics (IFE)",
+      "degreeClass": "LM-16",
+      "language": "English",
+      "duration": "2 years (120 ECTS)",
+      "admission": "Open with requirements check",
+      "url": "https://corsi.unimc.it/en/ife",
+      "applyUrl": "https://apply.unimc.it/en_GB/courses/course/13-ife-international-finance-and-economics-curriculum",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "minCGPA": "95/110 = no interview needed (Bereket: 88-90 → BELOW, interview required)",
+        "english": "B2 minimum (Bereket: C1 → OK)",
+        "curricularECTS": "Minimum 36 ECTS: 6 Business + 6 Economics + 6 Law + 6 Math/Stats",
+        "otherRequirements": "Interview if grade < 95/110. Recupero available via single preparatory courses if CFU gaps exist.",
+        "l33Accepted": "Yes (coherent academic curriculum required)"
+      },
+      "cfuAnalysis": {
+        "business6": "SECS-P/07 (27 CFU) → far exceeds 6 minimum ✅",
+        "economics6": "SECS-P/01 (18 CFU) → far exceeds 6 minimum ✅",
+        "law6": "IUS/01 (6) + IUS/09 (12) = 18 CFU → far exceeds 6 minimum ✅",
+        "mathStats6": "SECS-S/01 (6 CFU completed) → meets 6 minimum ✅ (+ 9 pending Stats + 15 pending Math)",
+        "allRequirementsMet": true
+      },
+      "mathDifficulty": 5,
+      "mathNotes": "LM-16 = Finance-oriented. Name includes 'Finance' — will have some quantitative courses. Check study plan carefully. May have statistics/financial mathematics as mandatory.",
+      "deadlines": {
+        "interviewDates": ["30 Sept 2025", "28 Oct 2025", "25 Nov 2025", "20 Jan 2026", "23 Feb 2026", "20 Apr 2026"],
+        "note": "Interviews via Microsoft Teams. Multiple dates available through April 2026."
+      },
+      "score": "MEDIUM",
+      "scoreReason": "All CFU requirements met. But grade < 95/110 means interview required. LM-16 (Finance) may have some quantitative content — math score 5/10 is borderline. Worth investigating study plan.",
+      "ranking": 4
+    },
+    {
+      "id": 5,
+      "university": "Macerata",
+      "program": "International Relations (IR)",
+      "degreeClass": "LM-52",
+      "language": "English",
+      "duration": "2 years (120 ECTS)",
+      "admission": "Open with requirements check",
+      "url": "https://corsi.unimc.it/en/international-relations",
+      "applyUrl": "https://apply.unimc.it/es_ES/courses/course/12-ir-international-relations",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "english": "B2 minimum (Bereket: C1 → OK)",
+        "curricularECTS": "Interdisciplinary — accepts Economics, Law, Commerce, Management, Business degrees",
+        "l33Accepted": "Yes (listed in accepted degree areas)"
+      },
+      "cfuAnalysis": {
+        "note": "LM-52 is broader/more flexible than LM-77. L-33 background in economics should be acceptable."
+      },
+      "mathDifficulty": 1,
+      "mathNotes": "Political science/international relations — no math courses.",
+      "score": "EASY",
+      "scoreReason": "Interdisciplinary program accepting economics degrees. English-taught in full. Zero math. C1 English is a strong asset. Different career path (international organizations, diplomacy, NGOs) but very accessible.",
+      "ranking": 5
+    },
+    {
+      "id": 6,
+      "university": "Padova",
+      "program": "Management for Sustainable Firms",
+      "degreeClass": "LM-77 (implied)",
+      "language": "English",
+      "duration": "2 years (120 ECTS)",
+      "admission": "Limited (selection-based)",
+      "url": "https://apply.unipd.it/courses/course/221-management-sustainable-firms",
+      "tuition": "€2,739/year + €208 deposit + €60 application fee (ISEE 0 = likely reduced)",
+      "requirements": {
+        "minCGPA": "Country-specific GPA requirements (check link)",
+        "english": "B2 minimum, C1 is preferential (Bereket: C1 → strong advantage)",
+        "curricularECTS": "Management/Admin degree or related field with extensive Management credits. Need: Management, Accounting/Finance, Economics/Quantitative background.",
+        "otherRequirements": "GMAT/GRE strongly encouraged (not mandatory). CV, motivation letter, references considered. Interview possible.",
+        "l33Accepted": "Likely yes but competitive — need strong management background"
+      },
+      "cfuAnalysis": {
+        "management": "SECS-P/08 (0 now, 18 pending) + SECS-P/10 (12) = limited current management CFU. After pending exams: 30 → should be OK",
+        "accountingFinance": "SECS-P/07 (27) → strong ✅",
+        "economicsQuantitative": "SECS-P/01 (18) + SECS-S/01 (6) + pending math/stats = adequate",
+        "concern": "Profile is economics-heavy, not management-heavy. They want 'indicatively Management/Administration'. L-33 is economics, not L-18."
+      },
+      "mathDifficulty": 4,
+      "mathNotes": "Smart Manufacturing track has 'Machine Learning for Operation Management'. Marketing track has 'Quantitative Methods and Analytics for Marketing'. Moderate quantitative content depending on track.",
+      "deadlines": {
+        "call1": "2 Nov 2025 – 2 Feb 2026",
+        "call2": "2 Mar 2026 – 2 May 2026 (EU only)",
+        "call3": "2 Jun 2026 – 2 Aug 2026 (EU only)",
+        "note": "Non-EU residing in Italy = apply as Italy citizenship + double citizenship. Call 3 still open."
+      },
+      "doubleDegree": ["Zicklin School (Baruch College, NY)", "Fudan University (Shanghai)"],
+      "score": "MEDIUM",
+      "scoreReason": "Strong program at prestigious university. C1 English is advantage. But management-focused admission may see L-33 as economics-heavy. GMAT would help. Call 3 (Jun-Aug 2026) still available for EU-equivalent.",
+      "ranking": 6
+    },
+    {
+      "id": 7,
+      "university": "Torino",
+      "program": "Business Administration",
+      "degreeClass": "LM-77",
+      "language": "English",
+      "duration": "2 years (120 ECTS)",
+      "admission": "Local restricted number of places",
+      "url": "https://www.business-administration.unito.it/",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "english": "Mandatory admission test in English",
+        "curricularECTS": "Check regulations PDF for specific SSD requirements",
+        "otherRequirements": "English admission test mandatory. Cannot enroll without it.",
+        "l33Accepted": "Likely yes (standard LM-77 admission for L-33)"
+      },
+      "mathDifficulty": 3,
+      "mathNotes": "Business Administration focus — typical management courses, not heavily quantitative.",
+      "deadlines": {
+        "note": "2026-2027 enrollment opening — check university website for specific dates"
+      },
+      "score": "MEDIUM",
+      "scoreReason": "LM-77 should accept L-33. But limited places + mandatory English test. Need to verify SSD requirements from regulations PDF.",
+      "ranking": 7
+    },
+    {
+      "id": 8,
+      "university": "Torino",
+      "program": "Digital Business Administration and Management",
+      "degreeClass": "LM-77-R",
+      "language": "English/Italian",
+      "duration": "2 years (120 ECTS)",
+      "admission": "Free access",
+      "url": "https://en.unito.it/studying-unito/programs/degree-programs/digital-business-administration-and-management",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "l33Accepted": "Likely yes — LM-77 from L-33 is standard"
+      },
+      "mathDifficulty": 3,
+      "mathNotes": "Digital business focus — probably includes digital tools, analytics but not heavy math.",
+      "score": "MEDIUM",
+      "scoreReason": "Free access is great. Mix of English/Italian — may need Italian proficiency for some courses. 'Digital' focus aligns with L-33 DEB background. Need to verify language split.",
+      "ranking": 8
+    },
+    {
+      "id": 9,
+      "university": "Bergamo",
+      "program": "Accounting, Governance and Sustainability",
+      "degreeClass": "LM-77 (Department of Management)",
+      "language": "English",
+      "duration": "2 years",
+      "admission": "Free access",
+      "url": "https://en.unibg.it/study/courses/graduate/accounting-governance-and-sustainability",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "l33Accepted": "Likely yes (Management department, economics degrees typically accepted)"
+      },
+      "cfuAnalysis": {
+        "note": "Bereket has 27 CFU in SECS-P/07 (Accounting) — very strong match for accounting-focused program."
+      },
+      "mathDifficulty": 2,
+      "mathNotes": "Accounting/governance/sustainability focus — practical, not quantitative.",
+      "score": "EASY",
+      "scoreReason": "Free access, fully English, Bereket's strong accounting CFU (27 in SECS-P/07) is a perfect match. Sustainability focus is current and marketable.",
+      "ranking": 9
+    },
+    {
+      "id": 10,
+      "university": "Bergamo",
+      "program": "Economics and Data Analysis",
+      "degreeClass": "LM-56 (Department of Economics)",
+      "language": "English",
+      "duration": "2 years",
+      "admission": "Free access",
+      "url": "https://ls-eda.unibg.it/en/node/184",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "l33Accepted": "Likely (economics degree → LM-56)"
+      },
+      "mathDifficulty": 7,
+      "mathNotes": "Data Analysis = statistics, econometrics, programming. Name says 'Data Analysis' — likely heavy quantitative content. AVOID per math tolerance.",
+      "score": "AVOID (MATH)",
+      "scoreReason": "Free access and English-taught, but 'Data Analysis' in title signals heavy quantitative/statistical content. Math difficulty 7/10 — BLOCKED per Bereket's math tolerance.",
+      "ranking": null
+    },
+    {
+      "id": 11,
+      "university": "Brescia",
+      "program": "Management (International Business curriculum)",
+      "degreeClass": "LM-77",
+      "language": "English (International Business and Green Economy curricula)",
+      "duration": "2 years",
+      "admission": "Check university website",
+      "url": "https://www.unibs.it/en/english-study-programmes",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "l33Accepted": "Likely yes"
+      },
+      "mathDifficulty": 3,
+      "mathNotes": "International Business curriculum — management focus, not quantitative.",
+      "score": "MEDIUM",
+      "scoreReason": "English curriculum in International Business or Green Economy. Need to verify specific admission requirements and deadlines.",
+      "ranking": 10
+    },
+    {
+      "id": 12,
+      "university": "Insubria",
+      "program": "Global Entrepreneurship Economics and Management (GEEM)",
+      "degreeClass": "LM-77 (likely)",
+      "language": "English",
+      "duration": "2 years",
+      "admission": "Open access",
+      "url": "https://www.uninsubria.it/la-didattica/corsi-di-laurea-e-laurea-magistrale",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "l33Accepted": "Likely yes — economics/business degree for management master's"
+      },
+      "mathDifficulty": 3,
+      "mathNotes": "Entrepreneurship and management focus — practical, not math-heavy.",
+      "score": "EASY",
+      "scoreReason": "Open access, fully English, entrepreneurship/management focus. Close to Milan area. Good match for economics background.",
+      "ranking": 11
+    },
+    {
+      "id": 13,
+      "university": "Cassino",
+      "program": "Global Economy and Business (GLEB)",
+      "degreeClass": "LM-56 or LM-77",
+      "language": "English",
+      "duration": "2 years (120 ECTS)",
+      "admission": "Selection-based",
+      "url": "https://www.unicas.it/international-unicas/international-bachelor-master-and-phd-programs-enrollment-26-27-now-open/masters-degree-programs/global-economy-and-business/",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "english": "Required (program is in English)",
+        "curricularECTS": "Bachelor degree + adequate knowledge of accounting, law, economics, statistics",
+        "l33Accepted": "Yes — economics degree with accounting, law, economics background"
+      },
+      "cfuAnalysis": {
+        "accounting": "SECS-P/07 (27 CFU) ✅",
+        "law": "IUS/01 (6) + IUS/09 (12) = 18 CFU ✅",
+        "economics": "SECS-P/01 (18) + SECS-P/02 (9) + SECS-P/06 (6) = 33 CFU ✅",
+        "statistics": "SECS-S/01 (6 CFU) + pending → OK"
+      },
+      "mathDifficulty": 4,
+      "mathNotes": "Core includes 'Quantitative Methods' + 'Advanced Economics' — some quantitative content but balanced with business/law courses.",
+      "doubleDegree": ["Ukraine (Kharkiv)", "Kazakhstan (Almaty)", "Hungary (Győr)"],
+      "score": "MEDIUM",
+      "scoreReason": "English-taught, international orientation, CFU requirements met. Some quantitative content (4/10) is within tolerance. Dual degree options interesting. Southern Italy location.",
+      "ranking": 12
+    },
+    {
+      "id": 14,
+      "university": "Trieste",
+      "program": "International Economics and Financial Markets (English curriculum)",
+      "degreeClass": "LM-56",
+      "language": "English (one curriculum)",
+      "duration": "2 years",
+      "admission": "Open access with requirements",
+      "url": "https://lauree.units.it/en/0320106203300001",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "l33Accepted": "Likely yes (economics degree → LM-56)"
+      },
+      "mathDifficulty": 6,
+      "mathNotes": "'Financial Markets' + 'quantitative methods' mentioned — likely has statistics and financial math. Math score 6/10 = WARNING.",
+      "score": "HARD",
+      "scoreReason": "English curriculum available but LM-56 with 'Financial Markets' focus likely includes significant quantitative coursework. Math difficulty 6/10 is a warning for Bereket.",
+      "ranking": 13
+    },
+    {
+      "id": 15,
+      "university": "UNIVPM (own university)",
+      "program": "Sustainability Management and Circular Economy",
+      "degreeClass": "LM-77-R",
+      "language": "English (1st curriculum fully English)",
+      "duration": "2 years",
+      "admission": "Free access",
+      "url": "https://www.orienta.univpm.it/en/our-courses/economics/sustainability-management-and-circular-economy/",
+      "tuition": "Public university (ISEE 0 = near zero, same university = no transfer needed)",
+      "requirements": {
+        "l33Accepted": "YES — same university, L-33 → LM-77 is the natural progression",
+        "note": "Being at UNIVPM already means no trasferimento needed, just enrollment in LM"
+      },
+      "mathDifficulty": 2,
+      "mathNotes": "Sustainability and circular economy focus — management/strategy oriented, not quantitative.",
+      "score": "EASY",
+      "scoreReason": "Same university = smoothest possible path. L-33 → LM-77-R is natural progression. No transfer paperwork. Free access. English curriculum available. Zero math concerns. But staying at same university means no change of environment.",
+      "ranking": 14
+    },
+    {
+      "id": 16,
+      "university": "Milano Statale",
+      "program": "Economics and Political Science (EPS)",
+      "degreeClass": "LM-56",
+      "language": "English",
+      "duration": "2 years",
+      "admission": "Open with entry requirements",
+      "url": "https://www.unimi.it/en/education/master-programme/economics-and-political-science-eps",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "l33Accepted": "Likely — economics degree for LM-56"
+      },
+      "mathDifficulty": 5,
+      "mathNotes": "Economics + Political Science — may include econometrics or quantitative methods. Need to verify study plan. Math 5/10 = borderline WARNING.",
+      "score": "MEDIUM",
+      "scoreReason": "Prestigious university in Milan. English-taught. But LM-56 may have some quantitative requirements. Need to check study plan for econometrics/math courses.",
+      "ranking": 15
+    },
+    {
+      "id": 17,
+      "university": "Firenze",
+      "program": "Economics and Development",
+      "degreeClass": "LM-56",
+      "language": "English",
+      "duration": "2 years (120 ECTS)",
+      "admission": "Check university website",
+      "url": "https://www.development-lm.unifi.it/",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "english": "Certified B2 (Bereket: C1 → OK)",
+        "l33Accepted": "Likely — economics degree"
+      },
+      "mathDifficulty": 4,
+      "mathNotes": "Development economics — may include some quantitative methods but focused on development, policy, coding, finance, history, law.",
+      "doubleDegree": ["University of Göttingen (Germany)"],
+      "score": "MEDIUM",
+      "scoreReason": "Good program in Florence with double degree option. Development focus is interesting. Need to check if math courses are mandatory.",
+      "ranking": 16
+    },
+    {
+      "id": 18,
+      "university": "Siena",
+      "program": "Economics (MSc)",
+      "degreeClass": "LM-56",
+      "language": "English",
+      "duration": "2 years",
+      "admission": "Check university website",
+      "url": "https://en.unisi.it/teaching/degree-courses-taught-english",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "l33Accepted": "YES — PDF found stating L-33 (Economics) explicitly accepted alongside L-18, L-8"
+      },
+      "mathDifficulty": 6,
+      "mathNotes": "MSc Economics typically includes econometrics and quantitative methods. Math 6/10 = WARNING.",
+      "score": "HARD",
+      "scoreReason": "L-33 explicitly accepted. But MSc Economics is typically more quantitative than management master's. Math difficulty 6/10 is a concern.",
+      "ranking": 17
+    },
+    {
+      "id": 19,
+      "university": "Roma La Sapienza",
+      "program": "Business Management",
+      "degreeClass": "LM-77",
+      "language": "Partially English (verify)",
+      "duration": "2 years",
+      "admission": "Verification of requirements",
+      "url": "https://corsidilaurea.uniroma1.it/en/course/33447",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "l33Accepted": "Likely — LM-77 from economics degree"
+      },
+      "mathDifficulty": 3,
+      "mathNotes": "Business Management — standard management curriculum.",
+      "score": "HARD",
+      "scoreReason": "Prestigious but may not be fully English-taught. Language situation unclear. Need to verify if courses are actually in English or just have English materials.",
+      "ranking": 18
+    },
+    {
+      "id": 20,
+      "university": "Palermo",
+      "program": "Business Economic Sciences (Entrepreneurship and Management curriculum)",
+      "degreeClass": "LM-77",
+      "language": "English (specific curriculum)",
+      "duration": "2 years",
+      "admission": "Check university website",
+      "url": "https://www.unipa.it/target/international-students/en/programs/masters-degrees-in-english/",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "l33Accepted": "Likely — economics degree for LM-77"
+      },
+      "mathDifficulty": 3,
+      "mathNotes": "Entrepreneurship and Management — practical business focus.",
+      "score": "MEDIUM",
+      "scoreReason": "English curriculum available. Southern Italy = lower cost of living. Need to verify specific admission requirements.",
+      "ranking": 19
+    },
+    {
+      "id": 21,
+      "university": "Pisa",
+      "program": "Master of Science in Economics (MSE)",
+      "degreeClass": "LM-56",
+      "language": "English",
+      "duration": "2 years",
+      "admission": "Open with requirements",
+      "url": "https://mse.ec.unipi.it/",
+      "tuition": "Public university (ISEE 0 = near zero)",
+      "requirements": {
+        "english": "Required",
+        "l33Accepted": "Likely — economics degree for economics master's"
+      },
+      "mathDifficulty": 7,
+      "mathNotes": "MSc Economics at Pisa is a research-oriented program. High probability of mandatory econometrics, mathematical economics. BLOCKED per math tolerance.",
+      "deadlines": {
+        "applications": "1 December 2025 to 30 April 2026 (likely closed)"
+      },
+      "score": "AVOID (MATH)",
+      "scoreReason": "Research-oriented economics program likely has heavy quantitative requirements. Math 7/10 = BLOCKED. Also application deadline likely passed.",
+      "ranking": null
+    },
+    {
+      "id": 22,
+      "university": "Verona",
+      "program": "International Economics and Business Management (IEBM)",
+      "degreeClass": "LM-56",
+      "language": "English",
+      "url": "https://www.dse.univr.it/?ent=cs&id=694&tcs=MA&lang=en",
+      "score": "DISCONTINUED",
+      "scoreReason": "Program page shows 'Course not running'. This master's degree has been discontinued.",
+      "ranking": null
+    }
+  ],
+  "topRecommendations": [
+    {
+      "rank": 1,
+      "program": "Ferrara - Small Business Management in International Markets",
+      "why": "L-33 DIRECTLY ACCEPTED. Grade ≥85 = no interview. Fully English. Zero friction. Best admission match."
+    },
+    {
+      "rank": 2,
+      "program": "Ca' Foscari Venice - International Management",
+      "why": "EQUIS-accredited, QS-ranked. Entry test required but profile is strong. Double degree options. Venice location. Premium program."
+    },
+    {
+      "rank": 3,
+      "program": "Pavia - MIBE (International Business & Entrepreneurship)",
+      "why": "Three practical curricula (Digital/International/Sustainable). 30km from Milan. International community. GMAT optional but helpful."
+    },
+    {
+      "rank": 4,
+      "program": "UNIVPM - Sustainability Management and Circular Economy",
+      "why": "Same university = easiest path. No transfer. Free access. English curriculum. But no change of environment."
+    },
+    {
+      "rank": 5,
+      "program": "Bergamo - Accounting, Governance and Sustainability",
+      "why": "Free access. Fully English. Bereket's 27 CFU in accounting is perfect match. Sustainability focus."
+    },
+    {
+      "rank": 6,
+      "program": "Insubria - GEEM (Global Entrepreneurship Economics and Management)",
+      "why": "Open access. Fully English. Entrepreneurship focus. Near Milan area."
+    },
+    {
+      "rank": 7,
+      "program": "Macerata - International Relations (IR)",
+      "why": "Different path but zero math. Fully English. LM-52 accepts economics degrees. Good for international organization career."
+    }
+  ],
+  "universitiesWithNoEnglishBusinessMasters": [
+    "Catania - master's programs mostly in Italian",
+    "Perugia - only Engineering Management in English (LM-31, not relevant)",
+    "Bari - programs mostly in Italian (LM-77 and LM-56 available but Italian-taught)",
+    "Calabria (UNICAL) - mostly Italian, Finance and Insurance has some English content",
+    "Napoli Federico II - international catalogue exists but unclear English business master's",
+    "Roma Tre - mostly Italian (some double degrees with English component)",
+    "Salento (Lecce) - all business/economics programs in Italian",
+    "Sassari - Master's in Economics NOT fully English, requires Italian B2 interview",
+    "Cagliari - some English courses but no fully English master's program",
+    "Piemonte Orientale - programs appear Italian-taught",
+    "Camerino - no English business master's found",
+    "Messina - some English content but unclear full English program",
+    "Molise - no English programs found",
+    "Basilicata - no English programs found",
+    "Tuscia (Viterbo) - Italian-taught",
+    "Chieti-Pescara - Italian-taught",
+    "Foggia - no English programs found",
+    "Teramo - Italian-taught (Law, Economics, Business Strategy)",
+    "Urbino - Italian-taught",
+    "Salerno - Italian-taught (some courses in English)"
+  ]
+}
