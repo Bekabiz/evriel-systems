@@ -327,9 +327,6 @@ function Hero() {
           <a href="#projects" className="ev-btn ev-btn--ghost" onClick={go("projects")}>Our Work</a>
         </div>
       </div>
-      <div className="ev-hero__scroll" data-hero="fade" style={{opacity:0}}>
-        <div className="ev-scr-pill"><div className="ev-scr-dot"/></div><span>Scroll</span>
-      </div>
     </section>
   );
 }
@@ -1367,9 +1364,6 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-hero__h{font-size:clamp(44px,7.4vw,86px);font-weight:500;line-height:1.02;letter-spacing:-0.032em;color:var(--snow)}
 .ev-hero__sub{font-size:16px;font-weight:400;color:var(--fog);margin-top:28px;line-height:1.5}
 .ev-hero__ctas{display:flex;gap:16px;justify-content:center;margin-top:48px;flex-wrap:wrap}
-.ev-hero__scroll{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--fog);font-size:10px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;z-index:2}
-.ev-scr-pill{width:20px;height:30px;border:1px solid rgba(237,255,254,0.2);border-radius:10px;display:flex;justify-content:center;padding-top:6px}
-.ev-scr-dot{width:3px;height:7px;background:var(--teal);border-radius:2px;animation:scBob 2s ease-in-out infinite}
 
 /* ===== marquee ===== */
 .ev-mq{background:var(--trench);padding:14px 0;overflow:hidden}
@@ -1838,7 +1832,7 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 
       <ScrollProgress/>
       <Nav page={page} setPage={setPage}/>
-      {page==="home"&&<><Hero/><Marquee/><About/><TechMarquee/><Outcomes/><Industries/><Services/><Projects/><Process/><Borders/><Why/><Trust/><Statement/><WhatNext/><Contact setPage={setPage}/></>}
+      {page==="home"&&<><Hero/><Marquee/><About/><TechMarquee/><Industries/><Outcomes/><Services/><Projects/><Process/><Borders/><Why/><Trust/><Statement/><WhatNext/><Contact setPage={setPage}/></>}
       {page==="insights"&&<InsightsHome setPage={setPage} setSlug={setSlug}/>}
       {page==="article"&&<ArticlePage slug={slug} setPage={setPage} setSlug={setSlug}/>}
       {page==="privacy"&&<PrivacyPage/>}
