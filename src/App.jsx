@@ -168,7 +168,7 @@ function ScrollProgress() {
   return <div className="ev-progress"><div ref={ref} className="ev-progress__bar" /></div>;
 }
 
-/* Scroll-reactive radial glow wash — the background journey */
+/* Scroll-reactive radial glow wash — fades in and drifts as you scroll */
 function GlowWash({ variant = "teal" }) {
   const ref = useRef(null);
   useEffect(() => {
@@ -177,9 +177,22 @@ function GlowWash({ variant = "teal" }) {
     if (reduced()) { gsap.set(el, { opacity: 1 }); return; }
     const tw = gsap.fromTo(el, { opacity: 0 }, { opacity: 1, ease: "none",
       scrollTrigger: { trigger: el.parentElement, start: "top 78%", end: "top 15%", scrub: 0.8 } });
-    return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
+    const tw2 = gsap.fromTo(el, { y: 70 }, { y: -70, ease: "none",
+      scrollTrigger: { trigger: el.parentElement, start: "top bottom", end: "bottom top", scrub: 1 } });
+    return () => { [tw, tw2].forEach(t => { t.scrollTrigger && t.scrollTrigger.kill(); t.kill(); }); };
   }, []);
   return <div ref={ref} className={`ev-wash ev-wash--${variant}`} aria-hidden="true" />;
+}
+
+/* Full-screen scene rise — bright panels slide up and settle */
+function useSceneRise(ref) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || reduced()) return;
+    const tw = gsap.fromTo(el, { y: 100, scale: 0.965 }, { y: 0, scale: 1, duration: 1.4, ease: "expo.out",
+      scrollTrigger: { trigger: el, start: "top 86%", once: true } });
+    return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
+  }, []);
 }
 
 /* SEO meta tags + JSON-LD */
@@ -264,7 +277,7 @@ function Nav({ page, setPage }) {
     <nav className={`ev-nav${scrolled?" ev-nav--s":""}`}>
       <div className="ev-nav__in">
         <div onClick={()=>{setPage("home");setOpen(false);window.scrollTo({top:0,behavior:"smooth"})}} className="ev-brand">
-          <Logo light height={44}/>
+          <Logo light height={56}/>
         </div>
         <div className="ev-nav__links">
           {[["About","about"],["Industries","industries"],["Services","services"],["Projects","projects"]].map(([l,id])=>
@@ -289,6 +302,11 @@ function Hero() {
       const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
       tl.fromTo("[data-hero='sphere']", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 2.4 }, 0)
         .fromTo("[data-hero='fade']", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 1.4, stagger: 0.15 }, 0.25);
+      // cinematic exit — hero content drifts up and fades as you scroll away
+      gsap.to(".ev-hero__body", { opacity: 0, y: -90, ease: "none",
+        scrollTrigger: { trigger: scope.current, start: "top top", end: "bottom 40%", scrub: 0.6 } });
+      gsap.to(".ev-hero__sphere", { scale: 1.12, opacity: 0.35, ease: "none",
+        scrollTrigger: { trigger: scope.current, start: "top top", end: "bottom 30%", scrub: 0.8 } });
     }, scope);
     return () => ctx.revert();
   }, []);
@@ -335,20 +353,19 @@ const ToolChip = ({ name, slug }) => (
 );
 
 function TechMarquee() {
+  const ref = useRef(null);
+  useSceneRise(ref);
   const r1 = TOOLS_A.map((t,i)=><ToolChip key={i} name={t[0]} slug={t[1]}/>);
   const r2 = TOOLS_B.map((t,i)=><ToolChip key={i} name={t[0]} slug={t[1]}/>);
   return (
-    <div className="ev-tm">
-      <div className="ev-wrap">
-        <FX y={40}>
-          <div className="ev-tm__panel">
-            <div className="ev-tm__label">We connect the tools you already use</div>
-            <div className="ev-tm__row"><div className="ev-tm__track">{r1}{r1}{r1}{r1}</div></div>
-            <div className="ev-tm__row"><div className="ev-tm__track ev-tm__track--rev">{r2}{r2}{r2}{r2}</div></div>
-          </div>
-        </FX>
+    <section className="ev-tools" ref={ref}>
+      <div className="ev-tools__head">
+        <div className="ev-tools__label">Integrations</div>
+        <h2 className="ev-tools__h">We connect the tools<br/>you <i className="ev-tools__hi">already use</i></h2>
       </div>
-    </div>
+      <div className="ev-tm__row"><div className="ev-tm__track">{r1}{r1}{r1}{r1}</div></div>
+      <div className="ev-tm__row"><div className="ev-tm__track ev-tm__track--rev">{r2}{r2}{r2}{r2}</div></div>
+    </section>
   );
 }
 
@@ -567,7 +584,9 @@ const SVCS = [
 ];
 
 /* Animated workflow diagram — shows how value flows through each service */
-function FlowDiagram({ steps }) {
+function FlowDiagram({ steps, light = false }) {
+  const c1 = light ? "rgba(0,130,124,0.4)" : "rgba(203,255,252,0.3)";
+  const c2 = light ? "rgba(0,130,124,0.6)" : "rgba(203,255,252,0.45)";
   return (
     <div className="ev-flow">
       {steps.map((s, i) => (
@@ -575,8 +594,8 @@ function FlowDiagram({ steps }) {
           <span className={`ev-flow__node${i === steps.length - 1 ? " ev-flow__node--end" : ""}`}>{s}</span>
           {i < steps.length - 1 && (
             <svg className="ev-flow__link" width="34" height="10" viewBox="0 0 34 10">
-              <line x1="0" y1="5" x2="26" y2="5" stroke="rgba(203,255,252,0.3)" strokeWidth="1" strokeDasharray="4 4" style={{ animation: "flowDash 1.4s linear infinite" }} />
-              <path d="M26 1.5 L32 5 L26 8.5" fill="none" stroke="rgba(203,255,252,0.45)" strokeWidth="1" />
+              <line x1="0" y1="5" x2="26" y2="5" stroke={c1} strokeWidth="1" strokeDasharray="4 4" style={{ animation: "flowDash 1.4s linear infinite" }} />
+              <path d="M26 1.5 L32 5 L26 8.5" fill="none" stroke={c2} strokeWidth="1" />
             </svg>
           )}
         </div>
@@ -652,6 +671,19 @@ function DashboardMockup() {
 }
 
 function Services() {
+  const deckRef = useRef(null);
+  useEffect(() => {
+    const deck = deckRef.current;
+    if (!deck || reduced()) return;
+    const cards = deck.querySelectorAll(".ev-scard");
+    const tws = [];
+    cards.forEach((card, i) => {
+      if (i === cards.length - 1) return;
+      tws.push(gsap.fromTo(card, { scale: 1, filter: "brightness(1)" }, { scale: 0.955, filter: "brightness(0.8)", ease: "none",
+        scrollTrigger: { trigger: cards[i + 1], start: "top 92%", end: "top 20%", scrub: 0.5 } }));
+    });
+    return () => tws.forEach(tw => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); });
+  }, []);
   return (
     <section id="services" className="ev-sec ev-svc">
       <GlowWash variant="lav"/>
@@ -660,24 +692,22 @@ function Services() {
         <FX><Eyebrow>Services</Eyebrow></FX>
         <FX delay={90}><h2 className="ev-h-lg">What We <em>Deliver</em></h2></FX>
         <FX delay={160}><p className="ev-intro">We help organizations turn emerging technologies into practical business advantages.</p></FX>
-        <div className="ev-svc__rows">
+        <div className="ev-deck" ref={deckRef}>
           {SVCS.map((s,i)=>(
-            <FX key={i} delay={i*80} y={56}>
-              <div className="ev-svc__row">
-                <span className="ev-svc__gn">{s.n}</span>
-                <div className="ev-svc__m">
-                  <h3 className="ev-svc__t">{s.t}</h3>
-                  <p className="ev-svc__d">{s.d}</p>
-                  <FlowDiagram steps={s.flow}/>
-                  {i===0&&<EmailMockup/>}
-                  {i===1&&<DashboardMockup/>}
-                </div>
-                <div className="ev-svc__r">
-                  <div className="ev-svc__al">Applications</div>
-                  <div className="ev-svc__tags">{s.a.map((x,j)=><span key={j} className="ev-tag">{x}</span>)}</div>
-                </div>
+            <div key={i} className={`ev-scard ev-scard--${i}${i<3?" ev-scard--lt":""}`}>
+              <span className="ev-svc__gn">{s.n}</span>
+              <div className="ev-svc__m">
+                <h3 className="ev-svc__t">{s.t}</h3>
+                <p className="ev-svc__d">{s.d}</p>
+                <FlowDiagram steps={s.flow} light={i<3}/>
+                {i===0&&<EmailMockup/>}
+                {i===1&&<DashboardMockup/>}
               </div>
-            </FX>
+              <div className="ev-svc__r">
+                <div className="ev-svc__al">Applications</div>
+                <div className="ev-svc__tags">{s.a.map((x,j)=><span key={j} className="ev-tag">{x}</span>)}</div>
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -809,8 +839,7 @@ function Process() {
     return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
   }, []);
   return (
-    <section id="process" className="ev-sec ev-proc" ref={secRef}>
-      <GlowWash variant="mint"/>
+    <section id="process" className="ev-sec ev-proc sl" ref={secRef}>
       <span className="ev-gnum" aria-hidden="true">05</span>
       <div className="ev-wrap">
         <FX><Eyebrow>Process</Eyebrow></FX>
@@ -942,14 +971,36 @@ function Trust() {
   );
 }
 
-/* STATEMENT — display type over twilight wash */
+/* STATEMENT — cinematic word-by-word reveal over twilight wash */
+const STMT_LINES = [
+  [["The"],["future"],["belongs"],["to"]],
+  [["organizations"],["that"],["can"],["adapt,"]],
+  [["innovate,"],["and"],["act"],["intelligently.","g"]],
+];
+
 function Statement() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const words = el.querySelectorAll(".ev-sw i");
+    if (reduced()) { gsap.set(words, { yPercent: 0, opacity: 1 }); return; }
+    const tw = gsap.fromTo(words, { yPercent: 115, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.95, ease: "expo.out", stagger: 0.055,
+      scrollTrigger: { trigger: el, start: "top 74%", once: true } });
+    return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
+  }, []);
   return (
-    <section className="ev-sec ev-stmt">
+    <section className="ev-sec ev-stmt" ref={ref}>
       <div className="ev-stmt__wash"/>
       <div className="ev-wrap ev-stmt__body">
-        <FX y={70}><h2 className="ev-stmt__h">The future belongs to<br/>organizations that can adapt,<br/>innovate, and act <em>intelligently.</em></h2></FX>
-        <FX delay={200} y={30}><a href="#contact" className="ev-btn ev-btn--grad ev-btn--lg" onClick={e=>{e.preventDefault();document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}}>Start a Conversation <ArrowUpRight size={16}/></a></FX>
+        <h2 className="ev-stmt__h">
+          {STMT_LINES.map((line,li)=>(
+            <span key={li} className="ev-stmt__line">
+              {line.map(([w,cls],wi)=><span key={wi} className="ev-sw"><i className={cls||""}>{w}</i></span>)}
+            </span>
+          ))}
+        </h2>
+        <FX delay={340} y={30}><a href="#contact" className="ev-btn ev-btn--grad ev-btn--lg" onClick={e=>{e.preventDefault();document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}}>Start a Conversation <ArrowUpRight size={16}/></a></FX>
       </div>
     </section>
   );
@@ -976,8 +1027,7 @@ function WhatNext() {
     return () => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); };
   }, []);
   return (
-    <section id="next" className="ev-sec ev-next">
-      <GlowWash variant="lav"/>
+    <section id="next" className="ev-sec ev-next sl">
       <span className="ev-gnum" aria-hidden="true">07</span>
       <div className="ev-wrap">
         <FX><Eyebrow>What Happens Next?</Eyebrow></FX>
@@ -1100,7 +1150,7 @@ function Footer({setPage}) {
       <div className="ev-wrap">
         <div className="ev-footer__top">
           <div onClick={()=>{setPage("home");window.scrollTo({top:0,behavior:"smooth"})}} className="ev-brand">
-            <Logo light height={36}/>
+            <Logo light height={44}/>
           </div>
           <p className="ev-footer__tag">Connecting Intelligence with Business</p>
           <div className="ev-footer__social">
@@ -1197,11 +1247,26 @@ function PrivacyPage() {
   );
 }
 
+/* Ambient scroll motion — giant numerals drift in parallax */
+function useAmbientMotion(page) {
+  useEffect(() => {
+    if (page !== "home" || reduced()) return;
+    let tws = [];
+    const t = setTimeout(() => {
+      tws = gsap.utils.toArray(".ev-gnum").map(el =>
+        gsap.fromTo(el, { y: 90 }, { y: -90, ease: "none",
+          scrollTrigger: { trigger: el.parentElement, start: "top bottom", end: "bottom top", scrub: 0.9 } }));
+    }, 200);
+    return () => { clearTimeout(t); tws.forEach(tw => { tw.scrollTrigger && tw.scrollTrigger.kill(); tw.kill(); }); };
+  }, [page]);
+}
+
 /* APP */
 export default function EvrielSystems() {
   const [page, setPage] = useState("home");
   const [slug, setSlug] = useState(null);
   useSEO();
+  useAmbientMotion(page);
   return (
     <>
       <style>{`
@@ -1290,7 +1355,7 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 /* ===== nav — transparent, sits on the canvas ===== */
 .ev-nav{position:fixed;top:0;left:0;right:0;z-index:999;padding:14px 0;transition:all 0.5s ${EASE};background:transparent}
 .ev-nav--s{background:rgba(1,29,28,0.82);backdrop-filter:blur(20px);padding:9px 0}
-.ev-nav__in{max-width:var(--page-w);margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:52px}
+.ev-nav__in{max-width:var(--page-w);margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px}
 .ev-brand{cursor:pointer;display:flex;align-items:center;gap:12px}
 .ev-brand__name{font-size:16px;font-weight:500;color:var(--snow);letter-spacing:0.04em;line-height:1}
 .ev-brand__sub{font-size:10px;font-weight:500;color:var(--fog);letter-spacing:2.4px;text-transform:uppercase;margin-top:3px}
@@ -1391,12 +1456,39 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-orbit__hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:132px;height:132px;border-radius:50%;border:1px solid rgba(203,255,252,0.3);background:radial-gradient(circle,rgba(0,130,124,0.25),rgba(1,29,28,0.92) 72%);display:flex;align-items:center;justify-content:center;text-align:center}
 .ev-orbit__hub span{font-size:13px;font-weight:500;letter-spacing:0.06em;color:#ffffff;line-height:1.4}
 
-/* ===== services — editorial rows with outlined numerals ===== */
-.ev-svc__rows{margin-top:64px}
-.ev-svc__row{display:grid;grid-template-columns:110px 1.15fr 0.85fr;gap:40px;padding:56px 0;border-top:1px solid rgba(237,255,254,0.08);transition:background 0.3s ${EASE}}
-.ev-svc__rows > div:last-child .ev-svc__row{border-bottom:1px solid rgba(237,255,254,0.08)}
+/* ===== services — cinematic sticky card deck, each card its own scene ===== */
+.ev-deck{margin-top:64px;position:relative;z-index:1}
+.ev-scard{position:sticky;top:96px;display:grid;grid-template-columns:110px 1.15fr 0.85fr;gap:40px;border-radius:32px;padding:56px 60px;margin-bottom:24px;overflow:hidden;transform-origin:top center;will-change:transform}
+.ev-scard--0{background:#fdfffe}
+.ev-scard--1{background:linear-gradient(150deg,#e9fffb 0%,#f4fffd 100%)}
+.ev-scard--2{background:linear-gradient(150deg,#fdf4ff 0%,#f2fffd 58%,#e9fffb 100%)}
+.ev-scard--3{border:1px solid transparent;background:linear-gradient(135deg,#003734 0%,#011d1c 100%) padding-box,var(--g-aurora) border-box}
+.ev-scard--lt .ev-svc__gn{-webkit-text-stroke:1px rgba(0,130,124,0.55)}
+.ev-scard--lt .ev-svc__t{color:#012624}
+.ev-scard--lt .ev-svc__d{color:#4a5a58}
+.ev-scard--lt .ev-svc__al{color:#00827c}
+.ev-scard--lt .ev-tag{background:rgba(1,38,36,0.06);color:#274a47}
+.ev-scard--lt .ev-tag:hover{color:#012624}
+.ev-scard--lt .ev-flow__node{border-color:rgba(1,38,36,0.18);color:#4a5a58}
+.ev-scard--lt .ev-flow__node--end{color:#012624}
+.ev-scard--lt .ev-mock{background:linear-gradient(#ffffff,#ffffff) padding-box,linear-gradient(135deg,rgba(0,130,124,0.5),rgba(0,194,176,0.18) 45%,rgba(250,209,255,0.55)) border-box}
+.ev-scard--lt .ev-mock__bar{border-bottom-color:rgba(1,38,36,0.08)}
+.ev-scard--lt .ev-mock__bar span{background:rgba(1,38,36,0.15)}
+.ev-scard--lt .ev-mock__bar i{color:#4a5a58}
+.ev-scard--lt .ev-mock__row{background:#eefaf7}
+.ev-scard--lt .ev-mock__from{color:#3f4f4e}
+.ev-scard--lt .ev-mock__tag--u{background:rgba(210,60,180,0.12);color:#a839a0}
+.ev-scard--lt .ev-mock__tag--f{background:rgba(0,130,124,0.14);color:#00615c}
+.ev-scard--lt .ev-mock__tag--l{background:rgba(1,38,36,0.07);color:#6b7c7a}
+.ev-scard--lt .ev-mock__out{background:#012624;color:#edfffe}
+.ev-scard--lt .ev-dash__kpi{background:#eefaf7}
+.ev-scard--lt .ev-dash__kpi i{color:#6b7c7a}
+.ev-scard--lt .ev-dash__chart{background:#eefaf7}
+.ev-scard--lt .ev-dash__chart span{background:linear-gradient(180deg,rgba(0,130,124,0.85),rgba(0,194,176,0.35))}
+.ev-scard--lt .ev-dash__line{background:#eefaf7}
 .ev-svc__gn{font-size:61px;font-weight:500;line-height:1;letter-spacing:-1.22px;color:transparent;-webkit-text-stroke:1px rgba(203,255,252,0.35);transition:all 0.4s ${EASE}}
-.ev-svc__row:hover .ev-svc__gn{-webkit-text-stroke:1px rgba(203,255,252,0.75)}
+.ev-scard:hover .ev-svc__gn{-webkit-text-stroke:1px rgba(203,255,252,0.75)}
+.ev-scard--lt:hover .ev-svc__gn{-webkit-text-stroke:1px rgba(0,130,124,0.85)}
 .ev-svc__t{font-size:clamp(26px,3vw,36px);font-weight:400;letter-spacing:-0.47px;color:var(--snow);margin-bottom:14px}
 .ev-svc__d{font-size:14px;line-height:1.7;letter-spacing:0.3px;color:var(--fog);max-width:420px}
 .ev-svc__al{font-size:12px;font-weight:500;letter-spacing:1.44px;text-transform:uppercase;color:var(--cyan);margin-bottom:16px}
@@ -1434,8 +1526,8 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-prj__detail-sec li{font-size:14px;line-height:1.5;letter-spacing:0.2px;color:var(--fog);padding-left:18px;position:relative}
 .ev-prj__detail-sec li::before{content:'';position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:50%;background:var(--teal)}
 
-/* ===== process — horizontal current line with beacons ===== */
-.ev-proc{background:var(--trench);overflow:hidden}
+/* ===== process — mint scene, horizontal current line with beacons ===== */
+.ev-proc{background:linear-gradient(160deg,#f2fffd 0%,#e7fffb 100%);border-radius:56px;margin:28px 0;overflow:hidden}
 .ev-proc__track{position:relative;margin-top:80px}
 .ev-proc__line{position:absolute;top:5px;left:0;right:0;height:1px;background:linear-gradient(90deg,#00827c 0%,#cbfffc 55%,#fad1ff 100%);transform-origin:left;transform:scaleX(0)}
 .ev-proc__grid{display:grid;grid-template-columns:repeat(5,1fr);gap:28px}
@@ -1488,9 +1580,30 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-stmt__wash{position:absolute;inset:0;background:radial-gradient(ellipse 55% 62% at 50% 45%,rgba(250,209,255,0.10),rgba(203,255,252,0.06) 45%,rgba(0,194,176,0.04) 70%,transparent 88%);pointer-events:none}
 .ev-stmt__body{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:52px}
 .ev-stmt__h{font-size:clamp(32px,5.4vw,72px);font-weight:500;line-height:1.08;letter-spacing:-0.03em;color:var(--snow)}
+.ev-stmt__line{display:block}
+.ev-sw{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:0.06em;margin-right:0.24em}
+.ev-sw:last-child{margin-right:0}
+.ev-sw i{display:inline-block;font-style:normal;will-change:transform}
+.ev-sw i.g{background:var(--g-text);-webkit-background-clip:text;background-clip:text;color:transparent}
 
-/* ===== what next — drawn timeline ===== */
-.ev-next{overflow:hidden}
+/* ===== what next — clean white scene, drawn timeline ===== */
+.ev-next{background:#fdfffe;border-radius:56px;margin:28px 0;overflow:hidden}
+
+/* light scene text overrides */
+.sl .ev-eyebrow{color:#4a5a58}
+.sl .ev-h-lg{color:#012624}
+.sl em{background:linear-gradient(90deg,#00827c 0%,#014e49 100%);-webkit-background-clip:text;background-clip:text}
+.sl .ev-intro{color:#4a5a58}
+.sl .ev-gnum{color:rgba(1,38,36,0.05)}
+.sl .ev-proc__num{color:#00827c}
+.sl .ev-proc__ct{color:#012624}
+.sl .ev-proc__cd{color:#4a5a58}
+.sl .ev-next__card{background:#e9fffb}
+.sl .ev-next__card:hover{background:#dbfaf3}
+.sl .ev-next__num{color:#00827c}
+.sl .ev-next__t{color:#012624}
+.sl .ev-next__d{color:#4a5a58}
+.sl .ev-next__node{background:#00827c}
 .ev-next__tl{position:relative;margin-top:80px;padding:10px 0}
 .ev-next__line{position:absolute;top:0;bottom:0;left:50%;width:1px;background:linear-gradient(180deg,#00827c 0%,#cbfffc 60%,#fad1ff 100%);transform-origin:top;transform:scaleY(0)}
 .ev-next__row{position:relative;display:flex;justify-content:flex-start;padding:22px 0;width:100%}
@@ -1632,16 +1745,18 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 .ev-dash__chart span{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,rgba(203,255,252,0.85),rgba(0,130,124,0.45));transform-origin:bottom}
 .ev-dash__line{width:100%;height:38px;background:var(--abyss);border-radius:6px;padding:6px 10px}
 
-/* ===== tool marquee — bright panel on the abyss, brand-colored icons ===== */
+/* ===== tools scene — full-bleed bright panel, edge to edge ===== */
 @keyframes mqR{from{transform:translateX(-25%)}to{transform:translateX(0)}}
-.ev-tm{padding:24px 0 56px}
-.ev-tm__panel{background:linear-gradient(135deg,#f0fffe 0%,#ebfffd 55%,#fdf4ff 100%);border-radius:24px;padding:44px 0 38px;overflow:hidden}
-.ev-tm__label{text-align:center;font-size:10px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;color:#4a5a58;margin-bottom:26px}
-.ev-tm__row{overflow:hidden;padding:6px 0}
+.ev-tools{background:linear-gradient(160deg,#ffffff 0%,#ebfffd 52%,#fdf4ff 100%);border-radius:56px;margin:28px 0;padding:104px 0 88px;overflow:hidden;will-change:transform}
+.ev-tools__head{text-align:center;margin-bottom:52px;padding:0 24px}
+.ev-tools__label{font-size:11px;font-weight:500;letter-spacing:2.4px;text-transform:uppercase;color:#00827c;margin-bottom:20px}
+.ev-tools__h{font-size:clamp(30px,3.8vw,50px);font-weight:500;line-height:1.12;letter-spacing:-0.02em;color:#012624}
+.ev-tools__hi{font-style:normal;background:linear-gradient(90deg,#00827c 0%,#014e49 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ev-tm__row{overflow:hidden;padding:7px 0}
 .ev-tm__track{display:flex;gap:14px;white-space:nowrap;width:max-content;animation:mq 28s linear infinite}
 .ev-tm__track--rev{animation:mqR 32s linear infinite}
-.ev-tm__i{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:500;letter-spacing:0.3px;color:#1d3a37;background:#ffffff;border:1px solid rgba(1,38,36,0.08);border-radius:9999px;padding:10px 18px}
-.ev-tm__i img{width:17px;height:17px;display:block}
+.ev-tm__i{display:inline-flex;align-items:center;gap:10px;font-size:14px;font-weight:500;letter-spacing:0.3px;color:#1d3a37;background:#ffffff;border:1px solid rgba(1,38,36,0.08);border-radius:9999px;padding:12px 20px}
+.ev-tm__i img{width:18px;height:18px;display:block}
 
 /* ===== contact — white card floating on a bright teal glow ===== */
 .ev-contact2{position:relative;padding:150px 0 120px;overflow:hidden}
@@ -1691,7 +1806,7 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
   .ev-orbit{--orbR:190px;width:460px;height:460px}
   .ev-orbit__ring{inset:38px}
   .ev-orbit__ring--in{inset:128px}
-  .ev-svc__row{grid-template-columns:70px 1fr;gap:24px}
+  .ev-scard{grid-template-columns:70px 1fr;gap:24px;padding:40px 36px}
   .ev-svc__r{grid-column:2}
   .ev-svc__gn{font-size:44px}
   .ev-proc__grid{grid-template-columns:repeat(2,1fr);gap:40px 28px}
@@ -1703,6 +1818,7 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
 @media(max-width:768px){
   .ev-sec{padding:88px 0}
   .ev-wrap,.ev-nav__in{padding:0 20px}
+  .ev-brand img{height:44px!important}
   .ev-nav__links{display:none}
   .ev-nav__burger{display:block}
   .ev-hero{padding:140px 0 100px}
@@ -1711,7 +1827,9 @@ em{font-style:normal;background:var(--g-text);-webkit-background-clip:text;backg
   .ev-out__num{font-size:96px}
   .ev-out__t{font-size:20px}
   .ev-out__body p{padding-left:38px}
-  .ev-svc__row{grid-template-columns:1fr;gap:18px;padding:40px 0}
+  .ev-scard{grid-template-columns:1fr;gap:18px;padding:30px 22px;top:80px;border-radius:22px}
+  .ev-tools{border-radius:32px;margin:16px 0;padding:72px 0 60px}
+  .ev-proc,.ev-next{border-radius:32px;margin:16px 0}
   .ev-prj{padding:24px 22px}
   .ev-prj__t{font-size:20px}
   .ev-proc__grid{grid-template-columns:1fr}
