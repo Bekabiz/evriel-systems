@@ -264,6 +264,9 @@ export default function ChatWidget() {
               {loading ? <Loader2 size={16} className="evc__spin" /> : <Send size={15} />}
             </button>
           </div>
+          <div style={{padding:"6px 14px 10px",fontSize:"10.5px",lineHeight:1.4,color:"rgba(187,199,198,0.4)"}}>
+            Messages may be processed by AI providers. Do not share sensitive information. <a href="https://evrielsystems.com" onClick={e=>{e.preventDefault();window.location.hash="";window.open("/","_self")}} style={{color:"rgba(203,255,252,0.45)",textDecoration:"underline"}}>Privacy Policy</a>
+          </div>
 
           <div className="evc__foot">Powered by Evriel Systems</div>
         </div>

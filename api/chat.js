@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   try {
     const { messages } = req.body;
 
-    const systemPrompt = `You are the AI assistant for Evriel Systems (evrielsystems.com), an AI and digital transformation consultancy based in Europe, founded by Bereket Teshome.
+    const systemPrompt = `You are the AI assistant for Evriel Systems (evrielsystems.com), a technology brand focused on AI implementation, automation, system integration, and custom software development, based in Europe, founded by Bereket Teshome.
 
 ROLE: Help visitors understand Evriel's services, answer questions, and naturally guide interested prospects toward sharing their contact details so the team can follow up.
 

@@ -233,7 +233,7 @@ function useSEO() {
       "@type": "Organization",
       name: "Evriel Systems",
       url: "https://evrielsystems.com",
-      description: "European AI, automation, and intelligent systems consultancy helping organizations integrate emerging technologies into practical business solutions.",
+      description: "European AI implementation, automation, system integration, and custom software development brand helping organizations integrate emerging technologies into practical business solutions.",
       founder: { "@type": "Person", name: "Bereket Teshome" },
       address: { "@type": "PostalAddress", addressRegion: "Europe" },
       email: "contact@evrielsystems.com",
@@ -246,7 +246,7 @@ function useSEO() {
 }
 
 /* LOGO — Evriel wordmark SVG from public/ (white on dark, teal on light) */
-const Logo = ({ light = false, height = 30 }) => (
+const Logo = ({ light = false, height = 40 }) => (
   <img src={light ? "/logo-white.svg" : "/logo.svg"} alt="Evriel" style={{ height, width: "auto", display: "block" }} />
 );
 
@@ -261,8 +261,8 @@ function CookieConsent({ setPage }) {
   const accept = () => { localStorage.setItem("ev_cookie_ok", "1"); setShow(false); };
   return (
     <div className="ev-cookie">
-      <p>We use essential cookies to ensure our website functions properly. We do not use tracking or advertising cookies. By continuing to use this site, you agree to our <a href="#" onClick={e=>{e.preventDefault();setPage("privacy");window.scrollTo({top:0,behavior:"smooth"})}}>Privacy Policy</a>.</p>
-      <button className="ev-cookie__btn" onClick={accept}>Accept &amp; Close</button>
+      <p>This website uses only essential cookies required for basic functionality. We do not use advertising or tracking cookies. <a href="#" onClick={e=>{e.preventDefault();setPage("privacy");window.scrollTo({top:0,behavior:"smooth"})}}>Privacy Policy</a></p>
+      <button className="ev-cookie__btn" onClick={accept}>OK</button>
     </div>
   );
 }
@@ -1109,7 +1109,7 @@ function Contact({setPage}) {
                     <div className="ev-f"><label>Industry <span className="req">*</span></label><select required className="ev-sel" value={f.industry} onChange={e=>setF(p=>({...p,industry:e.target.value}))}><option value="">Select your industry</option>{["Construction & Engineering","Manufacturing","Tourism & Hospitality","Retail & Commerce","Import & Export","Marketing & SEO","European Projects","NGO & Associations","Professional Services","Startup / SME","Education & Training","Other"].map(x=><option key={x}>{x}</option>)}</select></div>
                     <div className="ev-f"><label>What are you interested in? <span className="req">*</span></label><div className="ev-checks">{["AI Automation","Business Intelligence","Digital Transformation","Custom Business Systems","European Project Solutions","Not Sure Yet"].map(x=><label key={x} className={`ev-chk${f.interests.includes(x)?" ev-chk--on":""}`} onClick={()=>tog(x)}><span className="ev-chk__b">{f.interests.includes(x)&&<CheckCircle2 size={12}/>}</span>{x}</label>)}</div></div>
                     <div className="ev-f"><label>Tell us about your challenge <span className="req">*</span></label><textarea required rows={5} placeholder="Describe your project, challenge, or business objective..." value={f.challenge} onChange={e=>setF(p=>({...p,challenge:e.target.value}))}/></div>
-                    <label className="ev-consent"><input type="checkbox" required checked={consent} onChange={e=>setConsent(e.target.checked)}/><span>I agree that Evriel Systems may store and process the information I submit to respond to my inquiry, as described in the <a href="#" onClick={e=>{e.preventDefault();setPage&&setPage("privacy");window.scrollTo({top:0,behavior:"smooth"})}}>Privacy Policy</a>. <span className="req">*</span></span></label>
+                    <label className="ev-consent"><input type="checkbox" required checked={consent} onChange={e=>setConsent(e.target.checked)}/><span>By submitting this form, I agree that Evriel Systems may use the information provided to respond to my inquiry. We do not sell or rent personal data. For more information, read our <a href="#" onClick={e=>{e.preventDefault();setPage&&setPage("privacy");window.scrollTo({top:0,behavior:"smooth"})}}>Privacy Policy</a>. <span className="req">*</span></span></label>
                     {err && <p className="ev-form__err">{err}</p>}
                     <button type="submit" className="ev-btn ev-btn--grad ev-btn--lg" style={{width:"100%",justifyContent:"center",marginTop:4}} disabled={sending}>{sending ? "Sending..." : "Start the Conversation"} {!sending && <ArrowUpRight size={16}/>}</button>
                   </form>
@@ -1149,6 +1149,7 @@ function Footer({setPage}) {
           <span>&copy; {new Date().getFullYear()} Evriel Systems</span>
           <div style={{display:"flex",gap:20,alignItems:"center"}}>
             <a href="#" onClick={e=>{e.preventDefault();setPage("privacy");window.scrollTo({top:0,behavior:"smooth"})}} className="ev-footer__link">Privacy Policy</a>
+            <a href="#" onClick={e=>{e.preventDefault();setPage("privacy");setTimeout(()=>{const el=document.getElementById("cookies");if(el)el.scrollIntoView({behavior:"smooth"})},300)}} className="ev-footer__link">Cookie Notice</a>
             <span>contact@evrielsystems.com</span>
           </div>
         </div>
@@ -1197,35 +1198,103 @@ function PrivacyPage() {
     <section className="ev-privacy">
       <div className="ev-privacy__wrap">
         <FX><h1 className="ev-privacy__h">Privacy <em>Policy</em></h1></FX>
-        <FX delay={60}><p className="ev-privacy__updated">Last updated: June 2026</p></FX>
+        <FX delay={60}><p className="ev-privacy__updated">Last updated: July 5, 2026</p></FX>
         <div className="ev-privacy__content">
           <FX delay={100}>
-            <h2>Who We Are</h2>
-            <p>Evriel Systems is an AI and digital transformation consultancy based in Europe. This policy explains how we collect, use, and protect your information when you use our website (evrielsystems.com).</p>
+            <h2>1. Who We Are</h2>
+            <p>Evriel Systems is a technology brand focused on AI implementation, automation, system integration, and custom software development. Evriel Systems helps businesses and organizations build practical digital systems, automate workflows, integrate AI tools, and improve how information, operations, and decisions are managed.</p>
+            <p>This Privacy Policy explains how we collect, use, store, and protect personal data when you visit our website, use our contact form, or communicate with us through evrielsystems.com.</p>
+            <p>For privacy-related questions, you can contact us at: <a href="mailto:contact@evrielsystems.com">contact@evrielsystems.com</a></p>
+          </FX>
+          <FX delay={120}>
+            <h2>2. Data Controller</h2>
+            <p>The data controller for personal data processed through this website is Evriel Systems, operated by Bereket Teshome. Email: <a href="mailto:contact@evrielsystems.com">contact@evrielsystems.com</a></p>
+            <p>If Evriel Systems is later registered as a legal business entity, this section will be updated with the official legal details.</p>
           </FX>
           <FX delay={140}>
-            <h2>Information We Collect</h2>
-            <p>When you submit our contact form, we collect: your name, company name, email address, phone number (optional), preferred language, industry, areas of interest, and project description. We collect this information solely to respond to your inquiry.</p>
+            <h2>3. Personal Data We Collect</h2>
+            <p>We collect personal data only when it is necessary to operate the website, respond to inquiries, communicate with users, or provide requested services.</p>
+            <p>When you submit a contact form, we may collect: your name, company or organization name, email address, phone number (if you choose to provide it), preferred language, industry, areas of interest, project description or message content, and any other information you choose to include in your message.</p>
+            <p>When you visit the website, limited technical data may also be processed automatically, such as: IP address, browser type, device information, pages visited, date and time of access, and basic server, security, and technical logs. This technical data is processed only where necessary to deliver, maintain, secure, and improve the website.</p>
+          </FX>
+          <FX delay={160}>
+            <h2>4. How We Use Your Personal Data</h2>
+            <p>We use personal data to respond to your inquiry, communicate with you about potential projects or services, understand your business needs and areas of interest, prepare replies, proposals, or follow-up communication requested by you, provide AI implementation, automation, system integration, or software development services where requested, operate, maintain, and secure the website, keep basic business records where necessary, and comply with legal obligations where applicable.</p>
+            <p>We do not sell or rent your personal data.</p>
           </FX>
           <FX delay={180}>
-            <h2>How We Use Your Information</h2>
-            <p>We use the information you provide exclusively to respond to your inquiry, discuss potential projects, and provide requested services. We do not sell, rent, or share your personal information with third parties. We do not use your information for marketing purposes unless you explicitly consent.</p>
+            <h2>5. Legal Basis for Processing</h2>
+            <p><strong>Pre-contractual steps or contract:</strong> When you contact us to discuss a potential project, service, proposal, or business relationship.</p>
+            <p><strong>Legitimate interests:</strong> To operate and secure the website, respond to business inquiries, manage communications, improve our services, and maintain basic business records.</p>
+            <p><strong>Consent:</strong> Where you explicitly consent, for example for non-essential cookies, marketing communication, or optional future features.</p>
+            <p><strong>Legal obligation:</strong> Where we are required to keep or disclose certain information by law.</p>
+            <p>You may withdraw consent at any time where processing is based on consent.</p>
+          </FX>
+          <FX delay={200}>
+            <h2>6. Contact Forms and Communication</h2>
+            <p>When you submit a contact form, the information you provide is sent to Evriel Systems so we can respond to your request. We use this information only to understand your inquiry, communicate with you, and provide information or services you requested.</p>
+            <p>Please do not submit sensitive personal information through the contact form unless it is strictly necessary.</p>
+          </FX>
+          <FX delay={210}>
+            <h2>7. Service Providers</h2>
+            <p>We use trusted service providers to operate, secure, and maintain our website and communication systems. These providers may include: website hosting providers, domain and email service providers, email delivery providers, website security providers, website performance or search visibility tools, and technical maintenance providers.</p>
+            <p>These providers may process limited personal data only where necessary to provide their services. We do not allow service providers to sell your personal data.</p>
           </FX>
           <FX delay={220}>
-            <h2>Cookies</h2>
-            <p>This website uses only essential cookies required for basic functionality (such as remembering your cookie consent preference). We do not use tracking cookies, advertising cookies, or third-party analytics that track individual users.</p>
+            <h2 id="cookies">8. Cookies</h2>
+            <p>Our website may use essential cookies required for basic functionality, such as remembering cookie preferences, supporting website security, or enabling the website to work correctly. Essential cookies are used only to provide the website and its basic functions.</p>
+            <p>We do not use advertising cookies, tracking cookies, or non-essential analytics cookies unless we first ask for your consent.</p>
+            <p>If we introduce analytics, advertising, heatmaps, session recording, or other tracking tools in the future, we will update this Privacy Policy and request consent before those tools are used where required by law.</p>
+          </FX>
+          <FX delay={230}>
+            <h2>9. Analytics and Search Visibility</h2>
+            <p>We may use privacy-respecting tools to understand website performance, search visibility, technical issues, and general website improvement. If we use tools that process only aggregated or limited technical information without tracking individual users, we use them for website improvement, security, and search visibility purposes.</p>
+            <p>If we use tools that track individual users, set non-essential cookies, or collect analytics data beyond essential technical information, we will request consent where required.</p>
+          </FX>
+          <FX delay={240}>
+            <h2>10. AI Tools</h2>
+            <p>Evriel Systems works with AI implementation, automation, and software systems. However, we do not use contact form submissions to train public AI models.</p>
+            <p>If AI tools are used internally to help organize inquiries, draft responses, summarize project needs, or support business communication, we will limit the personal data shared and use such tools only where appropriate. We will not intentionally submit unnecessary sensitive personal data to AI tools.</p>
+          </FX>
+          <FX delay={250}>
+            <h2>11. Data Retention</h2>
+            <p>We keep personal data only as long as necessary for the purpose for which it was collected. Contact form submissions and business communication may be kept for as long as necessary to respond to your inquiry, manage potential project communication, maintain basic business records, or comply with legal obligations.</p>
+            <p>If no business relationship begins, we will not keep inquiry data longer than necessary. You may request deletion of your personal data at any time, unless we are legally required or have a legitimate reason to keep certain information.</p>
           </FX>
           <FX delay={260}>
-            <h2>Your Rights (GDPR)</h2>
-            <p>Under the General Data Protection Regulation (GDPR), you have the right to access, correct, or delete any personal data we hold about you. You may also withdraw consent at any time. To exercise any of these rights, contact us at <a href="mailto:contact@evrielsystems.com">contact@evrielsystems.com</a>.</p>
+            <h2>12. International Transfers</h2>
+            <p>Some service providers, technical systems, or contractors may process data outside the European Economic Area. Where personal data is transferred outside the EEA, we will take appropriate safeguards where required by GDPR. These may include confidentiality obligations, data processing agreements, standard contractual clauses, or other lawful transfer mechanisms.</p>
+            <p>External contractors or technical partners will only receive access to personal data where necessary for the requested work.</p>
+          </FX>
+          <FX delay={270}>
+            <h2>13. Data Security</h2>
+            <p>We take reasonable technical and organizational measures to protect personal data against unauthorized access, loss, misuse, alteration, or disclosure. However, no website or online communication system can be guaranteed to be completely secure.</p>
+            <p>If you believe your data has been affected by a security issue, contact us at <a href="mailto:contact@evrielsystems.com">contact@evrielsystems.com</a>.</p>
+          </FX>
+          <FX delay={280}>
+            <h2>14. Your GDPR Rights</h2>
+            <p>Under the General Data Protection Regulation, you may have the right to: access the personal data we hold about you, request correction of inaccurate or incomplete data, request deletion of your personal data, request restriction of processing, object to processing based on legitimate interests, request data portability where applicable, withdraw consent at any time where processing is based on consent, and lodge a complaint with a data protection authority.</p>
+            <p>To exercise your rights, contact us at <a href="mailto:contact@evrielsystems.com">contact@evrielsystems.com</a>. We may need to verify your identity before responding to certain requests.</p>
+          </FX>
+          <FX delay={290}>
+            <h2>15. Complaints</h2>
+            <p>If you believe your personal data has been processed unlawfully, you have the right to lodge a complaint with your local data protection authority in the European Union or European Economic Area. We encourage you to contact us first so we can try to resolve the issue.</p>
           </FX>
           <FX delay={300}>
-            <h2>Data Retention</h2>
-            <p>We retain contact form submissions only as long as necessary to respond to your inquiry and for legitimate business purposes. You may request deletion of your data at any time.</p>
+            <h2>16. Marketing</h2>
+            <p>We do not use your personal data for marketing purposes unless you explicitly consent to receive marketing communication. If you consent to marketing communication, you may unsubscribe or withdraw your consent at any time.</p>
           </FX>
-          <FX delay={340}>
-            <h2>Contact</h2>
-            <p>For any privacy-related questions or data requests, contact us at <a href="mailto:contact@evrielsystems.com">contact@evrielsystems.com</a>.</p>
+          <FX delay={310}>
+            <h2>17. Children's Data</h2>
+            <p>Our website and services are intended for business and professional users. We do not knowingly collect personal data from children. If you believe a child has provided personal data through our website, contact us and we will take appropriate steps to delete it.</p>
+          </FX>
+          <FX delay={320}>
+            <h2>18. Changes to This Privacy Policy</h2>
+            <p>We may update this Privacy Policy from time to time to reflect changes in our website, services, tools, or legal requirements. The latest version will always be available on this page with the updated date shown at the top.</p>
+          </FX>
+          <FX delay={330}>
+            <h2>19. Contact</h2>
+            <p>For privacy questions, data requests, or concerns, contact: Evriel Systems, Email: <a href="mailto:contact@evrielsystems.com">contact@evrielsystems.com</a></p>
           </FX>
         </div>
       </div>
