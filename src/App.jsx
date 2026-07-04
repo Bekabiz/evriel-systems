@@ -201,7 +201,7 @@ function useSEO() {
     document.title = "Evriel Systems - AI | Automation & Intelligent Systems";
     const metas = [
       { name: "description", content: "Evriel Systems helps organizations integrate AI, automation, and intelligent technologies into practical business systems. Based in Europe. Working across Europe." },
-      { name: "keywords", content: "AI consulting, business automation, intelligent systems, digital transformation, AI integration, European projects" },
+      { name: "keywords", content: "AI implementation, business automation, intelligent systems, digital transformation, AI integration, European projects" },
       { name: "author", content: "Evriel Systems" },
       { property: "og:type", content: "website" },
       { property: "og:title", content: "Evriel Systems - AI | Automation & Intelligent Systems" },
