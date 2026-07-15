@@ -61,18 +61,17 @@ export default function IntakeForm() {
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
-  // In production, uncomment this to load from Google Sheet:
-  // useEffect(() => {
-  //   const params = new URLSearchParams(window.location.search);
-  //   const sheetId = params.get("id");
-  //   if (sheetId) {
-  //     setLoading(true);
-  //     fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`)
-  //       .then(r => r.text())
-  //       .then(csv => { setQuestions(parseCSV(csv)); setLoading(false); })
-  //       .catch(() => setLoading(false));
-  //   }
-  // }, []);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sheetId = params.get("id");
+    if (sheetId) {
+      setLoading(true);
+      fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`)
+        .then(r => r.text())
+        .then(csv => { setQuestions(parseCSV(csv)); setLoading(false); })
+        .catch(() => setLoading(false));
+    }
+  }, []);
 
   const totalSteps = questions.length + 1; // +1 for name/email
   const progress = Math.round(((currentStep + 1) / (totalSteps + 1)) * 100);
