@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import IntakeForm from "./IntakeForm";
 import { ArrowRight, ArrowUpRight, Menu, X, Minus, Plus, Lock, Eye, Shield, CheckCircle2, Target, Instagram, Linkedin } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -1322,6 +1323,12 @@ export default function EvrielSystems() {
   const [slug, setSlug] = useState(null);
   useSEO();
   useAmbientMotion(page);
+
+  // Intake form routing
+  if (window.location.pathname.startsWith('/intake') || new URLSearchParams(window.location.search).has('intake')) {
+    return <IntakeForm />;
+  }
+
   return (
     <>
       <style>{`
