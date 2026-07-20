@@ -349,9 +349,76 @@ export default function IntakeForm() {
           }}
         >
           <Logo />
-          <span style={{ fontSize: 12, color: BRAND.gray, fontWeight: 500 }}>
-            {Math.min(currentStep + 1, totalSteps)} {t.of} {totalSteps}
-          </span>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+            }}
+          >
+            {/* Compact language selector beside the progress counter */}
+            <div
+              role="group"
+              aria-label={t.language}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 3,
+                padding: 3,
+                border: `1px solid ${BRAND.border}`,
+                borderRadius: 8,
+                background: BRAND.lightGray,
+              }}
+            >
+              {[
+                { code: "el", flag: "🇬🇷", label: "Ελληνικά" },
+                { code: "en", flag: "🇬🇧", label: "English" },
+              ].map((option) => {
+                const active = language === option.code;
+
+                return (
+                  <button
+                    key={option.code}
+                    type="button"
+                    title={option.label}
+                    aria-label={option.label}
+                    aria-pressed={active}
+                    onClick={() => changeLanguage(option.code)}
+                    style={{
+                      width: 30,
+                      height: 26,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "none",
+                      borderRadius: 6,
+                      padding: 0,
+                      background: active ? BRAND.teal : "transparent",
+                      cursor: "pointer",
+                      fontSize: 16,
+                      lineHeight: 1,
+                      fontFamily: "inherit",
+                      transition: "background 0.2s ease, transform 0.2s ease",
+                    }}
+                  >
+                    <span aria-hidden="true">{option.flag}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <span
+              style={{
+                fontSize: 12,
+                color: BRAND.gray,
+                fontWeight: 500,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {Math.min(currentStep + 1, totalSteps)} {t.of} {totalSteps}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -455,59 +522,6 @@ export default function IntakeForm() {
         </div>
 
         <div style={{ height: 1, background: BRAND.border, margin: "8px 0 24px" }} />
-
-        {/* Language selector — intentionally placed directly above the questions */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 16,
-            marginBottom: 30,
-          }}
-        >
-          <span style={{ fontSize: 13, fontWeight: 600, color: BRAND.black }}>
-            {t.language}
-          </span>
-          <div
-            style={{
-              display: "flex",
-              padding: 3,
-              border: `1px solid ${BRAND.border}`,
-              borderRadius: 8,
-              background: BRAND.lightGray,
-            }}
-          >
-            {[
-              { code: "el", label: t.greek },
-              { code: "en", label: t.english },
-            ].map((option) => {
-              const active = language === option.code;
-
-              return (
-                <button
-                  key={option.code}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => changeLanguage(option.code)}
-                  style={{
-                    border: "none",
-                    borderRadius: 6,
-                    padding: "7px 12px",
-                    background: active ? BRAND.teal : "transparent",
-                    color: active ? BRAND.white : BRAND.gray,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                  }}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Questions */}
         {questions.map((question, index) => (
