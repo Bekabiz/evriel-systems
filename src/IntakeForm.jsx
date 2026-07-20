@@ -11,6 +11,8 @@ const BRAND = {
   tealLight: "#f0f5f5",
 };
 
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMTSHfWHjFw_rROe1W-fVe7z5o-fXQyzPoRFIfrWIIxXtwSCo4VAuuNA7-Dx0S-KO9zQ/exec";
+
 const Logo = () => (
   <svg viewBox="0 0 1448 1086" style={{ height: 28 }} xmlns="http://www.w3.org/2000/svg">
     <g transform="translate(0,1086) scale(0.1,-0.1)" fill={BRAND.teal} stroke="none">
@@ -147,6 +149,7 @@ export default function IntakeForm() {
   const [clientEmail, setClientEmail] = useState("");
   const [gdprConsent, setGdprConsent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [language, setLanguage] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -222,22 +225,47 @@ export default function IntakeForm() {
     gdprConsent &&
     clientName.trim() !== "";
 
-  const handleSubmit = () => {
-    const body = questions
-      .map((question) => `${question.question}\n→ ${getAnswer(question.id)}`)
-      .join("\n\n");
+  const handleSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
 
-    const subject = encodeURIComponent(`${t.emailSubject} — ${clientName}`);
-    const mailBody = encodeURIComponent(
-      `${t.responseHeading}\n\n${t.nameInEmail}: ${clientName}\n${t.emailInEmail}: ${clientEmail}\n\n${body}`,
-    );
+    const params = new URLSearchParams(window.location.search);
+    const sheetId = params.get("id");
 
-    window.open(
-      `mailto:bekabizuayehu3@gmail.com?subject=${subject}&body=${mailBody}`,
-      "_blank",
-    );
+    const answersPayload = questions.map((question) => ({
+      question: question.question,
+      answer: getAnswer(question.id),
+    }));
 
-    setSubmitted(true);
+    try {
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({
+          sheetId: sheetId,
+          clientName: clientName,
+          clientEmail: clientEmail,
+          answers: answersPayload,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "ok") {
+        setSubmitted(true);
+      } else {
+        alert(language === "el"
+          ? "Κάτι πήγε στραβά. Παρακαλώ δοκιμάστε ξανά."
+          : "Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert(language === "el"
+        ? "Δεν ήταν δυνατή η υποβολή. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά."
+        : "Could not submit. Please check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -716,22 +744,25 @@ export default function IntakeForm() {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!allAnswered}
+          disabled={!allAnswered || submitting}
           style={{
             width: "100%",
             padding: "14px 24px",
             borderRadius: 8,
             border: "none",
-            background: allAnswered ? BRAND.teal : "#d1d5db",
+            background: allAnswered && !submitting ? BRAND.teal : "#d1d5db",
             color: BRAND.white,
             fontSize: 15,
             fontWeight: 600,
-            cursor: allAnswered ? "pointer" : "not-allowed",
+            cursor: allAnswered && !submitting ? "pointer" : "not-allowed",
+            opacity: submitting ? 0.7 : 1,
             transition: "all 0.2s",
             fontFamily: "inherit",
           }}
         >
-          {t.submit}
+          {submitting
+            ? (language === "el" ? "Υποβολή..." : "Submitting...")
+            : t.submit}
         </button>
 
         {/* Footer */}
