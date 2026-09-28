@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AG Project Monitor</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:#17191C; color:#F2F3F5; font-size:14px; -webkit-font-smoothing:antialiased; }
+  .app { max-width:390px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; }
+
+  .top { padding:18px 18px 14px; display:flex; align-items:center; gap:10px; }
+  .top .logo { width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,#E85D04,#7C2D12); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; }
+  .top b { font-size:15px; }
+  .top small { display:block; color:#8D9199; font-size:12px; font-weight:500; }
+  .rec { margin-left:auto; width:38px; height:38px; border-radius:50%; background:#E85D04; display:flex; align-items:center; justify-content:center; }
+  .rec span { width:14px; height:14px; border-radius:4px 4px 6px 6px; background:#17191C; clip-path:polygon(30% 0,70% 0,70% 55%,50% 75%,30% 55%); }
+
+  .tabs { display:flex; gap:6px; padding:6px 18px 14px; }
+  .tabs span { padding:7px 14px; border-radius:99px; background:#22252A; color:#A6ABB3; font-weight:600; font-size:12.5px; }
+  .tabs span.on { background:#E85D04; color:#1B0E05; }
+
+  .list { padding:0 14px 20px; display:flex; flex-direction:column; gap:10px; }
+  .task { background:#1F2226; border-radius:16px; padding:14px 14px 12px; }
+  .task-top { display:flex; align-items:center; gap:8px; }
+  .src { font-size:11px; font-weight:700; letter-spacing:0.02em; color:#F5A461; background:rgba(232,93,4,0.16); padding:3px 9px; border-radius:99px; }
+  .src.photo { color:#9BC0E8; background:rgba(84,140,203,0.16); }
+  .due { margin-left:auto; font-size:12px; color:#8D9199; font-weight:500; }
+  .due.hot { color:#F5A461; }
+  .task h3 { font-size:14.5px; font-weight:600; margin-top:9px; line-height:1.35; }
+  .task-bot { display:flex; align-items:center; gap:8px; margin-top:11px; }
+  .ppl { display:flex; }
+  .ppl i { width:24px; height:24px; border-radius:50%; font-style:normal; font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid #1F2226; margin-left:-6px; }
+  .ppl i:first-child { margin-left:0; }
+  .a1 { background:#7C4A21; } .a2 { background:#26424F; } .a3 { background:#54432A; } .a4 { background:#3C3550; }
+  .meta { font-size:12px; color:#8D9199; font-weight:500; }
+  .ph { margin-left:auto; display:flex; gap:4px; }
+  .ph b { width:26px; height:26px; border-radius:7px; background:linear-gradient(135deg,#3A3F46,#23262B); }
+
+  /* task detail */
+  .detail { padding:0 18px 24px; }
+  .back { color:#8D9199; font-weight:600; font-size:13px; padding:2px 0 14px; }
+  .voice { background:#1F2226; border-radius:16px; padding:14px; }
+  .voice-h { display:flex; align-items:center; gap:10px; }
+  .wave { display:flex; align-items:center; gap:2.5px; height:26px; flex:1; }
+  .wave i { width:3px; border-radius:2px; background:#E85D04; }
+  .voice small { color:#8D9199; font-weight:500; }
+  .quote { margin-top:12px; color:#C9CDD3; font-size:13.5px; line-height:1.55; border-left:2px solid #E85D04; padding-left:12px; }
+  .fields { margin-top:14px; display:flex; flex-direction:column; gap:8px; }
+  .field { background:#1F2226; border-radius:13px; padding:12px 14px; display:flex; gap:10px; align-items:baseline; }
+  .field label { font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:#8D9199; font-weight:700; width:74px; flex:none; }
+  .field b { font-weight:600; font-size:13.5px; }
+  .notify { margin-top:16px; background:rgba(232,93,4,0.10); border-radius:13px; padding:12px 14px; font-size:13px; color:#F5A461; font-weight:600; }
+  .cta { margin-top:16px; display:flex; gap:10px; }
+  .cta button { flex:1; border:none; font-family:inherit; font-weight:700; font-size:14px; border-radius:12px; padding:13px; }
+  .ok { background:#E85D04; color:#1B0E05; }
+  .ghost { background:#22252A; color:#F2F3F5; }
+
+  /* timeline */
+  .day { padding:14px 18px 6px; color:#8D9199; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; }
+  .ev { margin:0 14px 10px; background:#1F2226; border-radius:14px; padding:12px 14px; display:flex; gap:12px; }
+  .ev time { color:#8D9199; font-size:12px; font-weight:600; flex:none; width:38px; font-variant-numeric:tabular-nums; }
+  .ev p { font-size:13.5px; line-height:1.4; }
+  .ev p b { font-weight:600; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="logo">AG</div>
+    <div><b>Block A Renovation</b><small>12 open tasks</small></div>
+    <div class="rec"><span></span></div>
+  </div>
+
+  <div id="view-tasks">
+    <div class="tabs"><span class="on">Open</span><span>Today</span><span>Done</span></div>
+    <div class="list">
+      <div class="task">
+        <div class="task-top"><span class="src">Voice note</span><span class="due hot">Today 17:00</span></div>
+        <h3>Close the formwork on level 2 before the pour on Thursday</h3>
+        <div class="task-bot">
+          <div class="ppl"><i class="a1">GK</i><i class="a2">NP</i></div>
+          <span class="meta">Level 2</span>
+          <div class="ph"><b></b><b></b></div>
+        </div>
+      </div>
+      <div class="task">
+        <div class="task-top"><span class="src photo">Site photo</span><span class="due">Tomorrow</span></div>
+        <h3>Water pooling at the east drain, regrade before inspection</h3>
+        <div class="task-bot">
+          <div class="ppl"><i class="a3">SD</i></div>
+          <span class="meta">East yard</span>
+          <div class="ph"><b></b></div>
+        </div>
+      </div>
+      <div class="task">
+        <div class="task-top"><span class="src">Voice note</span><span class="due">Fri 3 Oct</span></div>
+        <h3>Order 40 more anchor bolts M16, stock on site is low</h3>
+        <div class="task-bot">
+          <div class="ppl"><i class="a2">NP</i><i class="a4">TV</i></div>
+          <span class="meta">Procurement</span>
+        </div>
+      </div>
+      <div class="task">
+        <div class="task-top"><span class="src">Voice note</span><span class="due">Mon 6 Oct</span></div>
+        <h3>Walk the electrician through the revised panel location</h3>
+        <div class="task-bot">
+          <div class="ppl"><i class="a1">GK</i></div>
+          <span class="meta">Basement</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-task" hidden>
+    <div class="detail">
+      <div class="back">&#8249; Back to tasks</div>
+      <div class="voice">
+        <div class="voice-h">
+          <div class="wave">
+            <i style="height:8px"></i><i style="height:14px"></i><i style="height:22px"></i><i style="height:12px"></i><i style="height:18px"></i><i style="height:24px"></i><i style="height:10px"></i><i style="height:16px"></i><i style="height:22px"></i><i style="height:8px"></i><i style="height:13px"></i><i style="height:19px"></i><i style="height:9px"></i><i style="height:15px"></i><i style="height:21px"></i><i style="height:11px"></i><i style="height:7px"></i>
+          </div>
+          <small>0:38</small>
+        </div>
+        <p class="quote">"The formwork on level two needs to be closed before Thursday's pour. George and Nikos should handle it, and send me photos when the east side is done."</p>
+      </div>
+      <div class="fields">
+        <div class="field"><label>Task</label><b>Close the formwork on level 2 before the pour</b></div>
+        <div class="field"><label>Due</label><b>Thursday, 17:00</b></div>
+        <div class="field"><label>Assigned</label><b>George K., Nikos P.</b></div>
+        <div class="field"><label>Location</label><b>Level 2, east side</b></div>
+      </div>
+      <div class="notify">2 people will be notified when you confirm</div>
+      <div class="cta"><button class="ghost">Edit</button><button class="ok">Confirm task</button></div>
+    </div>
+  </div>
+
+  <div id="view-timeline" hidden>
+    <div class="tabs"><span>Open</span><span class="on">Timeline</span><span>Done</span></div>
+    <div class="day">Today, Sep 28</div>
+    <div class="ev"><time>15:41</time><p><b>Pour inspection booked</b> for Thursday 09:00, level 2</p></div>
+    <div class="ev"><time>14:03</time><p><b>4 site photos</b> added to east yard drainage</p></div>
+    <div class="ev"><time>11:26</time><p><b>Voice note from A. G.</b> became task: close formwork on level 2</p></div>
+    <div class="day">Yesterday</div>
+    <div class="ev"><time>16:50</time><p><b>Weekly report drafted</b> from 14 recorded updates</p></div>
+    <div class="ev"><time>10:12</time><p><b>Rebar delivery confirmed</b> and attached to procurement log</p></div>
+    <div class="ev"><time>08:35</time><p><b>Task done:</b> scaffold check on the north face</p></div>
+  </div>
+</div>
+<script>
+  window.show = function (v) {
+    ["tasks","task","timeline"].forEach(id => {
+      document.getElementById("view-" + id).hidden = id !== v;
+    });
+  };
+  window.show(new URLSearchParams(location.search).get("view") || "tasks");
+</script>
+</body>
+</html>

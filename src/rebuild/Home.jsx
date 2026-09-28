@@ -14,10 +14,11 @@ import {
   LaptopFrame,
   PhoneFrame,
   BrowserFrame,
+  DemoMedia,
   Slot,
 } from "./kit.jsx";
 import { Nav, Footer } from "./shell.jsx";
-import { PROJECTS } from "./projects.js";
+import { PROJECTS, MEDIA } from "./projects.js";
 import { SVCS, INDS, TRUST, NEXT_STEPS, ARTS } from "../content.js";
 import "./tokens.css";
 import "./home.css";
@@ -100,7 +101,11 @@ function InventorySection() {
             <div className="glow glow-inv" />
             <Bezel>
               <LaptopFrame bezel="var(--inv-deep)">
-                <Slot>Real demo video plays here</Slot>
+                <DemoMedia
+                  video={MEDIA["evriel-inventory"].video}
+                  poster={MEDIA["evriel-inventory"].poster}
+                  alt="Evriel Inventory demo: dashboard, products, invoices and orders"
+                />
               </LaptopFrame>
             </Bezel>
           </div>
@@ -119,7 +124,11 @@ function AGSection() {
             <div className="glow glow-ag" />
             <Bezel>
               <PhoneFrame bezel="var(--ag-deep)">
-                <Slot>Vertical demo plays here</Slot>
+                <DemoMedia
+                  video={MEDIA["ag-project-monitor"].video}
+                  poster={MEDIA["ag-project-monitor"].poster}
+                  alt="AG Project Monitor demo: a voice note becomes a task"
+                />
               </PhoneFrame>
             </Bezel>
           </div>
@@ -175,7 +184,15 @@ function DevelopECSection() {
             <div className="glow glow-ec" />
             <Bezel dark>
               <BrowserFrame url="developec.gr">
-                <Slot>Screen recording of developec.gr plays here</Slot>
+                {MEDIA["develop-ec"].video ? (
+                  <DemoMedia
+                    video={MEDIA["develop-ec"].video}
+                    poster={MEDIA["develop-ec"].poster}
+                    alt="A scroll through the live developec.gr site"
+                  />
+                ) : (
+                  <Slot>Screen recording of developec.gr, captured once the live site is back up</Slot>
+                )}
               </BrowserFrame>
             </Bezel>
           </div>
@@ -202,6 +219,9 @@ function ProjectsGrid() {
                 className={`proj-tile tile-${p.theme}`}
                 style={{ transitionDelay: `${i * 70}ms` }}
               >
+                <span className={`tile-shot${MEDIA[key].phone ? " tile-shot-phone" : ""}`}>
+                  <img src={MEDIA[key].poster} alt={`${p.name} screen`} loading="lazy" />
+                </span>
                 <BrandMark
                   from={`var(--${p.theme})`}
                   to={`var(--${p.theme}-deep)`}

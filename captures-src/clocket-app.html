@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ClockET</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet" />
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:#0E2417; color:#fff; font-size:14px; -webkit-font-smoothing:antialiased; }
+  .app { max-width:390px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; padding:20px 18px 24px; }
+
+  .top { display:flex; align-items:center; gap:10px; }
+  .logo { width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,#22C55E,#166534); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; }
+  .top b { font-size:15px; }
+  .top small { display:block; color:#9DBBA9; font-size:12px; }
+  .shift { margin-left:auto; background:rgba(34,197,94,0.16); color:#7BE3A3; font-weight:700; font-size:11.5px; padding:5px 12px; border-radius:99px; }
+
+  .selfie { margin:34px auto 0; width:176px; height:176px; border-radius:50%; position:relative;
+    background:#123020; display:flex; align-items:center; justify-content:center; }
+  .selfie::before { content:""; position:absolute; inset:-7px; border-radius:50%; border:3px solid #22C55E; opacity:0.9; }
+  .selfie b { font-size:44px; font-weight:700; color:#7BE3A3; }
+  .selfie span { position:absolute; bottom:-13px; left:50%; transform:translateX(-50%);
+    background:#22C55E; color:#0B2413; font-weight:700; font-size:11px; padding:5px 13px; border-radius:99px; white-space:nowrap; }
+
+  .who { text-align:center; margin-top:30px; }
+  .who b { font-size:18px; }
+  .who small { display:block; color:#9DBBA9; margin-top:3px; }
+
+  .checks { margin-top:24px; display:flex; flex-direction:column; gap:9px; }
+  .check { background:#123020; border-radius:14px; padding:13px 15px; display:flex; align-items:center; gap:11px; }
+  .dot { width:22px; height:22px; border-radius:50%; background:rgba(34,197,94,0.18); color:#7BE3A3; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex:none; }
+  .check div b { font-size:13.5px; display:block; }
+  .check div small { color:#9DBBA9; font-size:12px; }
+  .check time { margin-left:auto; font-family:'Space Mono',monospace; font-size:12px; color:#7BE3A3; }
+
+  .big { margin-top:26px; border:none; font-family:inherit; width:100%; background:#22C55E; color:#0B2413;
+    font-size:17px; font-weight:700; padding:17px; border-radius:16px; }
+  .hint { text-align:center; color:#9DBBA9; font-size:12px; margin-top:12px; }
+
+  /* working state */
+  .timer { margin:40px auto 0; text-align:center; }
+  .timer b { font-family:'Space Mono',monospace; font-size:52px; letter-spacing:-0.02em; }
+  .timer small { display:block; color:#9DBBA9; margin-top:6px; }
+  .out { background:#123020; color:#fff; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="logo">CK</div>
+    <div><b>ClockET</b><small>CLK-2741 &middot; Addis Ababa HQ</small></div>
+    <span class="shift">Morning shift</span>
+  </div>
+
+  <div id="view-clockin">
+    <div class="selfie"><b>MA</b><span>Camera ready</span></div>
+    <div class="who"><b>Meron Alemu</b><small>Reception &middot; Monday 08:03</small></div>
+    <div class="checks">
+      <div class="check"><span class="dot">&#10003;</span><div><b>Inside office zone</b><small>9m from office, accuracy 14m</small></div><time>GPS</time></div>
+      <div class="check"><span class="dot">&#10003;</span><div><b>Within grace period</b><small>Shift 08:00, grace until 08:30</small></div><time>08:03</time></div>
+    </div>
+    <button class="big">Take selfie and clock in</button>
+    <p class="hint">Your selfie and location are saved with this clock-in</p>
+  </div>
+
+  <div id="view-working" hidden>
+    <div class="timer"><b>03:41:20</b><small>Clocked in at 08:03 &middot; on time</small></div>
+    <div class="checks" style="margin-top:36px">
+      <div class="check"><span class="dot">&#10003;</span><div><b>Clock-in verified</b><small>Selfie and GPS recorded</small></div><time>08:03</time></div>
+      <div class="check"><span class="dot">&#8226;</span><div><b>Leave request</b><small>Annual leave, Oct 13 to 17, pending</small></div><time>Sent</time></div>
+    </div>
+    <button class="big out">Clock out</button>
+    <p class="hint">Ethiopian time, UTC +3</p>
+  </div>
+</div>
+<script>
+  window.show = function (v) {
+    ["clockin","working"].forEach(id => {
+      document.getElementById("view-" + id).hidden = id !== v;
+    });
+  };
+  window.show(new URLSearchParams(location.search).get("view") || "clockin");
+</script>
+</body>
+</html>

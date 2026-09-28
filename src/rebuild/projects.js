@@ -223,6 +223,94 @@ export const PROJECTS = {
   },
 };
 
+/* Captured media per project. Develop EC is the real live site; the others
+   are the systems' interfaces rendered with sample data (plan part 6),
+   captured at real device sizes. */
+const cap = (slug, f) => `/captures/${slug}/${f}`;
+
+export const MEDIA = {
+  "evriel-inventory": {
+    video: cap("evriel-inventory", "demo.webm"),
+    poster: cap("evriel-inventory", "dashboard.png"),
+    shots: [
+      { f: cap("evriel-inventory", "dashboard.png"), label: "The dashboard: stock, orders and invoices across all three stores" },
+      { f: cap("evriel-inventory", "products.png"), label: "Every product with live quantities per store" },
+      { f: cap("evriel-inventory", "invoice.png"), label: "A supplier invoice, matched to products automatically" },
+      { f: cap("evriel-inventory", "orders.png"), label: "Purchase orders and what is arriving today" },
+    ],
+    featureShots: {
+      "Live stock across three stores": { src: cap("evriel-inventory", "dashboard.png") },
+      "Orders": { src: cap("evriel-inventory", "orders.png") },
+      "Store transfers": { src: cap("evriel-inventory", "products.png") },
+      "Fast invoice entry": { src: cap("evriel-inventory", "invoice.png") },
+    },
+  },
+  "ag-project-monitor": {
+    video: cap("ag-project-monitor", "demo.webm"),
+    poster: cap("ag-project-monitor", "tasks.png"),
+    phone: true,
+    shots: [
+      { f: cap("ag-project-monitor", "tasks.png"), label: "Open tasks, each born from a voice note or a site photo", phone: true },
+      { f: cap("ag-project-monitor", "task.png"), label: "A voice note becomes a task with people, due date and location", phone: true },
+      { f: cap("ag-project-monitor", "timeline.png"), label: "The project timeline: everything that happened, in order", phone: true },
+    ],
+    featureShots: {
+      "Voice memo transcription": { src: cap("ag-project-monitor", "task.png"), phone: true },
+      "Site photo intelligence": { src: cap("ag-project-monitor", "tasks.png"), phone: true },
+      "Project timeline": { src: cap("ag-project-monitor", "timeline.png"), phone: true },
+    },
+  },
+  /* developec.gr is live but currently serves a blank page (its JS bundle
+     fails to download), so the real capture is pending until the hosting
+     is fixed. Never substitute designed screens for a real public site. */
+  "develop-ec": {
+    video: null,
+    poster: null,
+    shots: [],
+    featureShots: {},
+  },
+  tasktock: {
+    video: cap("tasktock", "demo.webm"),
+    poster: cap("tasktock", "today.png"),
+    phone: true,
+    shots: [
+      { f: cap("tasktock", "today.png"), label: "Today: what is done, what is left", phone: true },
+      { f: cap("tasktock", "inbox.png"), label: "Messages to the Telegram bot, already turned into tasks", phone: true },
+    ],
+    featureShots: {
+      "The task app": { src: cap("tasktock", "today.png"), phone: true },
+      "The Telegram bot": { src: cap("tasktock", "inbox.png"), phone: true },
+    },
+  },
+  domainintel: {
+    video: cap("domainintel", "demo.webm"),
+    poster: cap("domainintel", "results.png"),
+    shots: [
+      { f: cap("domainintel", "results.png"), label: "A client brief matched by meaning, with a clear call per domain" },
+    ],
+    featureShots: {
+      "Semantic search": { src: cap("domainintel", "results.png") },
+    },
+  },
+  clocket: {
+    video: cap("clocket", "demo.webm"),
+    poster: cap("clocket", "app-clockin.png"),
+    phone: true,
+    shots: [
+      { f: cap("clocket", "app-clockin.png"), label: "Clock-in with GPS and a selfie, checked against the office zone", phone: true },
+      { f: cap("clocket", "admin-dashboard.png"), label: "The admin dashboard: live attendance and pending leave" },
+      { f: cap("clocket", "admin-reports.png"), label: "Monthly reports with the salary deduction already calculated" },
+      { f: cap("clocket", "app-working.png"), label: "The day running: verified clock-in and a live timer", phone: true },
+    ],
+    featureShots: {
+      "GPS and selfie clock-in": { src: cap("clocket", "app-clockin.png"), phone: true },
+      "Shifts and grace periods": { src: cap("clocket", "app-working.png"), phone: true },
+      "Leave requests with a conversation": { src: cap("clocket", "admin-dashboard.png") },
+      "Monthly reports and salary math": { src: cap("clocket", "admin-reports.png") },
+    },
+  },
+};
+
 export const PROJECT_ORDER = [
   "evriel-inventory",
   "ag-project-monitor",

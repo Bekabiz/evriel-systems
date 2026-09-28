@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TaskTock</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:#F4F6FB; color:#141B2E; font-size:14px; -webkit-font-smoothing:antialiased; }
+  .app { max-width:390px; margin:0 auto; min-height:100vh; padding:20px 16px 24px; }
+
+  .top { display:flex; align-items:center; gap:10px; }
+  .logo { width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,#2E5BFF,#1E3A8A); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; }
+  .top b { font-size:16px; letter-spacing:-0.01em; }
+  .day { margin-left:auto; color:#66708A; font-weight:600; font-size:12.5px; }
+
+  .prog { margin-top:18px; background:#fff; border-radius:16px; padding:14px 16px; box-shadow:0 1px 2px rgba(20,27,46,0.06); }
+  .prog-top { display:flex; align-items:baseline; }
+  .prog b { font-size:14px; }
+  .prog span { margin-left:auto; color:#66708A; font-size:12.5px; font-weight:600; }
+  .track { margin-top:10px; height:7px; border-radius:99px; background:#E9EDF6; overflow:hidden; }
+  .track i { display:block; height:100%; width:62%; border-radius:99px; background:linear-gradient(90deg,#2E5BFF,#1E3A8A); }
+
+  .h { margin:22px 4px 10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#66708A; }
+
+  .task { background:#fff; border-radius:14px; padding:13px 14px; display:flex; gap:12px; align-items:flex-start; box-shadow:0 1px 2px rgba(20,27,46,0.05); margin-bottom:9px; }
+  .tick { width:22px; height:22px; border-radius:8px; border:2px solid #C4CCDE; flex:none; margin-top:1px; }
+  .tick.done { border-color:#2E5BFF; background:#2E5BFF; position:relative; }
+  .tick.done::after { content:"\2713"; position:absolute; inset:0; color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .task div { flex:1; }
+  .task b { font-weight:600; font-size:14px; display:block; line-height:1.35; }
+  .task b.strike { text-decoration:line-through; color:#8891A6; }
+  .task small { color:#66708A; font-size:12px; margin-top:3px; display:flex; gap:8px; align-items:center; }
+  .via { background:#EAF0FF; color:#2445C9; font-weight:700; font-size:10.5px; padding:2px 8px; border-radius:99px; }
+  .time { font-weight:600; color:#2445C9; font-size:12.5px; flex:none; }
+  .time.late { color:#B4441B; }
+
+  /* inbox view */
+  .msg { background:#fff; border-radius:14px; padding:13px 14px; box-shadow:0 1px 2px rgba(20,27,46,0.05); margin-bottom:9px; }
+  .msg-h { display:flex; align-items:center; gap:8px; font-size:12px; color:#66708A; font-weight:600; }
+  .msg-h .via { margin-left:auto; }
+  .msg p { margin-top:7px; font-size:13.5px; line-height:1.45; color:#141B2E; }
+  .msg-act { margin-top:10px; display:flex; gap:8px; }
+  .msg-act button { border:none; font-family:inherit; font-weight:700; font-size:12px; border-radius:9px; padding:7px 14px; }
+  .mk { background:#2E5BFF; color:#fff; }
+  .sk { background:#EDF0F7; color:#141B2E; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="logo">TT</div><b>TaskTock</b>
+    <span class="day">Mon, Sep 28</span>
+  </div>
+
+  <div id="view-today">
+    <div class="prog">
+      <div class="prog-top"><b>Today</b><span>5 of 8 done</span></div>
+      <div class="track"><i></i></div>
+    </div>
+    <div class="h">Morning</div>
+    <div class="task"><span class="tick done"></span><div><b class="strike">Send the revised offer to the printing house</b><small><span class="via">via bot</span>done 09:12</small></div><span class="time">09:00</span></div>
+    <div class="task"><span class="tick done"></span><div><b class="strike">Call the accountant about September VAT</b><small>done 10:38</small></div><span class="time">10:30</span></div>
+    <div class="h">Afternoon</div>
+    <div class="task"><span class="tick"></span><div><b>Review supplier contract draft</b><small><span class="via">via bot</span>reminder at 14:30</small></div><span class="time">15:00</span></div>
+    <div class="task"><span class="tick"></span><div><b>Prepare agenda for tomorrow's site meeting</b><small>repeats weekly</small></div><span class="time">17:00</span></div>
+    <div class="task"><span class="tick"></span><div><b>Pay the electricity bill</b><small>due today</small></div><span class="time late">18:00</span></div>
+  </div>
+
+  <div id="view-inbox" hidden>
+    <div class="h" style="margin-top:22px">Captured from Telegram</div>
+    <div class="msg">
+      <div class="msg-h">Today 11:47 <span class="via">via bot</span></div>
+      <p>"remind me friday morning to book the van for the warehouse move"</p>
+      <div class="msg-act"><button class="mk">Task created &middot; Fri 09:00</button></div>
+    </div>
+    <div class="msg">
+      <div class="msg-h">Today 11:02 <span class="via">via bot</span></div>
+      <p>"what is still open for today?"</p>
+      <div class="msg-act"><button class="sk">Bot answered with 3 open tasks</button></div>
+    </div>
+    <div class="msg">
+      <div class="msg-h">Yesterday 19:24 <span class="via">via bot</span></div>
+      <p>"review supplier contract draft tomorrow 3pm"</p>
+      <div class="msg-act"><button class="mk">Task created &middot; Mon 15:00</button></div>
+    </div>
+  </div>
+</div>
+<script>
+  window.show = function (v) {
+    ["today","inbox"].forEach(id => {
+      document.getElementById("view-" + id).hidden = id !== v;
+    });
+  };
+  window.show(new URLSearchParams(location.search).get("view") || "today");
+</script>
+</body>
+</html>

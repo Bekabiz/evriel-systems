@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DomainIntel</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:#0F1512; color:#EAF2EE; font-size:13px; -webkit-font-smoothing:antialiased; }
+  .top { height:56px; display:flex; align-items:center; gap:12px; padding:0 24px; border-bottom:1px solid rgba(255,255,255,0.07); }
+  .logo { width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,#00A87E,#04674E); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; }
+  .top b { font-size:14.5px; }
+  .top nav { margin-left:28px; display:flex; gap:20px; color:#8BA69B; font-weight:500; }
+  .top nav span.on { color:#EAF2EE; }
+  .credits { margin-left:auto; font-size:12px; color:#8BA69B; font-weight:600; }
+  .credits b { color:#35D6A6; }
+
+  .search { padding:26px 24px 0; max-width:1100px; margin:0 auto; }
+  .brief { display:flex; gap:10px; }
+  .brief-box { flex:1; background:#161D19; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px 16px; font-size:14px; color:#EAF2EE; }
+  .brief-box small { display:block; color:#8BA69B; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:5px; }
+  .go { border:none; font-family:inherit; background:#00A87E; color:#04241A; font-weight:700; font-size:14px; border-radius:12px; padding:0 26px; }
+  .filters { display:flex; gap:8px; margin-top:12px; align-items:center; }
+  .f { background:#161D19; border:1px solid rgba(255,255,255,0.08); border-radius:99px; padding:6px 14px; font-weight:600; font-size:12px; color:#C6D6CE; }
+  .f b { color:#35D6A6; }
+  .toxic { margin-left:auto; font-size:12px; color:#8BA69B; font-weight:500; }
+  .toxic b { color:#EAF2EE; }
+
+  .results { max-width:1100px; margin:20px auto 0; padding:0 24px 32px; }
+  .res-h { display:flex; align-items:baseline; gap:12px; margin-bottom:12px; }
+  .res-h h2 { font-size:14px; font-weight:600; }
+  .res-h span { color:#8BA69B; font-size:12.5px; }
+  .csv { margin-left:auto; font-weight:600; color:#35D6A6; font-size:12.5px; }
+  table { width:100%; border-collapse:collapse; background:#131A16; border-radius:14px; overflow:hidden; }
+  th { text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; color:#8BA69B; font-weight:700; padding:11px 16px; border-bottom:1px solid rgba(255,255,255,0.07); }
+  td { padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.045); font-weight:500; }
+  tr:last-child td { border-bottom:none; }
+  .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .dom b { font-weight:600; font-size:13.5px; }
+  .dom small { display:block; color:#8BA69B; margin-top:2px; font-size:12px; }
+  .score { display:inline-flex; align-items:center; justify-content:center; min-width:40px; padding:4px 8px; border-radius:8px; font-weight:700; font-size:12.5px; }
+  .s-hi { background:rgba(53,214,166,0.14); color:#35D6A6; }
+  .s-mid { background:rgba(240,177,50,0.14); color:#F0B132; }
+  .s-lo { background:rgba(240,120,50,0.14); color:#F07832; }
+  .call { font-weight:700; font-size:11.5px; letter-spacing:0.04em; padding:4px 11px; border-radius:99px; }
+  .buy { background:rgba(53,214,166,0.16); color:#35D6A6; }
+  .review { background:rgba(240,177,50,0.16); color:#F0B132; }
+  .avoid { background:rgba(235,87,87,0.14); color:#EB5757; }
+  .cc { color:#C6D6CE; }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="logo">DI</div><b>DomainIntel</b>
+    <nav><span class="on">Search</span><span>Lists</span><span>Backlink gap</span><span>History</span></nav>
+    <span class="credits">Credits <b>184</b></span>
+  </div>
+
+  <div class="search">
+    <div class="brief">
+      <div class="brief-box">
+        <small>Client brief</small>
+        sustainable fashion blogs in Australia
+      </div>
+      <button class="go">Match domains</button>
+    </div>
+    <div class="filters">
+      <span class="f">Country <b>AU</b></span>
+      <span class="f">Category <b>Fashion, Lifestyle</b></span>
+      <span class="f">Min DR <b>30</b></span>
+      <span class="f">Traffic <b>5k+</b></span>
+      <span class="toxic"><b>312</b> toxic domains excluded from this search</span>
+    </div>
+  </div>
+
+  <div class="results">
+    <div class="res-h">
+      <h2>Matched by meaning</h2><span>20 of 1,432 candidates, 0.8s</span>
+      <span class="csv">Export CSV</span>
+    </div>
+    <table>
+      <tr><th>Domain</th><th class="num">Relevancy</th><th class="num">DR</th><th class="num">Traffic / mo</th><th>Country</th><th>Call</th></tr>
+      <tr>
+        <td class="dom"><b>ecothreads.au</b><small>Slow fashion features, brand interviews, materials guides</small></td>
+        <td class="num"><span class="score s-hi">96</span></td><td class="num">52</td><td class="num">38,400</td><td class="cc">AU</td>
+        <td><span class="call buy">BUY</span></td>
+      </tr>
+      <tr>
+        <td class="dom"><b>greenwardrobe.blog</b><small>Sustainable outfit guides and secondhand styling</small></td>
+        <td class="num"><span class="score s-hi">93</span></td><td class="num">44</td><td class="num">21,700</td><td class="cc">AU</td>
+        <td><span class="call buy">BUY</span></td>
+      </tr>
+      <tr>
+        <td class="dom"><b>fibreandfield.com</b><small>Natural fibres, wool supply chain, ethical producers</small></td>
+        <td class="num"><span class="score s-hi">89</span></td><td class="num">38</td><td class="num">12,900</td><td class="cc">AU</td>
+        <td><span class="call buy">BUY</span></td>
+      </tr>
+      <tr>
+        <td class="dom"><b>thecuratedcloset.au</b><small>Capsule wardrobes, some sponsored content</small></td>
+        <td class="num"><span class="score s-mid">81</span></td><td class="num">47</td><td class="num">29,300</td><td class="cc">AU</td>
+        <td><span class="call review">REVIEW</span></td>
+      </tr>
+      <tr>
+        <td class="dom"><b>urbanfitjournal.com</b><small>General lifestyle, fashion is a minor category</small></td>
+        <td class="num"><span class="score s-mid">74</span></td><td class="num">61</td><td class="num">88,000</td><td class="cc">AU</td>
+        <td><span class="call review">REVIEW</span></td>
+      </tr>
+      <tr>
+        <td class="dom"><b>stylebargainhub.net</b><small>Thin affiliate pages, aggressive outbound linking</small></td>
+        <td class="num"><span class="score s-lo">58</span></td><td class="num">33</td><td class="num">6,100</td><td class="cc">AU</td>
+        <td><span class="call avoid">AVOID</span></td>
+      </tr>
+      <tr>
+        <td class="dom"><b>wearwell.au</b><small>Ethical brand directory and certification explainers</small></td>
+        <td class="num"><span class="score s-hi">87</span></td><td class="num">35</td><td class="num">9,800</td><td class="cc">AU</td>
+        <td><span class="call buy">BUY</span></td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>

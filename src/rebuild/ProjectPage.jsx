@@ -10,11 +10,12 @@ import {
   LaptopFrame,
   PhoneFrame,
   BrowserFrame,
+  DemoMedia,
   Slot,
 } from "./kit.jsx";
 import { Nav, Footer } from "./shell.jsx";
 import { ContactSection } from "./Home.jsx";
-import { PROJECTS } from "./projects.js";
+import { PROJECTS, MEDIA } from "./projects.js";
 import "./tokens.css";
 import "./home.css";
 import "./project.css";
@@ -52,6 +53,7 @@ export default function ProjectPage({ slug }) {
   }, [p.name]);
 
   const next = PROJECTS[p.next];
+  const media = MEDIA[p.slug];
   const dark = p.theme === "ec";
 
   return (
@@ -73,11 +75,19 @@ export default function ProjectPage({ slug }) {
                 Visit {p.live.replace("https://", "")}
               </a>
             )}
-            <div className="proj-stage">
+            <div className={`proj-stage${p.device === "phone" ? " proj-stage-phone" : ""}`}>
               <div className={`glow glow-${p.theme}`} />
               <Bezel dark={dark}>
                 <Device p={p}>
-                  <Slot>Real demo video plays here</Slot>
+                  {media.video ? (
+                    <DemoMedia
+                      video={media.video}
+                      poster={media.poster}
+                      alt={`${p.name} demo video`}
+                    />
+                  ) : (
+                    <Slot>Screen recording of the live site, captured once it is back up</Slot>
+                  )}
                 </Device>
               </Bezel>
             </div>
@@ -95,35 +105,43 @@ export default function ProjectPage({ slug }) {
           <div className="wrap reveal">
             <h2 className="section-h">The solution we gave</h2>
             <div className="feat-grid">
-              {p.features.map((f) => (
-                <div key={f.t} className="feat">
-                  <h3>{f.t}</h3>
-                  <p>{f.d}</p>
-                  <div className="feat-slot">
-                    <Slot>Real screenshot goes here</Slot>
+              {p.features.map((f) => {
+                const shot = media.featureShots[f.t];
+                return (
+                  <div key={f.t} className="feat">
+                    <h3>{f.t}</h3>
+                    <p>{f.d}</p>
+                    {shot && (
+                      <div className={`feat-slot${shot.phone ? " is-phone" : ""}`}>
+                        <img src={shot.src} alt={`${p.name}: ${f.t}`} loading="lazy" />
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
 
+        {media.shots.length > 0 && (
         <section className="proj-gallery band">
           <div className="wrap reveal">
             <h2 className="section-h">The screens</h2>
             <p className="section-sub">
-              A gallery of real screens from the system, after the privacy pass.
-              No client data ever appears here.
+              Screens from the system. No client data ever appears here: what
+              you see is the interface with sample records.
             </p>
             <div className="gal-grid">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="gal-slot">
-                  <Slot>Screenshot slot</Slot>
-                </div>
+              {media.shots.map((s) => (
+                <figure key={s.f} className={`gal-slot${s.phone ? " is-phone" : ""}`}>
+                  <img src={s.f} alt={s.label} loading="lazy" />
+                  <figcaption>{s.label}</figcaption>
+                </figure>
               ))}
             </div>
           </div>
         </section>
+        )}
 
         {p.results.length > 0 && (
           <section className="proj-results">

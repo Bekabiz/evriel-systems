@@ -189,3 +189,45 @@ export function BrowserFrame({ url, children }) {
 export function Slot({ children }) {
   return <span className="slot-note">{children}</span>;
 }
+
+/* Demo video: plays once, muted, when it scrolls into view. Click to replay.
+   Under reduced motion it stays on the poster until clicked. */
+export function DemoMedia({ video, poster, alt }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.play().catch(() => {});
+          io.disconnect();
+        }
+      },
+      { threshold: 0.4 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <video
+      ref={ref}
+      className="demo-media"
+      src={video}
+      poster={poster}
+      muted
+      playsInline
+      preload="metadata"
+      aria-label={alt}
+      onClick={(e) => {
+        const v = e.currentTarget;
+        if (v.paused) { v.currentTime = 0; v.play().catch(() => {}); }
+        else v.pause();
+      }}
+    />
+  );
+}

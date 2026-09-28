@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Evriel Inventory</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:#F3F5F8; color:#16233A; font-size:13px; -webkit-font-smoothing:antialiased; }
+  .app { display:flex; height:100vh; overflow:hidden; }
+
+  .side { width:220px; background:#132840; color:#fff; display:flex; flex-direction:column; flex:none; }
+  .side-logo { padding:20px 20px 18px; font-weight:700; font-size:15px; letter-spacing:-0.01em; display:flex; align-items:center; gap:10px; }
+  .side-logo b { width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,#06B6D4,#0B5E86); display:flex; align-items:center; justify-content:center; font-size:12px; }
+  .side nav { padding:8px 12px; display:flex; flex-direction:column; gap:2px; }
+  .side nav a { color:#9FB2C8; text-decoration:none; padding:9px 12px; border-radius:8px; font-weight:500; }
+  .side nav a.on { background:rgba(6,182,212,0.16); color:#fff; }
+  .side-store { margin-top:auto; padding:16px 20px; font-size:12px; color:#9FB2C8; border-top:1px solid rgba(255,255,255,0.08); }
+  .side-store b { color:#fff; display:block; font-size:12.5px; }
+
+  .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+  .top { height:56px; background:#fff; border-bottom:1px solid #E4E9F0; display:flex; align-items:center; gap:14px; padding:0 24px; flex:none; }
+  .top h1 { font-size:15px; font-weight:600; }
+  .stores { margin-left:auto; display:flex; background:#EEF2F7; border-radius:9px; padding:3px; }
+  .stores span { padding:6px 14px; border-radius:7px; font-weight:500; color:#5B6B82; }
+  .stores span.on { background:#fff; color:#16233A; font-weight:600; box-shadow:0 1px 2px rgba(22,35,58,0.10); }
+  .user { width:30px; height:30px; border-radius:50%; background:#0B5E86; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:12px; }
+
+  .body { flex:1; overflow:auto; padding:24px; }
+  .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .card { background:#fff; border-radius:12px; padding:16px 18px; box-shadow:0 1px 2px rgba(22,35,58,0.06); }
+  .card small { color:#5B6B82; font-weight:500; }
+  .card b { display:block; font-size:24px; font-weight:700; margin-top:6px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; }
+  .card i { font-style:normal; font-size:11.5px; font-weight:600; border-radius:99px; padding:2px 8px; }
+  .up { background:#E3F7EE; color:#0E7A4E; }
+  .warn { background:#FDEEE7; color:#B4441B; }
+
+  .panel { background:#fff; border-radius:12px; margin-top:16px; box-shadow:0 1px 2px rgba(22,35,58,0.06); overflow:hidden; }
+  .panel-h { display:flex; align-items:center; padding:14px 18px; border-bottom:1px solid #EEF1F6; }
+  .panel-h h2 { font-size:13.5px; font-weight:600; }
+  .panel-h span { margin-left:auto; color:#0B7C99; font-weight:600; font-size:12.5px; }
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:#8593A8; font-weight:600; padding:10px 18px; border-bottom:1px solid #EEF1F6; }
+  td { padding:11px 18px; border-bottom:1px solid #F3F5F9; font-weight:500; }
+  tr:last-child td { border-bottom:none; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .sku { color:#5B6B82; font-size:12px; }
+  .low { color:#B4441B; font-weight:600; }
+  .chip { font-size:11.5px; font-weight:600; border-radius:99px; padding:3px 10px; }
+  .c-ok { background:#E3F7EE; color:#0E7A4E; }
+  .c-low { background:#FDEEE7; color:#B4441B; }
+  .c-open { background:#E7F4FB; color:#0B5E86; }
+  .c-match { background:#E3F7EE; color:#0E7A4E; }
+
+  .two { display:grid; grid-template-columns:1.2fr 0.8fr; gap:16px; margin-top:16px; }
+  .act { padding:12px 18px; border-bottom:1px solid #F3F5F9; display:flex; gap:12px; align-items:baseline; }
+  .act time { color:#8593A8; font-size:11.5px; flex:none; width:44px; font-variant-numeric:tabular-nums; }
+
+  /* invoice view */
+  .inv-wrap { display:grid; grid-template-columns:0.9fr 1.1fr; gap:16px; }
+  .inv-meta { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:16px 18px; }
+  .inv-meta label { font-size:11px; color:#8593A8; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
+  .inv-meta b { display:block; margin-top:3px; font-weight:600; }
+  .match-note { margin:0 18px 16px; background:#E3F7EE; color:#0E7A4E; border-radius:9px; padding:10px 14px; font-weight:600; font-size:12.5px; }
+  .btnrow { display:flex; gap:10px; padding:16px 18px; border-top:1px solid #EEF1F6; }
+  .btn { border:none; font-family:inherit; font-weight:600; font-size:13px; border-radius:9px; padding:10px 18px; }
+  .btn-p { background:#06B6D4; color:#0B2B44; }
+  .btn-s { background:#EEF2F7; color:#16233A; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="side-logo"><b>EI</b> Evriel Inventory</div>
+    <nav>
+      <a data-v="dashboard" href="#">Dashboard</a>
+      <a data-v="products" href="#">Products</a>
+      <a data-v="orders" href="#">Orders</a>
+      <a href="#">Transfers</a>
+      <a data-v="invoice" href="#">Invoices</a>
+      <a href="#">Suppliers</a>
+      <a href="#">Reports</a>
+    </nav>
+    <div class="side-store"><b>Retail Group</b>3 stores connected</div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <h1 id="title">Dashboard</h1>
+      <div class="stores">
+        <span class="on">All stores</span><span>Central</span><span>North</span><span>Harbour</span>
+      </div>
+      <div class="user">MK</div>
+    </div>
+
+    <div class="body" id="view-dashboard">
+      <div class="cards">
+        <div class="card"><small>Products</small><b>39,412</b><i class="up">+214 this month</i></div>
+        <div class="card"><small>Low stock items</small><b>118</b><i class="warn">31 critical</i></div>
+        <div class="card"><small>Open orders</small><b>24</b><i class="up">6 arriving today</i></div>
+        <div class="card"><small>Invoices this week</small><b>47</b><i class="up">avg entry 5 min</i></div>
+      </div>
+      <div class="two">
+        <div class="panel">
+          <div class="panel-h"><h2>Low stock, all stores</h2><span>View all 118</span></div>
+          <table>
+            <tr><th>Product</th><th class="num">Central</th><th class="num">North</th><th class="num">Harbour</th><th class="num">Min</th></tr>
+            <tr><td>Silicone Sealant 280ml Clear<div class="sku">SKU 10-4471</div></td><td class="num low">3</td><td class="num">14</td><td class="num">9</td><td class="num">12</td></tr>
+            <tr><td>LED Bulb E27 9W Warm<div class="sku">SKU 20-1180</div></td><td class="num">22</td><td class="num low">4</td><td class="num">17</td><td class="num">15</td></tr>
+            <tr><td>Paint Roller Set 18cm<div class="sku">SKU 31-0227</div></td><td class="num low">2</td><td class="num low">5</td><td class="num">11</td><td class="num">10</td></tr>
+            <tr><td>Extension Cord 5m Schuko<div class="sku">SKU 20-3305</div></td><td class="num">9</td><td class="num">12</td><td class="num low">1</td><td class="num">8</td></tr>
+            <tr><td>Wall Plug Set 8mm x100<div class="sku">SKU 10-2216</div></td><td class="num low">6</td><td class="num">19</td><td class="num">8</td><td class="num">14</td></tr>
+          </table>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h2>Today</h2></div>
+          <div class="act"><time>14:22</time><div>Transfer <b>TR-2214</b> received at Harbour, 36 items</div></div>
+          <div class="act"><time>13:05</time><div>Invoice <b>INV-8841</b> matched automatically, 61 lines</div></div>
+          <div class="act"><time>11:48</time><div>Order <b>PO-1174</b> confirmed by supplier</div></div>
+          <div class="act"><time>10:31</time><div>Stock count closed at Central, 1,204 items</div></div>
+          <div class="act"><time>09:12</time><div>Invoice <b>INV-8838</b> entered in 4 min</div></div>
+          <div class="act"><time>08:40</time><div>Transfer <b>TR-2213</b> sent from Central to North</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="body" id="view-products" hidden>
+      <div class="panel" style="margin-top:0">
+        <div class="panel-h"><h2>Products, 39,412</h2><span>Export</span></div>
+        <table>
+          <tr><th>Product</th><th>Category</th><th class="num">Central</th><th class="num">North</th><th class="num">Harbour</th><th class="num">Total</th><th class="num">Price</th></tr>
+          <tr><td>Acrylic Paint White 10L<div class="sku">SKU 31-0101</div></td><td>Paints</td><td class="num">44</td><td class="num">31</td><td class="num">27</td><td class="num">102</td><td class="num">42.90</td></tr>
+          <tr><td>Cordless Drill 18V<div class="sku">SKU 40-7702</div></td><td>Tools</td><td class="num">12</td><td class="num">8</td><td class="num">6</td><td class="num">26</td><td class="num">119.00</td></tr>
+          <tr><td>Garden Hose 25m<div class="sku">SKU 55-1240</div></td><td>Garden</td><td class="num">18</td><td class="num">22</td><td class="num">13</td><td class="num">53</td><td class="num">27.50</td></tr>
+          <tr><td>Silicone Sealant 280ml Clear<div class="sku">SKU 10-4471</div></td><td>Building</td><td class="num low">3</td><td class="num">14</td><td class="num">9</td><td class="num">26</td><td class="num">5.80</td></tr>
+          <tr><td>LED Bulb E27 9W Warm<div class="sku">SKU 20-1180</div></td><td>Electrical</td><td class="num">22</td><td class="num low">4</td><td class="num">17</td><td class="num">43</td><td class="num">3.20</td></tr>
+          <tr><td>Ceramic Tile 60x60 Grey<div class="sku">SKU 70-3318</div></td><td>Flooring</td><td class="num">240</td><td class="num">185</td><td class="num">96</td><td class="num">521</td><td class="num">18.40</td></tr>
+          <tr><td>Interior Door Handle Set<div class="sku">SKU 80-2144</div></td><td>Hardware</td><td class="num">31</td><td class="num">27</td><td class="num">19</td><td class="num">77</td><td class="num">24.00</td></tr>
+          <tr><td>Thermal Insulation Roll 10m<div class="sku">SKU 70-5501</div></td><td>Building</td><td class="num">15</td><td class="num">11</td><td class="num">7</td><td class="num">33</td><td class="num">36.70</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="body" id="view-invoice" hidden>
+      <div class="inv-wrap">
+        <div class="panel" style="margin-top:0">
+          <div class="panel-h"><h2>Invoice INV-8841</h2><span class="chip c-match">Matched automatically</span></div>
+          <div class="inv-meta">
+            <div><label>Supplier</label><b>Building Materials Supplier</b></div>
+            <div><label>Date</label><b>26 Sep 2026</b></div>
+            <div><label>Lines</label><b>61</b></div>
+            <div><label>Total</label><b>4,318.60</b></div>
+          </div>
+          <div class="match-note">58 of 61 lines matched to products automatically. 3 need review.</div>
+          <div class="btnrow"><button class="btn btn-p">Post to stock</button><button class="btn btn-s">Review 3 lines</button></div>
+        </div>
+        <div class="panel" style="margin-top:0">
+          <div class="panel-h"><h2>Matched lines</h2></div>
+          <table>
+            <tr><th>Invoice line</th><th>Matched product</th><th class="num">Qty</th><th></th></tr>
+            <tr><td>SEALANT SIL. 280 CLR</td><td>Silicone Sealant 280ml Clear</td><td class="num">48</td><td><span class="chip c-match">Auto</span></td></tr>
+            <tr><td>LED E27 9W WW</td><td>LED Bulb E27 9W Warm</td><td class="num">120</td><td><span class="chip c-match">Auto</span></td></tr>
+            <tr><td>TILE CER 60X60 GR</td><td>Ceramic Tile 60x60 Grey</td><td class="num">200</td><td><span class="chip c-match">Auto</span></td></tr>
+            <tr><td>INSUL ROLL 10M</td><td>Thermal Insulation Roll 10m</td><td class="num">25</td><td><span class="chip c-match">Auto</span></td></tr>
+            <tr><td>HNDL SET INT DOOR</td><td>Interior Door Handle Set</td><td class="num">30</td><td><span class="chip c-match">Auto</span></td></tr>
+            <tr><td>WPLUG 8MM X100</td><td>Wall Plug Set 8mm x100</td><td class="num">60</td><td><span class="chip c-match">Auto</span></td></tr>
+            <tr><td>CORD EXT 5M SCH</td><td class="low">Needs review</td><td class="num">15</td><td><span class="chip c-low">Review</span></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="body" id="view-orders" hidden>
+      <div class="panel" style="margin-top:0">
+        <div class="panel-h"><h2>Purchase orders</h2><span>New order</span></div>
+        <table>
+          <tr><th>Order</th><th>Supplier</th><th>Store</th><th class="num">Lines</th><th class="num">Total</th><th>Status</th><th>Expected</th></tr>
+          <tr><td><b>PO-1177</b></td><td>Electrical Wholesale</td><td>Central</td><td class="num">18</td><td class="num">1,240.00</td><td><span class="chip c-open">Sent</span></td><td>1 Oct</td></tr>
+          <tr><td><b>PO-1176</b></td><td>Paint Distributor</td><td>North</td><td class="num">9</td><td class="num">2,861.40</td><td><span class="chip c-open">Confirmed</span></td><td>30 Sep</td></tr>
+          <tr><td><b>PO-1175</b></td><td>Building Materials Supplier</td><td>Harbour</td><td class="num">27</td><td class="num">3,415.90</td><td><span class="chip c-ok">Arriving today</span></td><td>28 Sep</td></tr>
+          <tr><td><b>PO-1174</b></td><td>Tools Importer</td><td>Central</td><td class="num">12</td><td class="num">4,102.00</td><td><span class="chip c-ok">Arriving today</span></td><td>28 Sep</td></tr>
+          <tr><td><b>PO-1173</b></td><td>Garden Supplies</td><td>North</td><td class="num">21</td><td class="num">988.75</td><td><span class="chip c-open">Confirmed</span></td><td>2 Oct</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const titles = { dashboard:"Dashboard", products:"Products", invoice:"Invoices", orders:"Orders" };
+  window.show = function (v) {
+    document.querySelectorAll(".body").forEach(el => { el.hidden = el.id !== "view-" + v; });
+    document.getElementById("title").textContent = titles[v] || "Dashboard";
+    document.querySelectorAll(".side nav a").forEach(a => a.classList.toggle("on", a.dataset.v === v));
+  };
+  window.show(new URLSearchParams(location.search).get("view") || "dashboard");
+</script>
+</body>
+</html>

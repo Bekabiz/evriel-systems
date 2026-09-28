@@ -231,6 +231,20 @@
 }
 .slot-note { font-size: 13px; color: var(--gray); text-align: center; padding: 0 16px; }
 
+/* captured media inside device panels */
+.laptop-panel, .phone-panel, .browser-panel { overflow: hidden; }
+.demo-media {
+  width: 100%; height: 100%; object-fit: cover; object-position: top;
+  display: block; cursor: pointer; border-radius: inherit; background: var(--soft);
+}
+
+.tile-shot {
+  display: block; width: 100%; aspect-ratio: 16 / 10; border-radius: 16px;
+  overflow: hidden; margin-bottom: 20px;
+  box-shadow: 0 12px 32px -14px rgba(29, 29, 31, 0.28);
+}
+.tile-shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+
 /* phone frame */
 .room-stage-phone { display: flex; justify-content: center; }
 .room-stage-phone .bezel { width: fit-content; }

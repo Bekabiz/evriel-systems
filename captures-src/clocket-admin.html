@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ClockET Admin</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet" />
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:#F6F8F7; color:#14201A; font-size:13.5px; -webkit-font-smoothing:antialiased; }
+  .app { display:flex; height:100vh; overflow:hidden; }
+
+  .side { width:216px; background:#0E2417; color:#fff; display:flex; flex-direction:column; flex:none; }
+  .side-logo { padding:20px; font-weight:700; font-size:16px; display:flex; align-items:center; gap:9px; }
+  .side-logo b { width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,#22C55E,#166534); display:flex; align-items:center; justify-content:center; font-size:11px; }
+  .side nav { padding:6px 12px; display:flex; flex-direction:column; gap:2px; }
+  .side nav a { color:#9DBBA9; text-decoration:none; padding:9px 12px; border-radius:8px; font-weight:500; }
+  .side nav a.on { background:rgba(34,197,94,0.18); color:#fff; }
+  .side-co { margin-top:auto; padding:16px 20px; font-size:12px; color:#9DBBA9; border-top:1px solid rgba(255,255,255,0.08); }
+  .side-co b { color:#fff; display:block; font-family:'Space Mono',monospace; }
+
+  .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+  .top { height:56px; background:#fff; border-bottom:1px solid #E5EAE7; display:flex; align-items:center; padding:0 24px; flex:none; }
+  .top h1 { font-size:15px; font-weight:700; }
+  .top time { margin-left:auto; color:#5F6E66; font-weight:500; font-size:12.5px; }
+
+  .body { flex:1; overflow:auto; padding:22px 24px; }
+  .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .card { background:#fff; border-radius:14px; padding:16px 18px; box-shadow:0 1px 2px rgba(20,32,26,0.06); }
+  .card small { color:#5F6E66; font-weight:500; }
+  .card b { display:block; font-size:26px; font-weight:700; margin-top:4px; font-family:'Space Mono',monospace; }
+  .g { color:#16A34A; } .y { color:#B45309; } .r { color:#B42318; }
+
+  .panel { background:#fff; border-radius:14px; margin-top:16px; box-shadow:0 1px 2px rgba(20,32,26,0.06); overflow:hidden; }
+  .panel-h { display:flex; align-items:center; padding:14px 18px; border-bottom:1px solid #EEF2EF; }
+  .panel-h h2 { font-size:13.5px; font-weight:700; }
+  .panel-h span { margin-left:auto; color:#16A34A; font-weight:600; font-size:12.5px; }
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; color:#8A968F; font-weight:700; padding:10px 18px; border-bottom:1px solid #EEF2EF; }
+  td { padding:10px 18px; border-bottom:1px solid #F2F5F3; font-weight:500; }
+  tr:last-child td { border-bottom:none; }
+  .emp { display:flex; align-items:center; gap:10px; }
+  .ava { width:32px; height:32px; border-radius:50%; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; flex:none; }
+  .v1 { background:#166534; } .v2 { background:#0E7490; } .v3 { background:#7C4A21; } .v4 { background:#4C1D95; } .v5 { background:#9D174D; } .v6 { background:#374151; }
+  .emp small { display:block; color:#8A968F; font-size:11.5px; }
+  .t { font-family:'Space Mono',monospace; font-size:12.5px; }
+  .chip { font-size:11.5px; font-weight:700; border-radius:99px; padding:3px 10px; }
+  .ok { background:#E5F7EC; color:#15803D; }
+  .late { background:#FDF1E2; color:#B45309; }
+  .gps { color:#15803D; font-weight:600; font-size:12px; }
+
+  .two { display:grid; grid-template-columns:1.25fr 0.75fr; gap:16px; margin-top:16px; }
+  .leave { padding:13px 18px; border-bottom:1px solid #F2F5F3; }
+  .leave:last-child { border-bottom:none; }
+  .leave-top { display:flex; align-items:center; gap:10px; }
+  .leave-top .chip { margin-left:auto; }
+  .pend { background:#FDF1E2; color:#B45309; }
+  .leave p { color:#5F6E66; font-size:12.5px; margin-top:6px; }
+  .leave-act { display:flex; gap:8px; margin-top:10px; }
+  .leave-act button { border:none; font-family:inherit; font-weight:700; font-size:12px; border-radius:8px; padding:7px 14px; }
+  .ap { background:#22C55E; color:#0B2413; }
+  .rj { background:#F1F4F2; color:#14201A; }
+
+  /* reports view */
+  .rep-meta { display:flex; gap:10px; padding:14px 18px; border-bottom:1px solid #EEF2EF; align-items:center; }
+  .sel { background:#F1F4F2; border-radius:9px; padding:7px 14px; font-weight:600; font-size:12.5px; }
+  .bar { display:flex; height:8px; border-radius:99px; overflow:hidden; width:130px; background:#F1F4F2; }
+  .bar i { background:#22C55E; } .bar em { background:#F0B132; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="side-logo"><b>CK</b> ClockET</div>
+    <nav>
+      <a data-v="dashboard" href="#">Dashboard</a>
+      <a href="#">Employees</a>
+      <a href="#">Leave Requests</a>
+      <a href="#">Shift Scheduling</a>
+      <a data-v="reports" href="#">Reports</a>
+      <a href="#">Payment</a>
+      <a href="#">Settings</a>
+    </nav>
+    <div class="side-co"><b>CLK-2741</b>Addis Ababa HQ</div>
+  </aside>
+
+  <div class="main">
+    <div class="top"><h1 id="title">Dashboard</h1><time>Monday, Meskerem 17 &middot; 09:42</time></div>
+
+    <div class="body" id="view-dashboard">
+      <div class="cards">
+        <div class="card"><small>Present today</small><b class="g">34</b></div>
+        <div class="card"><small>Late</small><b class="y">5</b></div>
+        <div class="card"><small>Absent</small><b class="r">3</b></div>
+        <div class="card"><small>On leave</small><b>2</b></div>
+      </div>
+      <div class="two">
+        <div class="panel">
+          <div class="panel-h"><h2>Live attendance</h2><span>All employees</span></div>
+          <table>
+            <tr><th>Employee</th><th>Clock in</th><th>Status</th><th>Location</th><th>Selfie</th></tr>
+            <tr><td><div class="emp"><span class="ava v1">AG</span><div>Abel Girma<small>Sales</small></div></div></td><td class="t">08:02</td><td><span class="chip ok">Present</span></td><td class="gps">In zone &middot; 28m</td><td><span class="ava v1" style="border-radius:8px">AG</span></td></tr>
+            <tr><td><div class="emp"><span class="ava v2">HT</span><div>Hanna Tadesse<small>Accounting</small></div></div></td><td class="t">07:56</td><td><span class="chip ok">Present</span></td><td class="gps">In zone &middot; 12m</td><td><span class="ava v2" style="border-radius:8px">HT</span></td></tr>
+            <tr><td><div class="emp"><span class="ava v3">YB</span><div>Yonatan Bekele<small>Field team</small></div></div></td><td class="t">08:47</td><td><span class="chip late">Late 17 min</span></td><td class="gps">In zone &middot; 61m</td><td><span class="ava v3" style="border-radius:8px">YB</span></td></tr>
+            <tr><td><div class="emp"><span class="ava v4">MA</span><div>Meron Alemu<small>Reception</small></div></div></td><td class="t">08:05</td><td><span class="chip ok">Present</span></td><td class="gps">In zone &middot; 9m</td><td><span class="ava v4" style="border-radius:8px">MA</span></td></tr>
+            <tr><td><div class="emp"><span class="ava v5">SF</span><div>Selam Fikru<small>Sales</small></div></div></td><td class="t">08:11</td><td><span class="chip ok">Present</span></td><td class="gps">In zone &middot; 33m</td><td><span class="ava v5" style="border-radius:8px">SF</span></td></tr>
+            <tr><td><div class="emp"><span class="ava v6">DH</span><div>Dawit Haile<small>Warehouse</small></div></div></td><td class="t">08:39</td><td><span class="chip late">Late 9 min</span></td><td class="gps">In zone &middot; 44m</td><td><span class="ava v6" style="border-radius:8px">DH</span></td></tr>
+          </table>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h2>Pending leave</h2><span>View all</span></div>
+          <div class="leave">
+            <div class="leave-top"><span class="ava v2">HT</span><b>Hanna Tadesse</b><span class="chip pend">Sick</span></div>
+            <p>Oct 2 to Oct 3 &middot; "Doctor appointment on Thursday morning."</p>
+            <div class="leave-act"><button class="ap">Approve</button><button class="rj">Reject</button></div>
+          </div>
+          <div class="leave">
+            <div class="leave-top"><span class="ava v3">YB</span><b>Yonatan Bekele</b><span class="chip pend">Annual</span></div>
+            <p>Oct 13 to Oct 17 &middot; "Family wedding in Bahir Dar."</p>
+            <div class="leave-act"><button class="ap">Approve</button><button class="rj">Reject</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="body" id="view-reports" hidden>
+      <div class="panel" style="margin-top:0">
+        <div class="rep-meta">
+          <span class="sel">September 2026</span><span class="sel">All departments</span>
+          <span style="margin-left:auto;color:#16A34A;font-weight:700;font-size:12.5px">Export PDF</span>
+        </div>
+        <table>
+          <tr><th>Employee</th><th>Present</th><th>Late</th><th>Absent</th><th>Attendance</th><th>Deduction</th></tr>
+          <tr><td><div class="emp"><span class="ava v1">AG</span>Abel Girma</div></td><td class="t">21</td><td class="t">1</td><td class="t">0</td><td><div class="bar"><i style="width:96%"></i><em style="width:4%"></em></div></td><td class="t">0.00</td></tr>
+          <tr><td><div class="emp"><span class="ava v2">HT</span>Hanna Tadesse</div></td><td class="t">22</td><td class="t">0</td><td class="t">0</td><td><div class="bar"><i style="width:100%"></i></div></td><td class="t">0.00</td></tr>
+          <tr><td><div class="emp"><span class="ava v3">YB</span>Yonatan Bekele</div></td><td class="t">18</td><td class="t">3</td><td class="t">1</td><td><div class="bar"><i style="width:82%"></i><em style="width:13%"></em></div></td><td class="t">418.20</td></tr>
+          <tr><td><div class="emp"><span class="ava v4">MA</span>Meron Alemu</div></td><td class="t">20</td><td class="t">2</td><td class="t">0</td><td><div class="bar"><i style="width:91%"></i><em style="width:9%"></em></div></td><td class="t">0.00</td></tr>
+          <tr><td><div class="emp"><span class="ava v6">DH</span>Dawit Haile</div></td><td class="t">19</td><td class="t">2</td><td class="t">1</td><td><div class="bar"><i style="width:86%"></i><em style="width:9%"></em></div></td><td class="t">386.40</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const titles = { dashboard:"Dashboard", reports:"Reports" };
+  window.show = function (v) {
+    document.querySelectorAll(".body").forEach(el => { el.hidden = el.id !== "view-" + v; });
+    document.getElementById("title").textContent = titles[v] || "Dashboard";
+    document.querySelectorAll(".side nav a").forEach(a => a.classList.toggle("on", a.dataset.v === v));
+  };
+  window.show(new URLSearchParams(location.search).get("view") || "dashboard");
+</script>
+</body>
+</html>
