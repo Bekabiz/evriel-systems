@@ -1,5 +1,5 @@
-/* Shared pieces for the rebuild: reveal hook, ambient hero light,
-   device frames and the per-project brand marks. */
+/* Shared pieces for the rebuild: reveal hook, ambient hero light, CTAs,
+   device frames in double-bezel trays, and the per-project brand marks. */
 
 import React, { useEffect, useRef } from "react";
 
@@ -23,7 +23,7 @@ export function useReveal(rootRef) {
           }
         });
       },
-      { threshold: 0.12 }
+      { threshold: 0.1 }
     );
     items.forEach((el) => io.observe(el));
     return () => io.disconnect();
@@ -31,7 +31,7 @@ export function useReveal(rootRef) {
 }
 
 /* Very subtle drifting light behind the hero. Canvas only, no assets.
-   Static under reduced motion, paused when offscreen or tab hidden. */
+   Static under reduced motion, paused when the tab is hidden. */
 export function AmbientLight() {
   const ref = useRef(null);
 
@@ -106,6 +106,30 @@ export function AmbientLight() {
   return <canvas ref={ref} className="ambient" aria-hidden="true" />;
 }
 
+/* Primary CTA: pill with the arrow nested in its own circular chip. */
+export function Cta({ href, children, className = "", chip = true, ...rest }) {
+  return (
+    <a href={href} className={`cta ${className}`} {...rest}>
+      <span>{children}</span>
+      {chip && <span className="cta-chip" aria-hidden="true">&#8599;</span>}
+    </a>
+  );
+}
+
+/* Pure CSS hamburger that morphs into an X. No icon library. */
+export function Burger({ open, onClick }) {
+  return (
+    <button
+      className={`burger${open ? " burger-open" : ""}`}
+      aria-label={open ? "Close menu" : "Open menu"}
+      aria-expanded={open}
+      onClick={onClick}
+    >
+      <span /><span />
+    </button>
+  );
+}
+
 /* App-icon style mark for each project: rounded square, project gradient, initials. */
 export function BrandMark({ from, to, initials, size = 44 }) {
   return (
@@ -123,6 +147,11 @@ export function BrandMark({ from, to, initials, size = 44 }) {
       {initials}
     </span>
   );
+}
+
+/* Double-bezel tray: devices sit in a machined shell, never flat on the page. */
+export function Bezel({ dark = false, children }) {
+  return <div className={`bezel${dark ? " bezel-dark" : ""}`}>{children}</div>;
 }
 
 /* Clean CSS device frames. Screens are honest slots until real captures exist. */
