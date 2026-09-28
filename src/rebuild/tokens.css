@@ -1,0 +1,108 @@
+/* Evriel Systems rebuild: design tokens and base styles.
+   Source of truth: REBUILD-PLAN.md part 2, revised colors approved on the style tile round. */
+
+:root {
+  /* base */
+  --white: #FFFFFF;
+  --soft: #F5F5F7;
+  --ink: #1D1D1F;
+  --gray: #6E6E73;
+  --teal: #012624;
+  --hairline: rgba(29, 29, 31, 0.10);
+
+  /* Evriel Inventory: ocean cyan and navy */
+  --inv: #06B6D4;
+  --inv-deep: #132840;
+  --inv-grad-a: #0891B2;
+  --inv-wash: rgba(6, 182, 212, 0.07);
+
+  /* AG Project Monitor: construction orange and graphite */
+  --ag: #E85D04;
+  --ag-deep: #26282B;
+  --ag-btn: #C2410C;
+  --ag-grad-a: #C74A03;
+  --ag-grad-b: #7C2D12;
+  --ag-wash: rgba(232, 93, 4, 0.06);
+
+  /* Develop EC: black and white photography with copper */
+  --ec: #B87333;
+  --ec-deep: #8C4F1F;
+  --ec-on-dark: #D19A5F;
+  --ec-room: #17181A;
+
+  /* TaskTock: cobalt */
+  --tt: #2E5BFF;
+  --tt-deep: #1E3A8A;
+  --tt-wash: rgba(46, 91, 255, 0.06);
+
+  /* DomainIntel: jade */
+  --di: #00A87E;
+  --di-deep: #04674E;
+  --di-grad-a: #00936E;
+  --di-wash: rgba(0, 168, 126, 0.06);
+
+  /* ClockET: fresh green (the product's own brand color) */
+  --ck: #22C55E;
+  --ck-deep: #166534;
+  --ck-grad-a: #16A34A;
+  --ck-wash: rgba(34, 197, 94, 0.07);
+
+  /* type */
+  --font-sans: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-wordmark: "Young Serif", serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--white);
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+h1, h2, h3 { font-weight: 700; letter-spacing: -0.02em; }
+
+.btn {
+  display: inline-block; border: none; cursor: pointer; text-decoration: none;
+  font-family: inherit; font-size: 16px; font-weight: 600; line-height: 1.4;
+  padding: 13px 28px; border-radius: 999px; text-align: center;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+.btn:hover { opacity: 0.88; }
+.btn:active { transform: scale(0.98); }
+.btn-ink { background: var(--ink); color: #fff; }
+
+.text-link {
+  color: var(--ink); text-decoration: none; font-weight: 600;
+  border-bottom: 1.5px solid var(--hairline); width: fit-content;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.text-link:hover { color: var(--teal); border-color: var(--teal); }
+
+/* small labels: one of deep teal's three permitted jobs */
+.label {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--teal);
+}
+
+/* enter-once reveal, applied by useReveal */
+.reveal { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .js .reveal {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .js .reveal.in { opacity: 1; transform: none; }
+}
