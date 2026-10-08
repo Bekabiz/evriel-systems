@@ -167,8 +167,61 @@ async function videos(browser) {
   });
 }
 
+/* Short per-feature clips: one small video for every feature card. */
+async function featureClips(browser) {
+  const clips = [
+    ["evriel-inventory", "clip-dashboard", src("inventory.html?view=dashboard"), VIDEO_LAPTOP, async (p) => { await sleep(2600); await smoothScroll(p, 120, 18, 35); await sleep(2000); }],
+    ["evriel-inventory", "clip-products", src("inventory.html?view=products"), VIDEO_LAPTOP, async (p) => { await sleep(2400); await smoothScroll(p, 160, 20, 35); await sleep(1800); }],
+    ["evriel-inventory", "clip-invoice", src("inventory.html?view=invoice"), VIDEO_LAPTOP, async (p) => { await sleep(5200); }],
+    ["evriel-inventory", "clip-orders", src("inventory.html?view=orders"), VIDEO_LAPTOP, async (p) => { await sleep(4600); }],
+    ["ag-project-monitor", "clip-task", src("ag.html?view=task"), PHONE, async (p) => { await sleep(5600); }],
+    ["ag-project-monitor", "clip-tasks", src("ag.html?view=tasks"), PHONE, async (p) => { await sleep(2600); await smoothScroll(p, 180, 20, 35); await sleep(1800); }],
+    ["ag-project-monitor", "clip-timeline", src("ag.html?view=timeline"), PHONE, async (p) => { await sleep(2600); await smoothScroll(p, 160, 20, 35); await sleep(1800); }],
+    ["tasktock", "clip-today", src("tasktock.html?view=today"), PHONE, async (p) => { await sleep(5000); }],
+    ["tasktock", "clip-inbox", src("tasktock.html?view=inbox"), PHONE, async (p) => { await sleep(5000); }],
+    ["domainintel", "clip-results", src("domainintel.html"), VIDEO_LAPTOP, async (p) => { await sleep(2800); await smoothScroll(p, 240, 24, 35); await sleep(2000); }],
+    ["clocket", "clip-clockin", src("clocket-app.html?view=clockin"), PHONE, async (p) => { await sleep(3200); await p.evaluate(() => window.show("working")); await sleep(2800); }],
+    ["clocket", "clip-working", src("clocket-app.html?view=working"), PHONE, async (p) => { await sleep(5000); }],
+    ["clocket", "clip-admin", src("clocket-admin.html?view=dashboard"), VIDEO_LAPTOP, async (p) => { await sleep(2600); await smoothScroll(p, 140, 18, 35); await sleep(2000); }],
+    ["clocket", "clip-reports", src("clocket-admin.html?view=reports"), VIDEO_LAPTOP, async (p) => { await sleep(4800); }],
+    ["develop-ec", "clip-top", "https://developec.gr", VIDEO_LAPTOP, async (p) => { await sleep(2400); await smoothScroll(p, 1700, 60, 45); await sleep(1200); }],
+    ["develop-ec", "clip-projects", "https://developec.gr", VIDEO_LAPTOP, async (p) => {
+      await sleep(2200);
+      await p.evaluate(() => window.scrollTo(0, 1800)).catch(() => {});
+      await sleep(1600);
+      for (let i = 0; i < 48; i++) { await p.mouse.wheel(0, 55); await sleep(45); }
+      await sleep(1200);
+    }],
+  ];
+
+  for (const [slug, name, url, size, run] of clips) {
+    if (only && slug !== only) continue;
+    const dir = resolve(root, ".video-tmp", `${slug}-${name}`);
+    rmSync(dir, { recursive: true, force: true });
+    mkdirSync(dir, { recursive: true });
+    const context = await browser.newContext({
+      viewport: size,
+      deviceScaleFactor: 1,
+      recordVideo: { dir, size },
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+    });
+    const page = await context.newPage();
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 }).catch(() => {});
+    await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
+    await run(page);
+    await context.close();
+    const file = readdirSync(dir).find((f) => f.endsWith(".webm"));
+    renameSync(resolve(dir, file), resolve(out(slug), `${name}.webm`));
+    rmSync(dir, { recursive: true, force: true });
+    console.log(`clip  ${slug}/${name}.webm`);
+  }
+}
+
+const mode = process.argv[3] || "all";
 const browser = await chromium.launch({ channel: "chrome" });
-await screenshots(browser);
-await videos(browser);
+if (mode === "all" || mode === "shots") await screenshots(browser);
+if (mode === "all" || mode === "videos") await videos(browser);
+if (mode === "all" || mode === "clips") await featureClips(browser);
 await browser.close();
 console.log("done");

@@ -1,4 +1,4 @@
-/* Nav and footer, shared by the home page and every project and article page. */
+/* Floating capsule navigation and footer, shared by every page. */
 
 import React, { useState } from "react";
 import { Burger } from "./kit.jsx";
@@ -15,30 +15,32 @@ const NAV_LINKS = [
 export function Nav() {
   const [open, setOpen] = useState(false);
   return (
-    <header className="nav">
-      <div className="wrap nav-bar">
-        <a href="/" className="nav-logo" aria-label="Evriel Systems, home">
-          <img src="/logo.svg" alt="Evriel Systems" />
-        </a>
-        <nav className="nav-links" aria-label="Main">
-          {NAV_LINKS.map((l) => (
-            <a key={l.href} href={l.href}>{l.label}</a>
-          ))}
-        </nav>
-        <a href="/#contact" className="btn btn-ink nav-cta">Start a project</a>
-        <Burger open={open} onClick={() => setOpen(!open)} />
-      </div>
-      <div className={`nav-sheet${open ? " nav-sheet-open" : ""}`}>
-        {NAV_LINKS.map((l, i) => (
-          <a key={l.href} href={l.href} style={{ transitionDelay: `${80 + i * 50}ms` }}
-            onClick={() => setOpen(false)}>
-            {l.label}
+    <header className="navwrap">
+      <div className="wrap">
+        <div className="nav-capsule">
+          <a href="/" className="nav-logo" aria-label="Evriel Systems, home">
+            <img src="/logo.svg" alt="Evriel Systems" />
           </a>
-        ))}
-        <a href="/#contact" className="btn btn-ink" style={{ transitionDelay: "330ms" }}
-          onClick={() => setOpen(false)}>
-          Start a project
-        </a>
+          <nav className="nav-links" aria-label="Main">
+            {NAV_LINKS.map((l) => (
+              <a key={l.href} href={l.href}>{l.label}</a>
+            ))}
+          </nav>
+          <a href="/#contact" className="btn nav-cta">Start a project</a>
+          <Burger open={open} onClick={() => setOpen(!open)} />
+        </div>
+        <div className={`nav-sheet${open ? " nav-sheet-open" : ""}`}>
+          {NAV_LINKS.map((l, i) => (
+            <a key={l.href} href={l.href} style={{ transitionDelay: `${80 + i * 50}ms` }}
+              onClick={() => setOpen(false)}>
+              {l.label}
+            </a>
+          ))}
+          <a href="/#contact" className="btn" style={{ transitionDelay: "330ms" }}
+            onClick={() => setOpen(false)}>
+            Start a project
+          </a>
+        </div>
       </div>
     </header>
   );

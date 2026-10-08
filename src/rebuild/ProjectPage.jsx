@@ -20,18 +20,6 @@ import "./tokens.css";
 import "./home.css";
 import "./project.css";
 
-function GradTagline({ tagline, gradWord }) {
-  const i = tagline.indexOf(gradWord);
-  if (i === -1) return <>{tagline}</>;
-  return (
-    <>
-      {tagline.slice(0, i)}
-      <span className="pgrad">{gradWord}</span>
-      {tagline.slice(i + gradWord.length)}
-    </>
-  );
-}
-
 function Device({ p, children }) {
   if (p.device === "phone") {
     return <PhoneFrame bezel={`var(--${p.theme}-deep, var(--ink))`}>{children}</PhoneFrame>;
@@ -62,34 +50,33 @@ export default function ProjectPage({ slug }) {
       <main>
         <section className={`proj-hero${dark ? " proj-hero-dark" : ""}`}>
           <div className="wrap">
-            <div className="room-id">
-              <BrandMark from={`var(--${p.theme})`} to={`var(--${p.theme}-deep)`} initials={p.initials} size={52} />
-              <span className="label proj-label">{p.name}</span>
-            </div>
-            <h1>
-              <GradTagline tagline={p.tagline} gradWord={p.gradWord} />
-            </h1>
-            <p className="proj-one">{p.one}</p>
-            {p.live && (
-              <a href={p.live} target="_blank" rel="noreferrer" className="proj-live">
-                Visit {p.live.replace("https://", "")}
-              </a>
-            )}
-            <div className={`proj-stage${p.device === "phone" ? " proj-stage-phone" : ""}`}>
-              <div className={`glow glow-${p.theme}`} />
-              <Bezel dark={dark}>
-                <Device p={p}>
-                  {media.video ? (
-                    <DemoMedia
-                      video={media.video}
-                      poster={media.poster}
-                      alt={`${p.name} demo video`}
-                    />
-                  ) : (
-                    <Slot>Screen recording of the live site, captured once it is back up</Slot>
-                  )}
-                </Device>
-              </Bezel>
+            <div className="proj-field">
+              <div className="room-id room-id-center">
+                <BrandMark from={`var(--${p.theme})`} to={`var(--${p.theme}-deep)`} initials={p.initials} size={52} />
+                <span className="proj-label">{p.name}</span>
+              </div>
+              <h1 className="t-hero">{p.tagline}</h1>
+              <p className="proj-one">{p.one}</p>
+              {p.live && (
+                <a href={p.live} target="_blank" rel="noreferrer" className="proj-live">
+                  Visit {p.live.replace("https://", "")}
+                </a>
+              )}
+              <div className={`proj-stage${p.device === "phone" ? " proj-stage-phone" : ""}`}>
+                <Bezel dark={dark}>
+                  <Device p={p}>
+                    {media.video ? (
+                      <DemoMedia
+                        video={media.video}
+                        poster={media.poster}
+                        alt={`${p.name} demo video`}
+                      />
+                    ) : (
+                      <Slot>Screen recording of the live site, captured once it is back up</Slot>
+                    )}
+                  </Device>
+                </Bezel>
+              </div>
             </div>
           </div>
         </section>
@@ -113,7 +100,15 @@ export default function ProjectPage({ slug }) {
                     <p>{f.d}</p>
                     {shot && (
                       <div className={`feat-slot${shot.phone ? " is-phone" : ""}`}>
-                        <img src={shot.src} alt={`${p.name}: ${f.t}`} loading="lazy" />
+                        {shot.video ? (
+                          <DemoMedia
+                            video={shot.video}
+                            poster={shot.poster}
+                            alt={`${p.name}: ${f.t}`}
+                          />
+                        ) : (
+                          <img src={shot.poster || shot.src} alt={`${p.name}: ${f.t}`} loading="lazy" />
+                        )}
                       </div>
                     )}
                   </div>
@@ -178,7 +173,7 @@ export default function ProjectPage({ slug }) {
           <div className="wrap reveal">
             <a href={`/work/${next.slug}`} className="next-card">
               <span className="next-label">Next project</span>
-              <span className={`next-name grad grad-${next.theme}`}>{next.name}</span>
+              <span className="next-name">{next.name}</span>
               <span className="next-one">{next.one}</span>
             </a>
           </div>

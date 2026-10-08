@@ -87,23 +87,23 @@ export const PROJECTS = {
     name: "Develop EC",
     initials: "EC",
     theme: "ec",
-    tagline: "Architecture in black and white.",
-    gradWord: "black and white",
-    one: "The public site of a Greek property developer: calm pages, real photography and a warm copper accent.",
+    tagline: "From design to construction.",
+    gradWord: "construction",
+    one: "The public site of a Greek engineering and construction firm: full-screen photography of the built work, in English and Greek.",
     wanted:
       "A property developer needed a public site that feels like their buildings: solid, calm and confident. No stock renders, no noise, just the work presented properly.",
     features: [
       {
-        t: "A black and white identity",
-        d: "The whole site runs on real architectural photography in black and white, with one warm copper accent. The buildings carry the design.",
+        t: "Photography first",
+        d: "Every screen is carried by one large image of the work. The buildings do the talking and the interface stays out of their way.",
       },
       {
-        t: "Project pages",
-        d: "Each development gets its own page with its photography, its facts and its status, presented at full width.",
+        t: "A journey, not a menu",
+        d: "The home page is one long scroll through the built work, project after project, with the story told between the images.",
       },
       {
-        t: "Built to be read",
-        d: "Short pages, plain language and photography first. A visitor understands who the company is within one screen.",
+        t: "English and Greek",
+        d: "The whole site runs in both languages, switched with one tap. Greek clients and international buyers read the same calm pages.",
       },
     ],
     results: [],
@@ -239,10 +239,10 @@ export const MEDIA = {
       { f: cap("evriel-inventory", "orders.png"), label: "Purchase orders and what is arriving today" },
     ],
     featureShots: {
-      "Live stock across three stores": { src: cap("evriel-inventory", "dashboard.png") },
-      "Orders": { src: cap("evriel-inventory", "orders.png") },
-      "Store transfers": { src: cap("evriel-inventory", "products.png") },
-      "Fast invoice entry": { src: cap("evriel-inventory", "invoice.png") },
+      "Live stock across three stores": { video: cap("evriel-inventory", "clip-dashboard.webm"), poster: cap("evriel-inventory", "dashboard.png") },
+      "Orders": { video: cap("evriel-inventory", "clip-orders.webm"), poster: cap("evriel-inventory", "orders.png") },
+      "Store transfers": { video: cap("evriel-inventory", "clip-products.webm"), poster: cap("evriel-inventory", "products.png") },
+      "Fast invoice entry": { video: cap("evriel-inventory", "clip-invoice.webm"), poster: cap("evriel-inventory", "invoice.png") },
     },
   },
   "ag-project-monitor": {
@@ -255,19 +255,25 @@ export const MEDIA = {
       { f: cap("ag-project-monitor", "timeline.png"), label: "The project timeline: everything that happened, in order", phone: true },
     ],
     featureShots: {
-      "Voice memo transcription": { src: cap("ag-project-monitor", "task.png"), phone: true },
-      "Site photo intelligence": { src: cap("ag-project-monitor", "tasks.png"), phone: true },
-      "Project timeline": { src: cap("ag-project-monitor", "timeline.png"), phone: true },
+      "Voice memo transcription": { video: cap("ag-project-monitor", "clip-task.webm"), poster: cap("ag-project-monitor", "task.png"), phone: true },
+      "Site photo intelligence": { video: cap("ag-project-monitor", "clip-tasks.webm"), poster: cap("ag-project-monitor", "tasks.png"), phone: true },
+      "Project timeline": { video: cap("ag-project-monitor", "clip-timeline.webm"), poster: cap("ag-project-monitor", "timeline.png"), phone: true },
     },
   },
-  /* developec.gr is live but currently serves a blank page (its JS bundle
-     fails to download), so the real capture is pending until the hosting
-     is fixed. Never substitute designed screens for a real public site. */
+  /* Real captures of the live developec.gr. */
   "develop-ec": {
-    video: null,
-    poster: null,
-    shots: [],
-    featureShots: {},
+    video: cap("develop-ec", "demo.webm"),
+    poster: cap("develop-ec", "home.png"),
+    shots: [
+      { f: cap("develop-ec", "home.png"), label: "developec.gr live: the opening screen" },
+      { f: cap("develop-ec", "mid.png"), label: "One long scroll through the built work" },
+      { f: cap("develop-ec", "lower.png"), label: "The projects, presented at full width" },
+    ],
+    featureShots: {
+      "Photography first": { video: cap("develop-ec", "clip-top.webm"), poster: cap("develop-ec", "home.png") },
+      "A journey, not a menu": { video: cap("develop-ec", "clip-projects.webm"), poster: cap("develop-ec", "mid.png") },
+      "English and Greek": { src: cap("develop-ec", "lower.png") },
+    },
   },
   tasktock: {
     video: cap("tasktock", "demo.webm"),
@@ -278,8 +284,8 @@ export const MEDIA = {
       { f: cap("tasktock", "inbox.png"), label: "Messages to the Telegram bot, already turned into tasks", phone: true },
     ],
     featureShots: {
-      "The task app": { src: cap("tasktock", "today.png"), phone: true },
-      "The Telegram bot": { src: cap("tasktock", "inbox.png"), phone: true },
+      "The task app": { video: cap("tasktock", "clip-today.webm"), poster: cap("tasktock", "today.png"), phone: true },
+      "The Telegram bot": { video: cap("tasktock", "clip-inbox.webm"), poster: cap("tasktock", "inbox.png"), phone: true },
     },
   },
   domainintel: {
@@ -289,7 +295,7 @@ export const MEDIA = {
       { f: cap("domainintel", "results.png"), label: "A client brief matched by meaning, with a clear call per domain" },
     ],
     featureShots: {
-      "Semantic search": { src: cap("domainintel", "results.png") },
+      "Semantic search": { video: cap("domainintel", "clip-results.webm"), poster: cap("domainintel", "results.png") },
     },
   },
   clocket: {
@@ -303,10 +309,10 @@ export const MEDIA = {
       { f: cap("clocket", "app-working.png"), label: "The day running: verified clock-in and a live timer", phone: true },
     ],
     featureShots: {
-      "GPS and selfie clock-in": { src: cap("clocket", "app-clockin.png"), phone: true },
-      "Shifts and grace periods": { src: cap("clocket", "app-working.png"), phone: true },
-      "Leave requests with a conversation": { src: cap("clocket", "admin-dashboard.png") },
-      "Monthly reports and salary math": { src: cap("clocket", "admin-reports.png") },
+      "GPS and selfie clock-in": { video: cap("clocket", "clip-clockin.webm"), poster: cap("clocket", "app-clockin.png"), phone: true },
+      "Shifts and grace periods": { video: cap("clocket", "clip-working.webm"), poster: cap("clocket", "app-working.png"), phone: true },
+      "Leave requests with a conversation": { video: cap("clocket", "clip-admin.webm"), poster: cap("clocket", "admin-dashboard.png") },
+      "Monthly reports and salary math": { video: cap("clocket", "clip-reports.webm"), poster: cap("clocket", "admin-reports.png") },
     },
   },
 };

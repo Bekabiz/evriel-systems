@@ -7,7 +7,6 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   useReveal,
-  AmbientLight,
   Cta,
   BrandMark,
   Bezel,
@@ -15,7 +14,6 @@ import {
   PhoneFrame,
   BrowserFrame,
   DemoMedia,
-  Slot,
 } from "./kit.jsx";
 import { Nav, Footer } from "./shell.jsx";
 import { PROJECTS, MEDIA } from "./projects.js";
@@ -28,20 +26,63 @@ gsap.registerPlugin(ScrollTrigger);
 function Hero() {
   return (
     <section className="hero" id="top">
-      <AmbientLight />
-      <div className="wrap hero-inner">
-        <h1 className="hero-load hl-1">
-          We build the <span className="hero-grad">systems</span>
-          <br />
-          real companies run on.
-        </h1>
-        <p className="hero-load hl-2">
-          Inventory for a retail group, task tracking for building sites,
-          attendance for a workforce. Real software, in daily use, shown
-          working on this page.
-        </p>
-        <div className="hero-load hl-3">
-          <Cta href="#work" className="cta-ink">See the work</Cta>
+      <div className="wrap">
+        <div className="hero-field">
+          <h1 className="t-hero hero-load hl-1">
+            We build the systems
+            <br />
+            real companies run on.
+          </h1>
+          <p className="hero-load hl-2">
+            Inventory for a retail group, task tracking for building sites,
+            attendance for a workforce. Real software, shown working below.
+          </p>
+          <div className="hero-load hl-3">
+            <Cta href="#work">See the work</Cta>
+          </div>
+          <div className="hero-devices hero-load hl-4" aria-hidden="true">
+            <div className="hero-laptop">
+              <LaptopFrame bezel="var(--inv-deep)">
+                <DemoMedia
+                  video={MEDIA["evriel-inventory"].video}
+                  poster={MEDIA["evriel-inventory"].poster}
+                  alt="Evriel Inventory running"
+                />
+              </LaptopFrame>
+            </div>
+            <div className="hero-phone">
+              <PhoneFrame bezel="var(--charcoal)">
+                <img src={MEDIA.clocket.poster} alt="ClockET clock-in screen" />
+              </PhoneFrame>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const STACK = [
+  ["PostgreSQL", "postgresql"],
+  ["Supabase", "supabase"],
+  ["Vercel", "vercel"],
+  ["Netlify", "netlify"],
+  ["Telegram", "telegram"],
+  ["Gmail", "gmail"],
+];
+
+function BuiltWith() {
+  return (
+    <section className="stackrow">
+      <div className="wrap reveal">
+        <h2 className="stack-h">The systems run on</h2>
+        <div className="stack-logos">
+          {STACK.map(([name, slug]) => (
+            <span key={slug} className="stack-logo">
+              <img src={`https://cdn.simpleicons.org/${slug}/1f2025`} alt={`${name} logo`} loading="lazy" />
+              {name}
+            </span>
+          ))}
         </div>
       </div>
     </section>
@@ -78,9 +119,7 @@ function InventorySection() {
               <BrandMark from="var(--inv)" to="var(--inv-deep)" initials="EI" />
               <span className="label" style={{ color: "var(--inv-deep)" }}>Evriel Inventory</span>
             </div>
-            <h2>
-              <span className="grad grad-inv">Inventory</span> that runs three stores.
-            </h2>
+            <h2 className="t-card">Inventory that runs three stores.</h2>
             <p className="room-sub">
               One system for stock, orders, transfers and invoices, in daily use
               across a retail group in Greece. Three stores stopped keeping
@@ -90,7 +129,7 @@ function InventorySection() {
               tone="inv"
               items={["Live stock", "Orders", "Store transfers", "Fast invoice entry"]}
             />
-            <Cta href="/work/evriel-inventory" className="cta-inv">View project</Cta>
+            <Cta href="/work/evriel-inventory">View project</Cta>
             <div className="numbers">
               <div className="n"><b>39,000+</b><span>products tracked</span></div>
               <div className="n"><b>3</b><span>stores connected</span></div>
@@ -137,9 +176,7 @@ function AGSection() {
               <BrandMark from="var(--ag)" to="var(--ag-grad-b)" initials="AG" />
               <span className="label" style={{ color: "var(--ag-grad-b)" }}>AG Project Monitor</span>
             </div>
-            <h2>
-              Tasks that start as a <span className="grad grad-ag">voice note</span>.
-            </h2>
+            <h2 className="t-card">Tasks that start as a voice note.</h2>
             <p className="room-sub">
               A site engineer speaks into a phone. The system transcribes the
               note, writes the task, attaches the photos and notifies the right
@@ -149,7 +186,7 @@ function AGSection() {
               tone="ag"
               items={["Voice transcription", "Site photos", "Project timeline", "AI reports"]}
             />
-            <Cta href="/work/ag-project-monitor" className="cta-ag">View project</Cta>
+            <Cta href="/work/ag-project-monitor">View project</Cta>
           </div>
         </div>
       </div>
@@ -166,16 +203,14 @@ function DevelopECSection() {
             <BrandMark from="var(--ec)" to="var(--ec-deep)" initials="EC" />
             <span className="label" style={{ color: "var(--ec-on-dark)" }}>Develop EC</span>
           </div>
-          <h2>
-            Architecture in <span className="grad grad-ec">black and white</span>.
-          </h2>
+          <h2 className="t-card">From design to construction.</h2>
           <p className="room-sub">
-            The public site of a Greek property developer. Calm pages, real
-            photography and a warm copper accent. The buildings carry the
-            design, the site stays out of their way.
+            The public site of a Greek property developer. Full-screen
+            photography of the built work, calm type, and a site that stays
+            out of the buildings' way.
           </p>
           <div className="room-dark-actions">
-            <Cta href="/work/develop-ec" className="cta-white">View project</Cta>
+            <Cta href="/work/develop-ec" className="cta-on-dark">View project</Cta>
             <a href="https://developec.gr" target="_blank" rel="noreferrer" className="ec-live-link">
               Visit developec.gr
             </a>
@@ -228,7 +263,7 @@ function ProjectsGrid() {
                   initials={p.initials}
                   size={52}
                 />
-                <h3 className={`grad grad-${p.theme}`}>{p.name}</h3>
+                <h3>{p.name}</h3>
                 <p>{p.one}</p>
                 <ul className="tile-feats">
                   {p.features.slice(0, 3).map((f) => (
@@ -307,17 +342,19 @@ const STEPS = [
 
 function Process() {
   return (
-    <section className="process band" id="process">
+    <section className="process" id="process">
       <div className="wrap reveal">
-        <h2 className="section-h">How we work</h2>
-        <div className="steps-line" aria-hidden="true"><span /></div>
-        <div className="steps">
-          {STEPS.map((s) => (
-            <div key={s.t} className="step">
-              <h3>{s.t}</h3>
-              <p>{s.d}</p>
-            </div>
-          ))}
+        <div className="process-inner">
+          <h2 className="section-h">How we work</h2>
+          <div className="steps-line" aria-hidden="true"><span /></div>
+          <div className="steps">
+            {STEPS.map((s) => (
+              <div key={s.t} className="step">
+                <h3>{s.t}</h3>
+                <p>{s.d}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -436,8 +473,9 @@ export function ContactSection() {
   };
 
   return (
-    <section className="contact band" id="contact">
+    <section className="contact" id="contact">
       <div className="wrap reveal">
+        <div className="contact-inner">
         <h2 className="section-h">Start a project</h2>
         <p className="contact-sub">
           Tell us what you are building, or write directly to{" "}
@@ -495,6 +533,7 @@ export function ContactSection() {
             </ol>
           </aside>
         </div>
+        </div>
       </div>
     </section>
   );
@@ -528,6 +567,7 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
+        <BuiltWith />
         <Opener />
         <InventorySection />
         <AGSection />

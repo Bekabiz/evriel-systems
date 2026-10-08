@@ -1,51 +1,54 @@
-/* Evriel Systems rebuild: design tokens and base styles.
-   Source of truth: REBUILD-PLAN.md part 2, revised colors approved on the style tile round. */
+/* Evriel Systems design tokens.
+   Based on the Bevel reference system Bereket approved (DESIGN.md, tokens.json):
+   paper white canvas, ink 600-weight display type with tight tracking,
+   borderless cloud surfaces, charcoal pill controls, color reserved for
+   the product visuals themselves. */
 
 :root {
-  /* base */
-  --white: #FFFFFF;
-  --soft: #F5F5F7;
-  --ink: #1D1D1F;
-  --gray: #6E6E73;
-  --teal: #012624;
-  --hairline: rgba(29, 29, 31, 0.10);
+  /* shell */
+  --paper: #FFFFFF;
+  --ink: #222326;
+  --charcoal: #1F2025;
+  --cloud: #EBF0F8;
+  --body-gray: #747679;
+  --hairline: rgba(34, 35, 38, 0.08);
+  --teal: #012624; /* wordmark and link hover only, per the plan */
 
-  /* Evriel Inventory: ocean cyan and navy */
-  --inv: #06B6D4;
-  --inv-deep: #132840;
-  --inv-grad-a: #0891B2;
-  --inv-wash: rgba(6, 182, 212, 0.07);
+  /* hero atmosphere */
+  --sky-grad: linear-gradient(#D2E5FF, #FFF9EE);
 
-  /* AG Project Monitor: construction orange and graphite */
-  --ag: #E85D04;
-  --ag-deep: #26282B;
-  --ag-btn: #C2410C;
-  --ag-grad-a: #C74A03;
-  --ag-grad-b: #7C2D12;
-  --ag-wash: rgba(232, 93, 4, 0.06);
+  /* per-project atmosphere: pale field tints for heroes and washes.
+     Saturated project color lives inside the product screens and marks,
+     never in the site shell. */
+  --inv-sky: #D8E7FA;
+  --inv-wash: #EBF0F8;
+  --ag-sky: #FAE7D8;
+  --ag-wash: #F7F0EA;
+  --tt-sky: #E4E4FB;
+  --tt-wash: #EFEFFA;
+  --di-sky: #D9F0E6;
+  --di-wash: #EAF4F0;
+  --ck-sky: #DCF3E2;
+  --ck-wash: #ECF6EE;
+  --ec-room: #1F2025;
+  --ec-wash: #F2EFEB;
 
-  /* Develop EC: black and white photography with copper */
-  --ec: #B87333;
-  --ec-deep: #8C4F1F;
-  --ec-on-dark: #D19A5F;
-  --ec-room: #17181A;
+  /* product identity hues: brand marks and small indicators only */
+  --inv: #06B6D4; --inv-deep: #132840;
+  --ag: #E85D04;  --ag-deep: #7C2D12;
+  --ec: #B87333;  --ec-deep: #8C4F1F; --ec-on-dark: #D19A5F;
+  --tt: #2E5BFF;  --tt-deep: #1E3A8A;
+  --di: #00A87E;  --di-deep: #04674E;
+  --ck: #22C55E;  --ck-deep: #166534;
 
-  /* TaskTock: cobalt */
-  --tt: #2E5BFF;
-  --tt-deep: #1E3A8A;
-  --tt-wash: rgba(46, 91, 255, 0.06);
+  /* shadows, straight from the reference */
+  --shadow-float: rgba(0, 0, 0, 0.25) 0px 0px 16px -8px;
+  --shadow-card: rgba(0, 0, 0, 0.15) 0px 2px 16px 0px;
 
-  /* DomainIntel: jade */
-  --di: #00A87E;
-  --di-deep: #04674E;
-  --di-grad-a: #00936E;
-  --di-wash: rgba(0, 168, 126, 0.06);
-
-  /* ClockET: fresh green (the product's own brand color) */
-  --ck: #22C55E;
-  --ck-deep: #166534;
-  --ck-grad-a: #16A34A;
-  --ck-wash: rgba(34, 197, 94, 0.07);
+  /* shape */
+  --r-card: 24px;
+  --r-card-lg: 32px;
+  --r-img: 16px;
 
   /* type */
   --font-sans: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -62,39 +65,62 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: var(--font-sans);
-  background: var(--white);
+  background: var(--paper);
   color: var(--ink);
   font-size: 17px;
-  line-height: 1.6;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
 }
 
-.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+.wrap { max-width: 1152px; margin: 0 auto; padding: 0 24px; }
 
-h1, h2, h3 { font-weight: 700; letter-spacing: -0.02em; }
+h1, h2, h3 { font-weight: 600; letter-spacing: -0.03em; }
+
+/* display scale, Bevel steps */
+.t-hero { font-size: clamp(44px, 6.6vw, 80px); line-height: 1.0; }
+.t-display { font-size: clamp(36px, 5vw, 64px); line-height: 1.0; }
+.t-card { font-size: clamp(26px, 3vw, 40px); line-height: 1.04; }
+
+.section-h { font-size: clamp(30px, 3.6vw, 44px); line-height: 1.04; letter-spacing: -0.03em; }
+.section-sub { color: var(--body-gray); max-width: 54ch; margin-top: 18px; font-size: 18px; line-height: 1.4; }
+
+/* the one pill: charcoal, cloud text, arrow in its own chip */
+.cta {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--charcoal); color: var(--cloud);
+  padding: 9px 9px 9px 24px; border-radius: 999px; border: none; cursor: pointer;
+  font-family: inherit; font-weight: 500; font-size: 16px; line-height: 1.4;
+  text-decoration: none;
+  transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
+}
+.cta:hover { transform: translateY(-1px); opacity: 0.92; }
+.cta:active { transform: scale(0.98); }
+.cta-chip {
+  width: 34px; height: 34px; border-radius: 999px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(235, 240, 248, 0.14); font-size: 14px;
+  transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.cta:hover .cta-chip { transform: translate(2px, -2px); }
+.cta-on-dark { background: var(--cloud); color: var(--charcoal); }
+.cta-on-dark .cta-chip { background: rgba(31, 32, 37, 0.10); }
 
 .btn {
   display: inline-block; border: none; cursor: pointer; text-decoration: none;
-  font-family: inherit; font-size: 16px; font-weight: 600; line-height: 1.4;
-  padding: 13px 28px; border-radius: 999px; text-align: center;
-  transition: transform 0.15s ease, opacity 0.2s ease;
+  font-family: inherit; font-size: 16px; font-weight: 500; line-height: 1.4;
+  padding: 12px 26px; border-radius: 999px; text-align: center;
+  background: var(--charcoal); color: var(--cloud);
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
 }
-.btn:hover { opacity: 0.88; }
+.btn:hover { opacity: 0.92; transform: translateY(-1px); }
 .btn:active { transform: scale(0.98); }
-.btn-ink { background: var(--ink); color: #fff; }
 
 .text-link {
-  color: var(--ink); text-decoration: none; font-weight: 600;
+  color: var(--ink); text-decoration: none; font-weight: 500;
   border-bottom: 1.5px solid var(--hairline); width: fit-content;
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 .text-link:hover { color: var(--teal); border-color: var(--teal); }
-
-/* small labels: one of deep teal's three permitted jobs */
-.label {
-  font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--teal);
-}
 
 /* enter-once reveal, applied by useReveal */
 .reveal { opacity: 1; transform: none; }
