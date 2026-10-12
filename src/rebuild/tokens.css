@@ -22,24 +22,25 @@
      never in the site shell. */
   --inv-sky: #D8E7FA;
   --inv-wash: #EBF0F8;
-  --ag-sky: #FAE7D8;
-  --ag-wash: #F7F0EA;
-  --tt-sky: #E4E4FB;
-  --tt-wash: #EFEFFA;
-  --di-sky: #D9F0E6;
-  --di-wash: #EAF4F0;
-  --ck-sky: #DCF3E2;
-  --ck-wash: #ECF6EE;
+  --ag-sky: #FFE6D6;
+  --ag-wash: #F9F1EB;
+  --tt-sky: #DEE8FD;
+  --tt-wash: #EFF3FE;
+  --di-sky: #F6E3D8;
+  --di-wash: #F8F2ED;
+  --ck-sky: #DEF2E5;
+  --ck-wash: #EDF6F0;
   --ec-room: #1F2025;
   --ec-wash: #F2EFEB;
 
-  /* product identity hues: brand marks and small indicators only */
-  --inv: #06B6D4; --inv-deep: #132840;
-  --ag: #E85D04;  --ag-deep: #7C2D12;
-  --ec: #B87333;  --ec-deep: #8C4F1F; --ec-on-dark: #D19A5F;
-  --tt: #2E5BFF;  --tt-deep: #1E3A8A;
-  --di: #00A87E;  --di-deep: #04674E;
-  --ck: #22C55E;  --ck-deep: #166534;
+  /* product identity hues: brand marks and small indicators only.
+     Values follow how comparable real products brand themselves. */
+  --inv: #1E4E79; --inv-deep: #132840;
+  --ag: #FF5200;  --ag-deep: #D43F00;
+  --ec: #33373D;  --ec-deep: #1F2025; --ec-on-dark: #D19A5F;
+  --tt: #4772FA;  --tt-deep: #2E52D9;
+  --di: #C45D3E;  --di-deep: #9E4227;
+  --ck: #1FA84F;  --ck-deep: #15803D;
 
   /* shadows, straight from the reference */
   --shadow-float: rgba(0, 0, 0, 0.25) 0px 0px 16px -8px;

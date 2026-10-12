@@ -33,6 +33,7 @@ const SHOTS = [
   ["tasktock", "today", src("tasktock.html?view=today"), PHONE],
   ["tasktock", "inbox", src("tasktock.html?view=inbox"), PHONE],
   ["domainintel", "results", src("domainintel.html"), LAPTOP],
+  ["domainintel", "reasoning", src("domainintel.html?view=reasoning"), LAPTOP],
   ["clocket", "admin-dashboard", src("clocket-admin.html?view=dashboard"), LAPTOP],
   ["clocket", "admin-reports", src("clocket-admin.html?view=reports"), LAPTOP],
   ["clocket", "app-clockin", src("clocket-app.html?view=clockin"), PHONE],
@@ -141,9 +142,11 @@ async function videos(browser) {
   if (want("domainintel"))
   await recordVideo(browser, "domainintel", VIDEO_LAPTOP, async (page) => {
     await page.goto(src("domainintel.html"), { waitUntil: "networkidle" });
+    await sleep(3200);
+    await smoothScroll(page, 200, 22, 30);
+    await sleep(1800);
+    await page.evaluate(() => window.show("reasoning"));
     await sleep(3600);
-    await smoothScroll(page, 260, 26, 30);
-    await sleep(2600);
   });
 
   if (want("clocket"))
@@ -179,7 +182,8 @@ async function featureClips(browser) {
     ["ag-project-monitor", "clip-timeline", src("ag.html?view=timeline"), PHONE, async (p) => { await sleep(2600); await smoothScroll(p, 160, 20, 35); await sleep(1800); }],
     ["tasktock", "clip-today", src("tasktock.html?view=today"), PHONE, async (p) => { await sleep(5000); }],
     ["tasktock", "clip-inbox", src("tasktock.html?view=inbox"), PHONE, async (p) => { await sleep(5000); }],
-    ["domainintel", "clip-results", src("domainintel.html"), VIDEO_LAPTOP, async (p) => { await sleep(2800); await smoothScroll(p, 240, 24, 35); await sleep(2000); }],
+    ["domainintel", "clip-results", src("domainintel.html"), VIDEO_LAPTOP, async (p) => { await sleep(2800); await smoothScroll(p, 200, 22, 35); await sleep(1800); }],
+    ["domainintel", "clip-reasoning", src("domainintel.html?view=reasoning"), VIDEO_LAPTOP, async (p) => { await sleep(5400); }],
     ["clocket", "clip-clockin", src("clocket-app.html?view=clockin"), PHONE, async (p) => { await sleep(3200); await p.evaluate(() => window.show("working")); await sleep(2800); }],
     ["clocket", "clip-working", src("clocket-app.html?view=working"), PHONE, async (p) => { await sleep(5000); }],
     ["clocket", "clip-admin", src("clocket-admin.html?view=dashboard"), VIDEO_LAPTOP, async (p) => { await sleep(2600); await smoothScroll(p, 140, 18, 35); await sleep(2000); }],

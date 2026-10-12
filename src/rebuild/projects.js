@@ -11,9 +11,9 @@ export const PROJECTS = {
     theme: "inv",
     tagline: "Inventory that runs three stores.",
     gradWord: "Inventory",
-    one: "One system for stock, orders, transfers and invoices, in daily use across a retail group in Greece.",
+    one: "One system for stock, orders, transfers and invoices, built for a three-store Hondos Center group in Greece.",
     wanted:
-      "A retail group running three stores had its stock, orders and supplier invoices spread across spreadsheets and memory. Every store counted its own truth, and entering a supplier invoice by hand took most of an hour.",
+      "A group running three cosmetics stores under the Hondos Center name, the biggest cosmetics retail brand in Greece, had its stock, orders and supplier invoices spread across spreadsheets and memory. Every store counted its own truth, and entering a supplier invoice by hand took most of an hour.",
     features: [
       {
         t: "Live stock across three stores",
@@ -37,7 +37,7 @@ export const PROJECTS = {
       { b: "3", s: "stores connected" },
       { b: "40 to 5 min", s: "invoice entry time" },
     ],
-    how: "A web application backed by a PostgreSQL database, deployed on Vercel. Supplier invoices are matched automatically against product and supplier records.",
+    how: "A web application with one live database behind all three stores. Supplier invoices are matched automatically against product and supplier records, line by line.",
     device: "laptop",
     live: null,
     next: "ag-project-monitor",
@@ -164,6 +164,10 @@ export const PROJECTS = {
         d: "Every domain gets one of three clear recommendations, with the reasoning behind it. The decision arrives qualified, not raw.",
       },
       {
+        t: "Reasoning on every call",
+        d: "Each recommendation comes with written reasoning: how fresh the posting is, whether real authors and contact pages exist, guest post probability, topic purity and risk. The call arrives explained, not bare.",
+      },
+      {
         t: "Toxic domain filtering",
         d: "Domains with a poisoned history are flagged and filtered before they waste your time or your money.",
       },
@@ -177,7 +181,7 @@ export const PROJECTS = {
       },
     ],
     results: [],
-    how: "Built on Supabase with an AI layer for semantic search and scoring. The scoring blends authority, traffic, history and toxicity signals into one recommendation.",
+    how: "An AI layer reads each domain the way an experienced SEO would, then a scoring engine blends relevancy, authority, traffic, history and toxicity signals into one explained recommendation. Results export to XLSX with the reasoning included.",
     device: "laptop",
     live: null,
     next: "clocket",
@@ -216,7 +220,7 @@ export const PROJECTS = {
       },
     ],
     results: [],
-    how: "A mobile-first web app on Supabase: PostgreSQL for attendance, leave and payroll records, storage for clock-in selfies, and a geofencing check using the Haversine formula on the phone's GPS reading.",
+    how: "A mobile-first web app: attendance, leave and payroll live in one managed database, clock-in selfies in protected storage, and the geofencing check runs the Haversine formula on the phone's GPS reading.",
     device: "phone",
     live: "https://clocket.netlify.app",
     next: "evriel-inventory",
@@ -292,10 +296,12 @@ export const MEDIA = {
     video: cap("domainintel", "demo.webm"),
     poster: cap("domainintel", "results.png"),
     shots: [
-      { f: cap("domainintel", "results.png"), label: "A client brief matched by meaning, with a clear call per domain" },
+      { f: cap("domainintel", "results.png"), label: "A client brief matched by meaning, with the campaign mix and a clear call per domain" },
+      { f: cap("domainintel", "reasoning.png"), label: "The reasoning behind a BUY: freshness, trust signals, guest post probability, topic purity" },
     ],
     featureShots: {
       "Semantic search": { video: cap("domainintel", "clip-results.webm"), poster: cap("domainintel", "results.png") },
+      "Reasoning on every call": { video: cap("domainintel", "clip-reasoning.webm"), poster: cap("domainintel", "reasoning.png") },
     },
   },
   clocket: {

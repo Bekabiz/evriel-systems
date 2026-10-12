@@ -50,11 +50,6 @@ function Hero() {
                 />
               </LaptopFrame>
             </div>
-            <div className="hero-phone">
-              <PhoneFrame bezel="var(--charcoal)">
-                <img src={MEDIA.clocket.poster} alt="ClockET clock-in screen" />
-              </PhoneFrame>
-            </div>
           </div>
         </div>
       </div>
@@ -62,28 +57,54 @@ function Hero() {
   );
 }
 
-const STACK = [
-  ["PostgreSQL", "postgresql"],
-  ["Supabase", "supabase"],
-  ["Vercel", "vercel"],
-  ["Netlify", "netlify"],
-  ["Telegram", "telegram"],
-  ["Gmail", "gmail"],
+/* The integrations list from the original site, with each brand's real
+   colored mark. Wikimedia official assets cover what Simple Icons dropped. */
+const wm = (f) => `https://upload.wikimedia.org/wikipedia/commons/${f}`;
+const si = (slug) => `https://cdn.simpleicons.org/${slug}`;
+const TOOLS_A = [
+  ["Gmail", si("gmail")],
+  ["Outlook", wm("4/45/Microsoft_Office_Outlook_%282018%E2%80%932024%29.svg")],
+  ["Excel", wm("e/e3/Microsoft_Office_Excel_%282019%E2%80%932025%29.svg")],
+  ["Google Sheets", si("googlesheets")],
+  ["Slack", wm("d/d5/Slack_icon_2019.svg")],
+  ["WhatsApp", si("whatsapp")],
+  ["n8n", si("n8n")],
+];
+const TOOLS_B = [
+  ["Supabase", si("supabase")],
+  ["OpenAI", wm("e/ef/ChatGPT-Logo.svg")],
+  ["Anthropic", si("anthropic")],
+  ["Notion", si("notion")],
+  ["Airtable", si("airtable")],
+  ["Zapier", si("zapier")],
+  ["Power BI", wm("c/cf/New_Power_BI_Logo.svg")],
 ];
 
-function BuiltWith() {
+function ToolRow({ tools, reverse }) {
+  const chips = tools.map(([name, src]) => (
+    <span key={name} className="tool-chip">
+      <img src={src} alt={`${name} logo`} loading="lazy" />
+      {name}
+    </span>
+  ));
   return (
-    <section className="stackrow">
+    <div className="tool-row">
+      <div className={`tool-track${reverse ? " tool-track-rev" : ""}`}>
+        {chips}{chips}{chips}
+      </div>
+    </div>
+  );
+}
+
+function Integrations() {
+  return (
+    <section className="tools">
       <div className="wrap reveal">
-        <h2 className="stack-h">The systems run on</h2>
-        <div className="stack-logos">
-          {STACK.map(([name, slug]) => (
-            <span key={slug} className="stack-logo">
-              <img src={`https://cdn.simpleicons.org/${slug}/1f2025`} alt={`${name} logo`} loading="lazy" />
-              {name}
-            </span>
-          ))}
-        </div>
+        <h2 className="section-h tools-h">We connect the tools you already use</h2>
+      </div>
+      <div className="reveal">
+        <ToolRow tools={TOOLS_A} />
+        <ToolRow tools={TOOLS_B} reverse />
       </div>
     </section>
   );
@@ -117,13 +138,13 @@ function InventorySection() {
           <div className="room-copy">
             <div className="room-id">
               <BrandMark from="var(--inv)" to="var(--inv-deep)" initials="EI" />
-              <span className="label" style={{ color: "var(--inv-deep)" }}>Evriel Inventory</span>
+              <span className="label">Evriel Inventory</span>
             </div>
             <h2 className="t-card">Inventory that runs three stores.</h2>
             <p className="room-sub">
-              One system for stock, orders, transfers and invoices, in daily use
-              across a retail group in Greece. Three stores stopped keeping
-              three versions of the truth.
+              One system for stock, orders, transfers and invoices, built for a
+              three-store Hondos Center group in Greece, the biggest name in
+              Greek cosmetics retail.
             </p>
             <FeatureChips
               tone="inv"
@@ -174,7 +195,7 @@ function AGSection() {
           <div className="room-copy">
             <div className="room-id">
               <BrandMark from="var(--ag)" to="var(--ag-grad-b)" initials="AG" />
-              <span className="label" style={{ color: "var(--ag-grad-b)" }}>AG Project Monitor</span>
+              <span className="label">AG Project Monitor</span>
             </div>
             <h2 className="t-card">Tasks that start as a voice note.</h2>
             <p className="room-sub">
@@ -201,7 +222,7 @@ function DevelopECSection() {
         <div className="room-dark reveal">
           <div className="room-id room-id-center">
             <BrandMark from="var(--ec)" to="var(--ec-deep)" initials="EC" />
-            <span className="label" style={{ color: "var(--ec-on-dark)" }}>Develop EC</span>
+            <span className="label">Develop EC</span>
           </div>
           <h2 className="t-card">From design to construction.</h2>
           <p className="room-sub">
@@ -567,16 +588,16 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
-        <BuiltWith />
+        <Integrations />
+        <Services />
+        <About />
         <Opener />
         <InventorySection />
         <AGSection />
         <DevelopECSection />
         <ProjectsGrid />
-        <Services />
         <Industries />
         <Process />
-        <About />
         <Insights />
         <Trust />
         <ContactSection />

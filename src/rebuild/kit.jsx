@@ -141,7 +141,7 @@ export function BrandMark({ from, to, initials, size = 44 }) {
         height: size,
         fontSize: size * 0.38,
         borderRadius: size * 0.24,
-        background: `linear-gradient(135deg, ${from}, ${to})`,
+        background: `linear-gradient(180deg, ${from}, ${to})`,
       }}
     >
       {initials}

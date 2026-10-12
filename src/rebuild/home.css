@@ -85,12 +85,6 @@
 }
 .hero-laptop { filter: drop-shadow(0 24px 40px rgba(34, 35, 38, 0.25)); }
 .hero-laptop .laptop-base { border-radius: 0; }
-.hero-phone {
-  position: absolute; right: -2%; bottom: -4%; width: 164px;
-  filter: drop-shadow(0 18px 32px rgba(34, 35, 38, 0.3));
-}
-.hero-phone .phone { width: 100%; }
-.hero-phone img { width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: inherit; display: block; }
 
 .hero-load { opacity: 1; }
 @media (prefers-reduced-motion: no-preference) {
@@ -105,21 +99,30 @@
   }
 }
 
-/* ---------- stack logo row ---------- */
-.stackrow { padding: 80px 0 0; }
-.stack-h {
-  text-align: center; font-size: 22px; font-weight: 600;
-  letter-spacing: -0.01em;
+/* ---------- integrations marquee: the tools clients already use ---------- */
+.tools { padding: 96px 0 0; overflow: hidden; }
+.tools-h { text-align: center; max-width: 22ch; margin: 0 auto 40px; }
+.tool-row {
+  margin-top: 14px;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
-.stack-logos {
-  display: flex; flex-wrap: wrap; justify-content: center;
-  gap: 18px 36px; margin-top: 28px;
+.tool-track { display: flex; gap: 14px; width: max-content; }
+@media (prefers-reduced-motion: no-preference) {
+  .tool-track { animation: tool-slide 46s linear infinite; }
+  .tool-track-rev { animation-direction: reverse; }
+  @keyframes tool-slide {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(-100% / 3)); }
+  }
 }
-.stack-logo {
-  display: inline-flex; align-items: center; gap: 10px;
-  font-size: 16px; font-weight: 500; color: var(--charcoal);
+.tool-chip {
+  display: inline-flex; align-items: center; gap: 11px; flex: none;
+  background: #fff; border-radius: 999px; padding: 11px 20px;
+  font-size: 15px; font-weight: 500; color: var(--ink);
+  box-shadow: var(--shadow-float); margin-right: 0;
 }
-.stack-logo img { height: 22px; width: 22px; display: block; }
+.tool-chip img { height: 22px; width: 22px; object-fit: contain; display: block; }
 
 /* ---------- opener ---------- */
 .opener { padding: 96px 0 24px; }
@@ -157,8 +160,8 @@
 
 .room-stage { position: relative; }
 .glow { position: absolute; inset: 2% -4%; border-radius: 50%; filter: blur(38px); pointer-events: none; }
-.glow-inv { background: radial-gradient(closest-side, rgba(6, 182, 212, 0.18), transparent 72%); }
-.glow-ag { background: radial-gradient(closest-side, rgba(232, 93, 4, 0.14), transparent 72%); }
+.glow-inv { background: radial-gradient(closest-side, rgba(30, 78, 121, 0.16), transparent 72%); }
+.glow-ag { background: radial-gradient(closest-side, rgba(255, 82, 0, 0.13), transparent 72%); }
 .glow-ec { background: radial-gradient(closest-side, rgba(184, 115, 51, 0.18), transparent 72%); }
 
 /* device tray */
