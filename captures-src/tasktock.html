@@ -12,7 +12,7 @@
   .app { max-width:390px; margin:0 auto; min-height:100vh; padding:20px 16px 24px; }
 
   .top { display:flex; align-items:center; gap:10px; }
-  .logo { width:30px; height:30px; border-radius:9px; background:linear-gradient(165deg,#C8503F,#93382B); display:flex; align-items:center; justify-content:center; } .logo svg{width:16px;height:16px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round}
+  .logo { width:30px; height:30px; display:flex; }
   .top b { font-size:16px; letter-spacing:-0.01em; }
   .day { margin-left:auto; color:#66708A; font-weight:600; font-size:12.5px; }
 
@@ -21,20 +21,20 @@
   .prog b { font-size:14px; }
   .prog span { margin-left:auto; color:#66708A; font-size:12.5px; font-weight:600; }
   .track { margin-top:10px; height:7px; border-radius:99px; background:#E9EDF6; overflow:hidden; }
-  .track i { display:block; height:100%; width:62%; border-radius:99px; background:linear-gradient(90deg,#C8503F,#93382B); }
+  .track i { display:block; height:100%; width:62%; border-radius:99px; background:linear-gradient(90deg,#10695D,#083F38); }
 
   .h { margin:22px 4px 10px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#66708A; }
 
   .task { background:#fff; border-radius:14px; padding:13px 14px; display:flex; gap:12px; align-items:flex-start; box-shadow:0 1px 2px rgba(20,27,46,0.05); margin-bottom:9px; }
-  .tick { width:22px; height:22px; border-radius:8px; border:2px solid #DCC9C4; flex:none; margin-top:1px; }
-  .tick.done { border-color:#C8503F; background:#C8503F; position:relative; }
+  .tick { width:22px; height:22px; border-radius:8px; border:2px solid #C2D6D0; flex:none; margin-top:1px; }
+  .tick.done { border-color:#10695D; background:#10695D; position:relative; }
   .tick.done::after { content:"\2713"; position:absolute; inset:0; color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
   .task div { flex:1; }
   .task b { font-weight:600; font-size:14px; display:block; line-height:1.35; }
   .task b.strike { text-decoration:line-through; color:#8891A6; }
   .task small { color:#66708A; font-size:12px; margin-top:3px; display:flex; gap:8px; align-items:center; }
-  .via { background:#F7E4E0; color:#93382B; font-weight:700; font-size:10.5px; padding:2px 8px; border-radius:99px; }
-  .time { font-weight:600; color:#93382B; font-size:12.5px; flex:none; }
+  .via { background:#E2EEEA; color:#083F38; font-weight:700; font-size:10.5px; padding:2px 8px; border-radius:99px; }
+  .time { font-weight:600; color:#083F38; font-size:12.5px; flex:none; }
   .time.late { color:#B4441B; }
 
   /* inbox view */
@@ -44,14 +44,14 @@
   .msg p { margin-top:7px; font-size:13.5px; line-height:1.45; color:#141B2E; }
   .msg-act { margin-top:10px; display:flex; gap:8px; }
   .msg-act button { border:none; font-family:inherit; font-weight:700; font-size:12px; border-radius:9px; padding:7px 14px; }
-  .mk { background:#C8503F; color:#fff; }
+  .mk { background:#10695D; color:#fff; }
   .sk { background:#EDF0F7; color:#141B2E; }
 </style>
 </head>
 <body>
 <div class="app">
   <div class="top">
-    <div class="logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M8.6 12.3 l2.3 2.3 L15.6 9.5"/></svg></div><b>TaskTock</b>
+    <div class="logo"><img src="../public/brand/tasktock.svg" alt="" style="width:30px;height:30px;border-radius:8px;display:block"></div><b>TaskTock</b>
     <span class="day">Mon, Sep 28</span>
   </div>
 

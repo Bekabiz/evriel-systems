@@ -248,8 +248,19 @@ const GLYPHS = {
   ),
 };
 
-export function BrandMark({ from, to, glyph, size = 44 }) {
+export function BrandMark({ from, to, glyph, src, framed, size = 44 }) {
   const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
+  if (src) {
+    return (
+      <span
+        className={`mark mark-img${framed ? " mark-framed" : ""}`}
+        aria-hidden="true"
+        style={{ width: size, height: size, borderRadius: size * 0.26 }}
+      >
+        <img src={src} alt="" />
+      </span>
+    );
+  }
   const g = GLYPHS[glyph] || GLYPHS.tt;
   return (
     <span className="mark" aria-hidden="true" style={{ width: size, height: size }}>

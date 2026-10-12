@@ -19,7 +19,7 @@ import {
   initCounters,
 } from "./kit.jsx";
 import { Nav, Footer } from "./shell.jsx";
-import { PROJECTS, MEDIA } from "./projects.js";
+import { PROJECTS, MEDIA, LOGOS } from "./projects.js";
 import { SVCS, INDS, TRUST, NEXT_STEPS, ARTS } from "../content.js";
 import "./tokens.css";
 import "./home.css";
@@ -224,7 +224,7 @@ function DevelopECSection() {
       <div className="wrap">
         <div className="room-dark reveal">
           <div className="room-id room-id-center">
-            <BrandMark from="var(--ec)" to="var(--ec-deep)" glyph="ec" />
+            <BrandMark from="var(--ec)" to="var(--ec-deep)" glyph="ec" {...LOGOS["develop-ec"]} />
             <span className="label">Develop EC</span>
           </div>
           <h2 className="t-card">From design to construction.</h2>
@@ -285,6 +285,7 @@ function ProjectsGrid() {
                   from={`var(--${p.theme})`}
                   to={`var(--${p.theme}-deep)`}
                   glyph={p.theme}
+                  {...(LOGOS[p.slug] || {})}
                   size={52}
                 />
                 <h3>{p.name}</h3>

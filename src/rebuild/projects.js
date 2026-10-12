@@ -323,6 +323,13 @@ export const MEDIA = {
   },
 };
 
+/* Real product logos, pulled from the products own live sites. */
+export const LOGOS = {
+  tasktock: { src: "/brand/tasktock.svg" },
+  clocket: { src: "/brand/clocket.png", framed: true },
+  "develop-ec": { src: "/brand/develop-ec.png", framed: true },
+};
+
 export const PROJECT_ORDER = [
   "evriel-inventory",
   "ag-project-monitor",
