@@ -2,6 +2,8 @@
    each wearing its own color. Content lives in projects.js. */
 
 import React, { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   useReveal,
   Cta,
@@ -12,6 +14,7 @@ import {
   BrowserFrame,
   DemoMedia,
   Slot,
+  initTilt,
 } from "./kit.jsx";
 import { Nav, Footer } from "./shell.jsx";
 import { ContactSection } from "./Home.jsx";
@@ -22,12 +25,12 @@ import "./project.css";
 
 function Device({ p, children }) {
   if (p.device === "phone") {
-    return <PhoneFrame bezel={`var(--${p.theme}-deep, var(--ink))`}>{children}</PhoneFrame>;
+    return <PhoneFrame bezel="var(--charcoal)">{children}</PhoneFrame>;
   }
   if (p.device === "browser") {
     return <BrowserFrame url={p.live ? p.live.replace("https://", "") : p.name}>{children}</BrowserFrame>;
   }
-  return <LaptopFrame bezel={`var(--${p.theme}-deep, var(--ink))`}>{children}</LaptopFrame>;
+  return <LaptopFrame bezel="var(--charcoal)">{children}</LaptopFrame>;
 }
 
 export default function ProjectPage({ slug }) {
@@ -39,6 +42,29 @@ export default function ProjectPage({ slug }) {
     document.title = `${p.name} - Evriel Systems`;
     window.scrollTo(0, 0);
   }, [p.name]);
+
+  useEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+    const cleanTilt = initTilt(rootRef.current, ".feat, .next-card, .gal-slot img");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let ctx;
+    if (!reduce) {
+      ctx = gsap.context(() => {
+        gsap.utils.toArray(".bezel, .feat-slot").forEach((el) => {
+          gsap.from(el, {
+            rotateX: 9, y: 40, opacity: 0,
+            transformPerspective: 900, transformOrigin: "center bottom",
+            duration: 1, ease: "power3.out",
+            scrollTrigger: { trigger: el, start: "top 88%", once: true },
+          });
+        });
+      }, rootRef);
+    }
+    return () => {
+      cleanTilt();
+      if (ctx) ctx.revert();
+    };
+  }, [slug]);
 
   const next = PROJECTS[p.next];
   const media = MEDIA[p.slug];

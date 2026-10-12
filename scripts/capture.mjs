@@ -85,11 +85,21 @@ async function recordVideo(browser, slug, size, run) {
   const dir = resolve(root, ".video-tmp", slug);
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
+  // render at 2x via page zoom into a 2x-size video so output stays crisp
+  const zoom = slug === "develop-ec" ? 1 : 2;
+  const vsize = { width: size.width * zoom, height: size.height * zoom };
   const context = await browser.newContext({
-    viewport: size,
+    viewport: vsize,
     deviceScaleFactor: 1,
-    recordVideo: { dir, size },
+    recordVideo: { dir, size: vsize },
   });
+  if (zoom !== 1) {
+    await context.addInitScript((z) => {
+      document.addEventListener("DOMContentLoaded", () => {
+        document.documentElement.style.zoom = String(z);
+      });
+    }, zoom);
+  }
   const page = await context.newPage();
   await run(page);
   await context.close();
@@ -143,7 +153,7 @@ async function videos(browser) {
   await recordVideo(browser, "domainintel", VIDEO_LAPTOP, async (page) => {
     await page.goto(src("domainintel.html"), { waitUntil: "networkidle" });
     await sleep(3200);
-    await smoothScroll(page, 200, 22, 30);
+    await smoothScroll(page, 400, 22, 30);
     await sleep(1800);
     await page.evaluate(() => window.show("reasoning"));
     await sleep(3600);
@@ -173,20 +183,20 @@ async function videos(browser) {
 /* Short per-feature clips: one small video for every feature card. */
 async function featureClips(browser) {
   const clips = [
-    ["evriel-inventory", "clip-dashboard", src("inventory.html?view=dashboard"), VIDEO_LAPTOP, async (p) => { await sleep(2600); await smoothScroll(p, 120, 18, 35); await sleep(2000); }],
-    ["evriel-inventory", "clip-products", src("inventory.html?view=products"), VIDEO_LAPTOP, async (p) => { await sleep(2400); await smoothScroll(p, 160, 20, 35); await sleep(1800); }],
+    ["evriel-inventory", "clip-dashboard", src("inventory.html?view=dashboard"), VIDEO_LAPTOP, async (p) => { await sleep(2600); await smoothScroll(p, 240, 18, 35); await sleep(2000); }],
+    ["evriel-inventory", "clip-products", src("inventory.html?view=products"), VIDEO_LAPTOP, async (p) => { await sleep(2400); await smoothScroll(p, 320, 20, 35); await sleep(1800); }],
     ["evriel-inventory", "clip-invoice", src("inventory.html?view=invoice"), VIDEO_LAPTOP, async (p) => { await sleep(5200); }],
     ["evriel-inventory", "clip-orders", src("inventory.html?view=orders"), VIDEO_LAPTOP, async (p) => { await sleep(4600); }],
     ["ag-project-monitor", "clip-task", src("ag.html?view=task"), PHONE, async (p) => { await sleep(5600); }],
-    ["ag-project-monitor", "clip-tasks", src("ag.html?view=tasks"), PHONE, async (p) => { await sleep(2600); await smoothScroll(p, 180, 20, 35); await sleep(1800); }],
-    ["ag-project-monitor", "clip-timeline", src("ag.html?view=timeline"), PHONE, async (p) => { await sleep(2600); await smoothScroll(p, 160, 20, 35); await sleep(1800); }],
+    ["ag-project-monitor", "clip-tasks", src("ag.html?view=tasks"), PHONE, async (p) => { await sleep(2600); await smoothScroll(p, 360, 20, 35); await sleep(1800); }],
+    ["ag-project-monitor", "clip-timeline", src("ag.html?view=timeline"), PHONE, async (p) => { await sleep(2600); await smoothScroll(p, 320, 20, 35); await sleep(1800); }],
     ["tasktock", "clip-today", src("tasktock.html?view=today"), PHONE, async (p) => { await sleep(5000); }],
     ["tasktock", "clip-inbox", src("tasktock.html?view=inbox"), PHONE, async (p) => { await sleep(5000); }],
-    ["domainintel", "clip-results", src("domainintel.html"), VIDEO_LAPTOP, async (p) => { await sleep(2800); await smoothScroll(p, 200, 22, 35); await sleep(1800); }],
+    ["domainintel", "clip-results", src("domainintel.html"), VIDEO_LAPTOP, async (p) => { await sleep(2800); await smoothScroll(p, 400, 22, 35); await sleep(1800); }],
     ["domainintel", "clip-reasoning", src("domainintel.html?view=reasoning"), VIDEO_LAPTOP, async (p) => { await sleep(5400); }],
     ["clocket", "clip-clockin", src("clocket-app.html?view=clockin"), PHONE, async (p) => { await sleep(3200); await p.evaluate(() => window.show("working")); await sleep(2800); }],
     ["clocket", "clip-working", src("clocket-app.html?view=working"), PHONE, async (p) => { await sleep(5000); }],
-    ["clocket", "clip-admin", src("clocket-admin.html?view=dashboard"), VIDEO_LAPTOP, async (p) => { await sleep(2600); await smoothScroll(p, 140, 18, 35); await sleep(2000); }],
+    ["clocket", "clip-admin", src("clocket-admin.html?view=dashboard"), VIDEO_LAPTOP, async (p) => { await sleep(2600); await smoothScroll(p, 280, 18, 35); await sleep(2000); }],
     ["clocket", "clip-reports", src("clocket-admin.html?view=reports"), VIDEO_LAPTOP, async (p) => { await sleep(4800); }],
     ["develop-ec", "clip-top", "https://developec.gr", VIDEO_LAPTOP, async (p) => { await sleep(2400); await smoothScroll(p, 1700, 60, 45); await sleep(1200); }],
     ["develop-ec", "clip-projects", "https://developec.gr", VIDEO_LAPTOP, async (p) => {
@@ -203,13 +213,22 @@ async function featureClips(browser) {
     const dir = resolve(root, ".video-tmp", `${slug}-${name}`);
     rmSync(dir, { recursive: true, force: true });
     mkdirSync(dir, { recursive: true });
+    const zoom = slug === "develop-ec" ? 1 : 2;
+    const vsize = { width: size.width * zoom, height: size.height * zoom };
     const context = await browser.newContext({
-      viewport: size,
+      viewport: vsize,
       deviceScaleFactor: 1,
-      recordVideo: { dir, size },
+      recordVideo: { dir, size: vsize },
       userAgent:
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
     });
+    if (zoom !== 1) {
+      await context.addInitScript((z) => {
+        document.addEventListener("DOMContentLoaded", () => {
+          document.documentElement.style.zoom = String(z);
+        });
+      }, zoom);
+    }
     const page = await context.newPage();
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 }).catch(() => {});
     await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});

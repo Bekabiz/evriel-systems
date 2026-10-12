@@ -8,66 +8,73 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Inter',sans-serif; background:#F3F5F8; color:#16233A; font-size:13px; -webkit-font-smoothing:antialiased; }
+  body { font-family:'Inter',sans-serif; background:#F6F6F7; color:#1A1C1F; font-size:13px; -webkit-font-smoothing:antialiased; }
   .app { display:flex; height:100vh; overflow:hidden; }
 
-  .side { width:220px; background:#132840; color:#fff; display:flex; flex-direction:column; flex:none; }
-  .side-logo { padding:20px 20px 18px; font-weight:700; font-size:15px; letter-spacing:-0.01em; display:flex; align-items:center; gap:10px; }
-  .side-logo b { width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,#06B6D4,#0B5E86); display:flex; align-items:center; justify-content:center; font-size:12px; }
-  .side nav { padding:8px 12px; display:flex; flex-direction:column; gap:2px; }
-  .side nav a { color:#9FB2C8; text-decoration:none; padding:9px 12px; border-radius:8px; font-weight:500; }
-  .side nav a.on { background:rgba(6,182,212,0.16); color:#fff; }
-  .side-store { margin-top:auto; padding:16px 20px; font-size:12px; color:#9FB2C8; border-top:1px solid rgba(255,255,255,0.08); }
-  .side-store b { color:#fff; display:block; font-size:12.5px; }
+  .side { width:216px; background:#FFFFFF; border-right:1px solid #ECECEE; display:flex; flex-direction:column; flex:none; }
+  .side-logo { padding:18px 18px 16px; font-weight:700; font-size:14.5px; display:flex; align-items:center; gap:10px; }
+  .side-logo b { width:30px; height:30px; border-radius:8px; background:linear-gradient(165deg,#8E3B5C,#63273F); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; }
+  .side nav { padding:4px 10px; display:flex; flex-direction:column; gap:1px; }
+  .side nav a { color:#5A5F66; text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:500; }
+  .side nav a.on { background:#F1F1F3; color:#1A1C1F; font-weight:600; }
+  .side-store { margin-top:auto; padding:14px 18px; font-size:12px; color:#8A8F96; border-top:1px solid #ECECEE; }
+  .side-store b { color:#1A1C1F; display:block; font-size:12.5px; }
 
   .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
-  .top { height:56px; background:#fff; border-bottom:1px solid #E4E9F0; display:flex; align-items:center; gap:14px; padding:0 24px; flex:none; }
-  .top h1 { font-size:15px; font-weight:600; }
-  .stores { margin-left:auto; display:flex; background:#EEF2F7; border-radius:9px; padding:3px; }
-  .stores span { padding:6px 14px; border-radius:7px; font-weight:500; color:#5B6B82; }
-  .stores span.on { background:#fff; color:#16233A; font-weight:600; box-shadow:0 1px 2px rgba(22,35,58,0.10); }
-  .user { width:30px; height:30px; border-radius:50%; background:#0B5E86; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:12px; }
+  .top { height:54px; background:#fff; border-bottom:1px solid #ECECEE; display:flex; align-items:center; gap:14px; padding:0 20px; flex:none; }
+  .top h1 { font-size:14.5px; font-weight:600; }
+  .search-pill { margin-left:8px; background:#F1F1F3; border-radius:8px; padding:7px 14px; color:#8A8F96; width:220px; font-weight:500; }
+  .stores { margin-left:auto; display:flex; background:#F1F1F3; border-radius:9px; padding:3px; }
+  .stores span { padding:5px 13px; border-radius:7px; font-weight:500; color:#5A5F66; }
+  .stores span.on { background:#fff; color:#1A1C1F; font-weight:600; box-shadow:0 1px 2px rgba(26,28,31,0.12); }
+  .user { width:30px; height:30px; border-radius:50%; background:#63273F; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:12px; }
 
-  .body { flex:1; overflow:auto; padding:24px; }
-  .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
-  .card { background:#fff; border-radius:12px; padding:16px 18px; box-shadow:0 1px 2px rgba(22,35,58,0.06); }
-  .card small { color:#5B6B82; font-weight:500; }
-  .card b { display:block; font-size:24px; font-weight:700; margin-top:6px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; }
+  .body { flex:1; overflow:auto; padding:20px; }
+  .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .card { background:#fff; border-radius:12px; padding:15px 17px; border:1px solid #ECECEE; }
+  .card small { color:#8A8F96; font-weight:500; }
+  .card b { display:block; font-size:23px; font-weight:700; margin-top:5px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; }
   .card i { font-style:normal; font-size:11.5px; font-weight:600; border-radius:99px; padding:2px 8px; }
-  .up { background:#E3F7EE; color:#0E7A4E; }
-  .warn { background:#FDEEE7; color:#B4441B; }
+  .up { background:#E6F4EA; color:#137547; }
+  .warn { background:#FCEDE8; color:#B4441B; }
 
-  .panel { background:#fff; border-radius:12px; margin-top:16px; box-shadow:0 1px 2px rgba(22,35,58,0.06); overflow:hidden; }
-  .panel-h { display:flex; align-items:center; padding:14px 18px; border-bottom:1px solid #EEF1F6; }
+  .panel { background:#fff; border-radius:12px; margin-top:14px; border:1px solid #ECECEE; overflow:hidden; }
+  .panel-h { display:flex; align-items:center; padding:13px 17px; border-bottom:1px solid #F1F1F3; }
   .panel-h h2 { font-size:13.5px; font-weight:600; }
-  .panel-h span { margin-left:auto; color:#0B7C99; font-weight:600; font-size:12.5px; }
+  .panel-h span { margin-left:auto; color:#8E3B5C; font-weight:600; font-size:12.5px; }
   table { width:100%; border-collapse:collapse; }
-  th { text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:#8593A8; font-weight:600; padding:10px 18px; border-bottom:1px solid #EEF1F6; }
-  td { padding:11px 18px; border-bottom:1px solid #F3F5F9; font-weight:500; }
+  th { text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em; color:#8A8F96; font-weight:600; padding:9px 17px; border-bottom:1px solid #F1F1F3; }
+  td { padding:10px 17px; border-bottom:1px solid #F6F6F8; font-weight:500; }
   tr:last-child td { border-bottom:none; }
   td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
-  .sku { color:#5B6B82; font-size:12px; }
+  .prod { display:flex; align-items:center; gap:11px; }
+  .sw { width:30px; height:30px; border-radius:8px; flex:none; }
+  .sw-skin { background:linear-gradient(165deg,#F3DCCB,#DDA87F); }
+  .sw-frag { background:linear-gradient(165deg,#D9CBE8,#9F7FC2); }
+  .sw-make { background:linear-gradient(165deg,#F0C7CF,#C96F86); }
+  .sw-hair { background:linear-gradient(165deg,#CBDDE8,#6F9AC9); }
+  .sw-body { background:linear-gradient(165deg,#D8E8D2,#8CB97E); }
+  .sku { color:#8A8F96; font-size:11.5px; font-weight:400; }
   .low { color:#B4441B; font-weight:600; }
   .chip { font-size:11.5px; font-weight:600; border-radius:99px; padding:3px 10px; }
-  .c-ok { background:#E3F7EE; color:#0E7A4E; }
-  .c-low { background:#FDEEE7; color:#B4441B; }
-  .c-open { background:#E7F4FB; color:#0B5E86; }
-  .c-match { background:#E3F7EE; color:#0E7A4E; }
+  .c-ok { background:#E6F4EA; color:#137547; }
+  .c-low { background:#FCEDE8; color:#B4441B; }
+  .c-open { background:#EEF1F6; color:#44506B; }
+  .c-match { background:#E6F4EA; color:#137547; }
 
-  .two { display:grid; grid-template-columns:1.2fr 0.8fr; gap:16px; margin-top:16px; }
-  .act { padding:12px 18px; border-bottom:1px solid #F3F5F9; display:flex; gap:12px; align-items:baseline; }
-  .act time { color:#8593A8; font-size:11.5px; flex:none; width:44px; font-variant-numeric:tabular-nums; }
+  .two { display:grid; grid-template-columns:1.2fr 0.8fr; gap:14px; margin-top:14px; }
+  .act { padding:11px 17px; border-bottom:1px solid #F6F6F8; display:flex; gap:12px; align-items:baseline; }
+  .act time { color:#8A8F96; font-size:11.5px; flex:none; width:42px; font-variant-numeric:tabular-nums; }
 
-  /* invoice view */
-  .inv-wrap { display:grid; grid-template-columns:0.9fr 1.1fr; gap:16px; }
-  .inv-meta { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:16px 18px; }
-  .inv-meta label { font-size:11px; color:#8593A8; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
+  .inv-wrap { display:grid; grid-template-columns:0.9fr 1.1fr; gap:14px; }
+  .inv-meta { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:15px 17px; }
+  .inv-meta label { font-size:10.5px; color:#8A8F96; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
   .inv-meta b { display:block; margin-top:3px; font-weight:600; }
-  .match-note { margin:0 18px 16px; background:#E3F7EE; color:#0E7A4E; border-radius:9px; padding:10px 14px; font-weight:600; font-size:12.5px; }
-  .btnrow { display:flex; gap:10px; padding:16px 18px; border-top:1px solid #EEF1F6; }
-  .btn { border:none; font-family:inherit; font-weight:600; font-size:13px; border-radius:9px; padding:10px 18px; }
-  .btn-p { background:#06B6D4; color:#0B2B44; }
-  .btn-s { background:#EEF2F7; color:#16233A; }
+  .match-note { margin:0 17px 15px; background:#E6F4EA; color:#137547; border-radius:9px; padding:10px 14px; font-weight:600; font-size:12.5px; }
+  .btnrow { display:flex; gap:10px; padding:15px 17px; border-top:1px solid #F1F1F3; }
+  .btn { border:none; font-family:inherit; font-weight:600; font-size:13px; border-radius:9px; padding:9px 17px; }
+  .btn-p { background:#1A1C1F; color:#fff; }
+  .btn-s { background:#F1F1F3; color:#1A1C1F; }
 </style>
 </head>
 <body>
@@ -89,6 +96,7 @@
   <div class="main">
     <div class="top">
       <h1 id="title">Dashboard</h1>
+      <div class="search-pill">Search products, orders, invoices</div>
       <div class="stores">
         <span class="on">All stores</span><span>Central</span><span>North</span><span>Harbour</span>
       </div>
@@ -107,11 +115,11 @@
           <div class="panel-h"><h2>Low stock, all stores</h2><span>View all 118</span></div>
           <table>
             <tr><th>Product</th><th class="num">Central</th><th class="num">North</th><th class="num">Harbour</th><th class="num">Min</th></tr>
-            <tr><td>Vitamin C Serum 30ml<div class="sku">SKU 41-0218</div></td><td class="num low">3</td><td class="num">14</td><td class="num">9</td><td class="num">12</td></tr>
-            <tr><td>Eau de Parfum Iris 100ml<div class="sku">SKU 52-1140</div></td><td class="num">22</td><td class="num low">4</td><td class="num">17</td><td class="num">15</td></tr>
-            <tr><td>Matte Lipstick 204 Rouge<div class="sku">SKU 63-0227</div></td><td class="num low">2</td><td class="num low">5</td><td class="num">11</td><td class="num">10</td></tr>
-            <tr><td>Sunscreen SPF50 150ml<div class="sku">SKU 44-3305</div></td><td class="num">9</td><td class="num">12</td><td class="num low">1</td><td class="num">8</td></tr>
-            <tr><td>Micellar Water 400ml<div class="sku">SKU 41-2216</div></td><td class="num low">6</td><td class="num">19</td><td class="num">8</td><td class="num">14</td></tr>
+            <tr><td><div class="prod"><span class="sw sw-skin"></span><div>Vitamin C Serum 30ml<div class="sku">SKU 41-0218</div></div></div></td><td class="num low">3</td><td class="num">14</td><td class="num">9</td><td class="num">12</td></tr>
+            <tr><td><div class="prod"><span class="sw sw-frag"></span><div>Eau de Parfum Iris 100ml<div class="sku">SKU 52-1140</div></div></div></td><td class="num">22</td><td class="num low">4</td><td class="num">17</td><td class="num">15</td></tr>
+            <tr><td><div class="prod"><span class="sw sw-make"></span><div>Matte Lipstick 204 Rouge<div class="sku">SKU 63-0227</div></div></div></td><td class="num low">2</td><td class="num low">5</td><td class="num">11</td><td class="num">10</td></tr>
+            <tr><td><div class="prod"><span class="sw sw-skin"></span><div>Sunscreen SPF50 150ml<div class="sku">SKU 44-3305</div></div></div></td><td class="num">9</td><td class="num">12</td><td class="num low">1</td><td class="num">8</td></tr>
+            <tr><td><div class="prod"><span class="sw sw-skin"></span><div>Micellar Water 400ml<div class="sku">SKU 41-2216</div></div></div></td><td class="num low">6</td><td class="num">19</td><td class="num">8</td><td class="num">14</td></tr>
           </table>
         </div>
         <div class="panel">
@@ -131,14 +139,14 @@
         <div class="panel-h"><h2>Products, 39,412</h2><span>Export</span></div>
         <table>
           <tr><th>Product</th><th>Category</th><th class="num">Central</th><th class="num">North</th><th class="num">Harbour</th><th class="num">Total</th><th class="num">Price</th></tr>
-          <tr><td>Hydra Day Cream 50ml<div class="sku">SKU 41-0101</div></td><td>Skincare</td><td class="num">44</td><td class="num">31</td><td class="num">27</td><td class="num">102</td><td class="num">42.90</td></tr>
-          <tr><td>Eau de Toilette Cedar 50ml<div class="sku">SKU 52-7702</div></td><td>Fragrance</td><td class="num">12</td><td class="num">8</td><td class="num">6</td><td class="num">26</td><td class="num">119.00</td></tr>
-          <tr><td>Silk Foundation 30 Beige<div class="sku">SKU 63-1240</div></td><td>Makeup</td><td class="num">18</td><td class="num">22</td><td class="num">13</td><td class="num">53</td><td class="num">27.50</td></tr>
-          <tr><td>Vitamin C Serum 30ml<div class="sku">SKU 41-0218</div></td><td>Skincare</td><td class="num low">3</td><td class="num">14</td><td class="num">9</td><td class="num">26</td><td class="num">5.80</td></tr>
-          <tr><td>Matte Lipstick 204 Rouge<div class="sku">SKU 63-0227</div></td><td>Makeup</td><td class="num">22</td><td class="num low">4</td><td class="num">17</td><td class="num">43</td><td class="num">3.20</td></tr>
-          <tr><td>Repair Shampoo 250ml<div class="sku">SKU 71-3318</div></td><td>Hair</td><td class="num">240</td><td class="num">185</td><td class="num">96</td><td class="num">521</td><td class="num">18.40</td></tr>
-          <tr><td>Body Lotion Almond 400ml<div class="sku">SKU 72-2144</div></td><td>Body</td><td class="num">31</td><td class="num">27</td><td class="num">19</td><td class="num">77</td><td class="num">24.00</td></tr>
-          <tr><td>Nail Lacquer 310 Coral<div class="sku">SKU 63-5501</div></td><td>Makeup</td><td class="num">15</td><td class="num">11</td><td class="num">7</td><td class="num">33</td><td class="num">36.70</td></tr>
+          <tr><td><div class="prod"><span class="sw sw-skin"></span><div>Hydra Day Cream 50ml<div class="sku">SKU 41-0101</div></div></div></td><td>Skincare</td><td class="num">44</td><td class="num">31</td><td class="num">27</td><td class="num">102</td><td class="num">42.90</td></tr>
+          <tr><td><div class="prod"><span class="sw sw-frag"></span><div>Eau de Toilette Cedar 50ml<div class="sku">SKU 52-7702</div></div></div></td><td>Fragrance</td><td class="num">12</td><td class="num">8</td><td class="num">6</td><td class="num">26</td><td class="num">119.00</td></tr>
+          <tr><td><div class="prod"><span class="sw sw-make"></span><div>Silk Foundation 30 Beige<div class="sku">SKU 63-1240</div></div></div></td><td>Makeup</td><td class="num">18</td><td class="num">22</td><td class="num">13</td><td class="num">53</td><td class="num">27.50</td></tr>
+          <tr><td><div class="prod"><span class="sw sw-skin"></span><div>Vitamin C Serum 30ml<div class="sku">SKU 41-0218</div></div></div></td><td>Skincare</td><td class="num low">3</td><td class="num">14</td><td class="num">9</td><td class="num">26</td><td class="num">24.80</td></tr>
+          <tr><td><div class="prod"><span class="sw sw-make"></span><div>Matte Lipstick 204 Rouge<div class="sku">SKU 63-0227</div></div></div></td><td>Makeup</td><td class="num">22</td><td class="num low">4</td><td class="num">17</td><td class="num">43</td><td class="num">12.20</td></tr>
+          <tr><td><div class="prod"><span class="sw sw-hair"></span><div>Repair Shampoo 250ml<div class="sku">SKU 71-3318</div></div></div></td><td>Hair</td><td class="num">240</td><td class="num">185</td><td class="num">96</td><td class="num">521</td><td class="num">9.40</td></tr>
+          <tr><td><div class="prod"><span class="sw sw-body"></span><div>Body Lotion Almond 400ml<div class="sku">SKU 72-2144</div></div></div></td><td>Body</td><td class="num">31</td><td class="num">27</td><td class="num">19</td><td class="num">77</td><td class="num">11.60</td></tr>
+          <tr><td><div class="prod"><span class="sw sw-make"></span><div>Nail Lacquer 310 Coral<div class="sku">SKU 63-5501</div></div></div></td><td>Makeup</td><td class="num">15</td><td class="num">11</td><td class="num">7</td><td class="num">33</td><td class="num">7.90</td></tr>
         </table>
       </div>
     </div>

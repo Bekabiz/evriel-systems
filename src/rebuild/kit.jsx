@@ -30,6 +30,77 @@ export function useReveal(rootRef) {
   }, [rootRef]);
 }
 
+/* Pointer tilt: gentle 3D on cards for fine pointers. Returns a cleanup. */
+export function initTilt(root, selector, max = 5) {
+  if (!root) return () => {};
+  const fine = window.matchMedia("(pointer: fine)").matches;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!fine || reduce) return () => {};
+  const els = Array.from(root.querySelectorAll(selector));
+  const cleanups = els.map((el) => {
+    el.classList.add("tilt");
+    let raf = 0;
+    const move = (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        el.style.transform =
+          `perspective(900px) rotateX(${(-y * max).toFixed(2)}deg) rotateY(${(x * max).toFixed(2)}deg) translateY(-2px)`;
+      });
+    };
+    const leave = () => {
+      cancelAnimationFrame(raf);
+      el.style.transform = "";
+    };
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerleave", leave);
+    return () => {
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("pointerleave", leave);
+      cancelAnimationFrame(raf);
+      el.style.transform = "";
+    };
+  });
+  return () => cleanups.forEach((fn) => fn());
+}
+
+/* Counts data-count elements up when they enter the viewport. */
+export function initCounters(root) {
+  if (!root) return () => {};
+  const els = Array.from(root.querySelectorAll("[data-count]"));
+  if (els.length === 0) return () => {};
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const finish = (el) => { el.textContent = el.dataset.count + (el.dataset.suffix || ""); };
+  if (reduce || !("IntersectionObserver" in window)) {
+    els.forEach(finish);
+    return () => {};
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      io.unobserve(el);
+      const target = parseFloat(el.dataset.count.replace(/,/g, ""));
+      const useCommas = el.dataset.count.includes(",");
+      const suffix = el.dataset.suffix || "";
+      const t0 = performance.now();
+      const dur = 1300;
+      const tick = (t) => {
+        const p = Math.min((t - t0) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const val = Math.round(target * eased);
+        el.textContent = (useCommas ? val.toLocaleString("en-US") : String(val)) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }, { threshold: 0.6 });
+  els.forEach((el) => { el.textContent = (el.dataset.count.includes(",") ? "0" : "0") + (el.dataset.suffix || ""); io.observe(el); });
+  return () => io.disconnect();
+}
+
 /* Very subtle drifting light behind the hero. Canvas only, no assets.
    Static under reduced motion, paused when the tab is hidden. */
 export function AmbientLight() {

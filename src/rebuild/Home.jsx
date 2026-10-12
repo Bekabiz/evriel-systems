@@ -14,6 +14,9 @@ import {
   PhoneFrame,
   BrowserFrame,
   DemoMedia,
+  Slot,
+  initTilt,
+  initCounters,
 } from "./kit.jsx";
 import { Nav, Footer } from "./shell.jsx";
 import { PROJECTS, MEDIA } from "./projects.js";
@@ -42,7 +45,7 @@ function Hero() {
           </div>
           <div className="hero-devices hero-load hl-4" aria-hidden="true">
             <div className="hero-laptop">
-              <LaptopFrame bezel="var(--inv-deep)">
+              <LaptopFrame bezel="var(--charcoal)">
                 <DemoMedia
                   video={MEDIA["evriel-inventory"].video}
                   poster={MEDIA["evriel-inventory"].poster}
@@ -160,7 +163,7 @@ function InventorySection() {
           <div className="room-stage parallax">
             <div className="glow glow-inv" />
             <Bezel>
-              <LaptopFrame bezel="var(--inv-deep)">
+              <LaptopFrame bezel="var(--charcoal)">
                 <DemoMedia
                   video={MEDIA["evriel-inventory"].video}
                   poster={MEDIA["evriel-inventory"].poster}
@@ -386,32 +389,37 @@ function About() {
   return (
     <section className="about" id="about">
       <div className="wrap reveal">
-        <h2 className="section-h">About Evriel</h2>
-        <div className="about-body">
-          <p className="about-lead">
-            No two organizations operate the same way, which is why effective
-            systems must be built around real operational needs rather than
-            one-size-fits-all technology.
-          </p>
-          <p>
-            Evriel Systems was founded by Bereket Bizuayehu Teshome and was
-            shaped by his work across business, marketing, European projects
-            and digital transformation in Poland, Spain, Italy and Greece.
-            Across all of it, one challenge kept repeating: organizations
-            struggle to turn new technology into practical business value.
-          </p>
-          <p>
-            Technologies change fast. The underlying problems rarely do:
-            disconnected information, inefficient workflows and missed chances
-            to decide better. Evriel Systems exists to close that gap, with AI,
-            automation and intelligent systems that connect people, processes,
-            information and technology.
-          </p>
-          <p>
-            Every system on this page is in real use today. That is the whole
-            portfolio argument: if they run these operations, they can build
-            yours.
-          </p>
+        <div className="about-panel">
+          <div>
+            <h2 className="section-h">About Evriel</h2>
+            <div className="about-body">
+              <p className="about-lead">
+                No two organizations operate the same way, which is why
+                effective systems must be built around real operational needs
+                rather than one-size-fits-all technology.
+              </p>
+              <p>
+                Evriel Systems was founded by Bereket Bizuayehu Teshome and was
+                shaped by his work across business, marketing, European
+                projects and digital transformation in four countries. One
+                challenge kept repeating everywhere: organizations struggle to
+                turn new technology into practical business value.
+              </p>
+              <p>
+                Every system on this page is in real use today. That is the
+                whole argument: if they run these operations, they can build
+                yours.
+              </p>
+            </div>
+            <div className="about-countries">
+              <span>Poland</span><span>Spain</span><span>Italy</span><span>Greece</span>
+            </div>
+          </div>
+          <div className="about-stats">
+            <div className="about-stat"><b data-count="6"></b><span>systems in production</span></div>
+            <div className="about-stat"><b data-count="3"></b><span>countries using them daily</span></div>
+            <div className="about-stat"><b data-count="39,000" data-suffix="+"></b><span>products tracked by one of them</span></div>
+          </div>
         </div>
       </div>
     </section>
@@ -565,22 +573,39 @@ export default function Home() {
   useReveal(rootRef);
 
   useEffect(() => {
+    const root = rootRef.current;
+    const cleanTilt = initTilt(root, ".svc, .proj-tile, .feat, .art-card, .about-stat, .trust-item");
+    const cleanCount = initCounters(root);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
-    const ctx = gsap.context(() => {
-      gsap.utils.toArray(".parallax").forEach((el) => {
-        gsap.fromTo(
-          el,
-          { y: 16 },
-          {
-            y: -16,
-            ease: "none",
-            scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 1 },
-          }
-        );
-      });
-    }, rootRef);
-    return () => ctx.revert();
+    let ctx;
+    if (!reduce) {
+      ctx = gsap.context(() => {
+        gsap.utils.toArray(".parallax").forEach((el) => {
+          gsap.fromTo(
+            el,
+            { y: 16 },
+            {
+              y: -16,
+              ease: "none",
+              scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 1 },
+            }
+          );
+        });
+        gsap.utils.toArray(".bezel").forEach((el) => {
+          gsap.from(el, {
+            rotateX: 10, y: 48, opacity: 0,
+            transformPerspective: 900, transformOrigin: "center bottom",
+            duration: 1.1, ease: "power3.out",
+            scrollTrigger: { trigger: el, start: "top 86%", once: true },
+          });
+        });
+      }, rootRef);
+    }
+    return () => {
+      cleanTilt();
+      cleanCount();
+      if (ctx) ctx.revert();
+    };
   }, []);
 
   return (

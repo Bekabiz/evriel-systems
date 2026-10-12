@@ -20,10 +20,10 @@
   /* per-project atmosphere: pale field tints for heroes and washes.
      Saturated project color lives inside the product screens and marks,
      never in the site shell. */
-  --inv-sky: #D8E7FA;
-  --inv-wash: #EBF0F8;
-  --ag-sky: #FFE6D6;
-  --ag-wash: #F9F1EB;
+  --inv-sky: #F0DCE6;
+  --inv-wash: #F7EEF3;
+  --ag-sky: #F6E8D2;
+  --ag-wash: #F8F2E9;
   --tt-sky: #DEE8FD;
   --tt-wash: #EFF3FE;
   --di-sky: #F6E3D8;
@@ -35,12 +35,12 @@
 
   /* product identity hues: brand marks and small indicators only.
      Values follow how comparable real products brand themselves. */
-  --inv: #1E4E79; --inv-deep: #132840;
-  --ag: #FF5200;  --ag-deep: #D43F00;
+  --inv: #8E3B5C; --inv-deep: #63273F;
+  --ag: #C87514;  --ag-deep: #8F5110;
   --ec: #33373D;  --ec-deep: #1F2025; --ec-on-dark: #D19A5F;
-  --tt: #4772FA;  --tt-deep: #2E52D9;
-  --di: #C45D3E;  --di-deep: #9E4227;
-  --ck: #1FA84F;  --ck-deep: #15803D;
+  --tt: #4A5FC1;  --tt-deep: #32408C;
+  --di: #B55A3B;  --di-deep: #8C4227;
+  --ck: #178F4E;  --ck-deep: #0F6B3A;
 
   /* shadows, straight from the reference */
   --shadow-float: rgba(0, 0, 0, 0.25) 0px 0px 16px -8px;
