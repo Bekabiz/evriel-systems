@@ -249,26 +249,35 @@ const GLYPHS = {
 };
 
 export function BrandMark({ from, to, glyph, size = 44 }) {
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
+  const g = GLYPHS[glyph] || GLYPHS.tt;
   return (
-    <span
-      className="mark"
-      aria-hidden="true"
-      style={{
-        width: size,
-        height: size,
-        borderRadius: size * 0.26,
-        background: `linear-gradient(165deg, ${from}, ${to})`,
-      }}
-    >
-      <svg
-        viewBox="0 0 24 24"
-        width={size * 0.56}
-        height={size * 0.56}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        {GLYPHS[glyph] || GLYPHS.tt}
+    <span className="mark" aria-hidden="true" style={{ width: size, height: size }}>
+      <svg viewBox="0 0 48 48" width={size} height={size}>
+        <defs>
+          <linearGradient id={`b${uid}`} x1="0" y1="0" x2="0.25" y2="1">
+            <stop offset="0" stopColor={from} />
+            <stop offset="1" stopColor={to} />
+          </linearGradient>
+          <radialGradient id={`s${uid}`} cx="0.3" cy="0.08" r="1.1">
+            <stop offset="0" stopColor="#fff" stopOpacity="0.38" />
+            <stop offset="0.45" stopColor="#fff" stopOpacity="0.08" />
+            <stop offset="1" stopColor="#fff" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <rect x="1" y="1" width="46" height="46" rx="12.5" fill={`url(#b${uid})`} />
+        <rect x="1" y="1" width="46" height="46" rx="12.5" fill={`url(#s${uid})`} />
+        <rect x="1.6" y="1.6" width="44.8" height="44.8" rx="12"
+          fill="none" stroke="#fff" strokeOpacity="0.22" strokeWidth="1.1" />
+        {/* soft glyph shadow, then the glyph */}
+        <g transform="translate(12.5, 13.3) scale(0.96)" stroke="#000" opacity="0.18"
+          fill="none" strokeWidth="2.1" color="#000">
+          {g}
+        </g>
+        <g transform="translate(12.5, 12.5) scale(0.96)" stroke="#fff"
+          fill="none" strokeWidth="2.1" color="#fff">
+          {g}
+        </g>
       </svg>
     </span>
   );
