@@ -78,7 +78,7 @@ export default function ProjectPage({ slug }) {
           <div className="wrap">
             <div className="proj-field">
               <div className="room-id room-id-center">
-                <BrandMark from={`var(--${p.theme})`} to={`var(--${p.theme}-deep)`} initials={p.initials} size={52} />
+                <BrandMark from={`var(--${p.theme})`} to={`var(--${p.theme}-deep)`} glyph={p.theme} size={52} />
                 <span className="proj-label">{p.name}</span>
               </div>
               <h1 className="t-hero">{p.tagline}</h1>

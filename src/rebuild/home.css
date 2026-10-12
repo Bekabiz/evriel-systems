@@ -103,7 +103,7 @@
 }
 
 /* ---------- integrations marquee: the tools clients already use ---------- */
-.tools { padding: 96px 0 0; overflow: hidden; }
+.tools { padding: 84px 0 72px; overflow: hidden; background: #EDF3F0; }
 .tools-h { text-align: center; max-width: 22ch; margin: 0 auto 40px; }
 .tool-row {
   margin-top: 14px;
@@ -126,6 +126,7 @@
   box-shadow: var(--shadow-float); margin-right: 0;
 }
 .tool-chip img { height: 22px; width: 22px; object-fit: contain; display: block; }
+.footer { background: #EDF3F0; }
 
 /* ---------- opener ---------- */
 .opener { padding: 96px 0 24px; }
@@ -164,7 +165,7 @@
 .room-stage { position: relative; }
 .glow { position: absolute; inset: 2% -4%; border-radius: 50%; filter: blur(38px); pointer-events: none; }
 .glow-inv { background: radial-gradient(closest-side, rgba(30, 78, 121, 0.16), transparent 72%); }
-.glow-ag { background: radial-gradient(closest-side, rgba(255, 82, 0, 0.13), transparent 72%); }
+.glow-ag { background: radial-gradient(closest-side, rgba(70, 98, 127, 0.16), transparent 72%); }
 .glow-ec { background: radial-gradient(closest-side, rgba(184, 115, 51, 0.18), transparent 72%); }
 
 /* device tray */
@@ -298,7 +299,7 @@
   .svc-flow span:nth-child(4) { animation-delay: 5.4s; }
   @keyframes flow-step {
     0%, 20%, 100% { background: #fff; color: var(--ink); }
-    6%, 14% { background: var(--charcoal); color: var(--cloud); }
+    6%, 14% { background: var(--teal-deep); color: #F2F7F5; }
   }
 }
 

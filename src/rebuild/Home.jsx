@@ -32,7 +32,7 @@ function Hero() {
       <div className="wrap">
         <div className="hero-field">
           <h1 className="t-hero hero-load hl-1">
-            We build the systems
+            We build the systems{" "}
             <br />
             real companies run on.
           </h1>
@@ -140,7 +140,7 @@ function InventorySection() {
         <div className="room room-inv reveal">
           <div className="room-copy">
             <div className="room-id">
-              <BrandMark from="var(--inv)" to="var(--inv-deep)" initials="EI" />
+              <BrandMark from="var(--inv)" to="var(--inv-deep)" glyph="inv" />
               <span className="label">Evriel Inventory</span>
             </div>
             <h2 className="t-card">Inventory that runs three stores.</h2>
@@ -197,7 +197,7 @@ function AGSection() {
           </div>
           <div className="room-copy">
             <div className="room-id">
-              <BrandMark from="var(--ag)" to="var(--ag-grad-b)" initials="AG" />
+              <BrandMark from="var(--ag)" to="var(--ag-grad-b)" glyph="ag" />
               <span className="label">AG Project Monitor</span>
             </div>
             <h2 className="t-card">Tasks that start as a voice note.</h2>
@@ -224,7 +224,7 @@ function DevelopECSection() {
       <div className="wrap">
         <div className="room-dark reveal">
           <div className="room-id room-id-center">
-            <BrandMark from="var(--ec)" to="var(--ec-deep)" initials="EC" />
+            <BrandMark from="var(--ec)" to="var(--ec-deep)" glyph="ec" />
             <span className="label">Develop EC</span>
           </div>
           <h2 className="t-card">From design to construction.</h2>
@@ -284,7 +284,7 @@ function ProjectsGrid() {
                 <BrandMark
                   from={`var(--${p.theme})`}
                   to={`var(--${p.theme}-deep)`}
-                  initials={p.initials}
+                  glyph={p.theme}
                   size={52}
                 />
                 <h3>{p.name}</h3>

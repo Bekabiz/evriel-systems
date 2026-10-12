@@ -12,32 +12,32 @@
   .app { max-width:390px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; padding:18px 16px 24px; }
 
   .top { display:flex; align-items:center; gap:10px; }
-  .logo { width:32px; height:32px; border-radius:9px; background:linear-gradient(165deg,#178F4E,#0F6B3A); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:11px; }
+  .logo { width:32px; height:32px; border-radius:9px; background:linear-gradient(165deg,#35705B,#26523F); display:flex; align-items:center; justify-content:center; } .logo svg{width:16px;height:16px;stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round}
   .top b { font-size:15px; }
   .top small { display:block; color:#66736B; font-size:12px; }
-  .shift { margin-left:auto; background:#E7F5EC; color:#15803D; font-weight:700; font-size:11.5px; padding:5px 12px; border-radius:99px; }
+  .shift { margin-left:auto; background:#E7EFEA; color:#26523F; font-weight:700; font-size:11.5px; padding:5px 12px; border-radius:99px; }
 
   .card { background:#fff; border-radius:18px; box-shadow:0 1px 2px rgba(23,34,27,0.06); }
 
   .selfie-card { margin-top:22px; padding:26px 20px 22px; text-align:center; }
   .selfie { margin:0 auto; width:148px; height:148px; border-radius:50%; position:relative;
     background:#EDF3EF; display:flex; align-items:center; justify-content:center; }
-  .selfie::before { content:""; position:absolute; inset:-6px; border-radius:50%; border:3px solid #1FA84F; }
-  .selfie b { font-size:38px; font-weight:700; color:#15803D; }
+  .selfie::before { content:""; position:absolute; inset:-6px; border-radius:50%; border:3px solid #35705B; }
+  .selfie b { font-size:38px; font-weight:700; color:#26523F; }
   .selfie span { position:absolute; bottom:-12px; left:50%; transform:translateX(-50%);
-    background:#15803D; color:#fff; font-weight:700; font-size:11px; padding:5px 13px; border-radius:99px; white-space:nowrap; }
+    background:#26523F; color:#fff; font-weight:700; font-size:11px; padding:5px 13px; border-radius:99px; white-space:nowrap; }
   .who { margin-top:26px; }
   .who b { font-size:17px; }
   .who small { display:block; color:#66736B; margin-top:2px; }
 
   .checks { margin-top:14px; display:flex; flex-direction:column; gap:9px; }
   .check { padding:13px 15px; display:flex; align-items:center; gap:11px; }
-  .dot { width:22px; height:22px; border-radius:50%; background:#E7F5EC; color:#15803D; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex:none; }
+  .dot { width:22px; height:22px; border-radius:50%; background:#E7EFEA; color:#26523F; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex:none; }
   .check div b { font-size:13.5px; display:block; }
   .check div small { color:#66736B; font-size:12px; }
-  .check time { margin-left:auto; font-family:'Space Mono',monospace; font-size:12px; color:#15803D; }
+  .check time { margin-left:auto; font-family:'Space Mono',monospace; font-size:12px; color:#26523F; }
 
-  .big { margin-top:18px; border:none; font-family:inherit; width:100%; background:#1FA84F; color:#fff;
+  .big { margin-top:18px; border:none; font-family:inherit; width:100%; background:#35705B; color:#fff;
     font-size:16.5px; font-weight:700; padding:16px; border-radius:16px; }
   .hint { text-align:center; color:#66736B; font-size:12px; margin-top:12px; }
 
@@ -50,7 +50,7 @@
 <body>
 <div class="app">
   <div class="top">
-    <div class="logo">CK</div>
+    <div class="logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.4 V12 L15.3 13.9"/></svg></div>
     <div><b>ClockET</b><small>CLK-2741 &middot; Addis Ababa HQ</small></div>
     <span class="shift">Morning shift</span>
   </div>

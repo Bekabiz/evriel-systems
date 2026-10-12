@@ -201,8 +201,54 @@ export function Burger({ open, onClick }) {
   );
 }
 
-/* App-icon style mark for each project: rounded square, project gradient, initials. */
-export function BrandMark({ from, to, initials, size = 44 }) {
+/* App-icon marks: each project gets its own simple geometric glyph on its
+   gradient tile. Bereket asked for real logo marks, not letter monograms. */
+const GLYPHS = {
+  inv: (
+    <g>
+      <rect x="4" y="4" width="7" height="7" rx="2" />
+      <rect x="13.4" y="4" width="7" height="7" rx="2" />
+      <rect x="4" y="13.4" width="7" height="7" rx="2" />
+      <rect x="13.4" y="13.4" width="7" height="7" rx="2" fill="currentColor" stroke="none" />
+    </g>
+  ),
+  ag: (
+    <g strokeLinecap="round">
+      <path d="M5 10.2 V13.8" />
+      <path d="M8.5 7.6 V16.4" />
+      <path d="M12 5.4 V18.6" />
+      <path d="M15.5 7.6 V16.4" />
+      <path d="M19 10.2 V13.8" />
+    </g>
+  ),
+  ec: (
+    <g strokeLinecap="round">
+      <path d="M6.2 19 V11.6 A5.8 5.8 0 0 1 17.8 11.6 V19" />
+      <path d="M3.8 19 H20.2" />
+    </g>
+  ),
+  tt: (
+    <g strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="8.4" />
+      <path d="M8.6 12.3 l2.3 2.3 L15.6 9.5" />
+    </g>
+  ),
+  di: (
+    <g>
+      <circle cx="12" cy="12" r="8.4" />
+      <circle cx="12" cy="12" r="4.4" />
+      <circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none" />
+    </g>
+  ),
+  ck: (
+    <g strokeLinecap="round">
+      <circle cx="12" cy="12" r="8.4" />
+      <path d="M12 7.4 V12 L15.3 13.9" />
+    </g>
+  ),
+};
+
+export function BrandMark({ from, to, glyph, size = 44 }) {
   return (
     <span
       className="mark"
@@ -210,12 +256,20 @@ export function BrandMark({ from, to, initials, size = 44 }) {
       style={{
         width: size,
         height: size,
-        fontSize: size * 0.38,
-        borderRadius: size * 0.24,
-        background: `linear-gradient(180deg, ${from}, ${to})`,
+        borderRadius: size * 0.26,
+        background: `linear-gradient(165deg, ${from}, ${to})`,
       }}
     >
-      {initials}
+      <svg
+        viewBox="0 0 24 24"
+        width={size * 0.56}
+        height={size * 0.56}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        {GLYPHS[glyph] || GLYPHS.tt}
+      </svg>
     </span>
   );
 }
