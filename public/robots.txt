@@ -1,3 +1,5 @@
 User-agent: *
 Allow: /
-Sitemap: https://evrielsystems.com/sitemap.xml
+Disallow: /intake
+
+Sitemap: https://www.evrielsystems.com/sitemap.xml

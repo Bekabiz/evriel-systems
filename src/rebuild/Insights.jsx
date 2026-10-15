@@ -1,11 +1,12 @@
-/* Insights: the article index at /insights and single articles at
-   /insights/:slug. Content comes from the existing articles in content.js. */
+/* Insights index and single articles, localized. */
 
 import React, { useEffect, useRef } from "react";
 import { useReveal } from "./kit.jsx";
 import { Nav, Footer } from "./shell.jsx";
-import { ContactSection } from "./Home.jsx";
+import { ContactSection, localizedArticle } from "./Home.jsx";
 import { ARTS } from "../content.js";
+import { t, withLang } from "./i18n/index.js";
+import { setHead } from "./seo.js";
 import "./tokens.css";
 import "./home.css";
 import "./project.css";
@@ -15,9 +16,11 @@ export function InsightsPage() {
   useReveal(rootRef);
 
   useEffect(() => {
-    document.title = "Insights - Evriel Systems";
+    setHead({ title: t.meta.insights.title, desc: t.meta.insights.desc, path: "/insights" });
     window.scrollTo(0, 0);
   }, []);
+
+  const all = ARTS.map((a) => localizedArticle(a.slug));
 
   return (
     <div ref={rootRef}>
@@ -25,21 +28,18 @@ export function InsightsPage() {
       <main>
         <section className="ins-hero">
           <div className="wrap reveal">
-            <h1>Insights</h1>
-            <p className="proj-one">
-              Plain writing on AI, automation and intelligent systems, from the
-              work itself.
-            </p>
+            <h1>{t.insightsPage.title}</h1>
+            <p className="proj-one">{t.insightsPage.sub}</p>
           </div>
         </section>
         <section className="ins-list">
           <div className="wrap reveal">
-            {ARTS.map((a) => (
-              <a key={a.slug} href={`/insights/${a.slug}`} className="ins-row">
+            {all.map((a) => (
+              <a key={a.slug} href={withLang(`/insights/${a.slug}`)} className="ins-row">
                 <span className="art-tag">{a.tag}</span>
                 <h2>{a.title}</h2>
                 <p>{a.excerpt}</p>
-                <span className="art-more">Read article</span>
+                <span className="art-more">{t.insights.read}</span>
               </a>
             ))}
           </div>
@@ -52,18 +52,24 @@ export function InsightsPage() {
 }
 
 export function ArticlePage({ slug }) {
-  const a = ARTS.find((x) => x.slug === slug);
+  const a = localizedArticle(slug);
   const rootRef = useRef(null);
   useReveal(rootRef);
 
   useEffect(() => {
-    if (a) document.title = `${a.title} - Evriel Systems`;
+    if (a) {
+      setHead({
+        title: `${a.title} | Evriel Systems`,
+        desc: a.excerpt,
+        path: `/insights/${slug}`,
+      });
+    }
     window.scrollTo(0, 0);
-  }, [a]);
+  }, [slug]);
 
   if (!a) return <InsightsPage />;
 
-  const others = ARTS.filter((x) => x.slug !== slug).slice(0, 2);
+  const others = ARTS.filter((x) => x.slug !== slug).slice(0, 2).map((x) => localizedArticle(x.slug));
 
   return (
     <div ref={rootRef}>
@@ -74,9 +80,7 @@ export function ArticlePage({ slug }) {
             <header className="article-head reveal">
               <span className="art-tag">{a.tag}</span>
               <h1>{a.title}</h1>
-              <p className="article-by">
-                By Bereket Bizuayehu Teshome, Evriel Systems
-              </p>
+              <p className="article-by">{t.insightsPage.by}</p>
             </header>
             <div className="article-body reveal">
               {a.body.map((para, i) => (
@@ -87,13 +91,13 @@ export function ArticlePage({ slug }) {
         </article>
         <section className="ins-list ins-list-more band">
           <div className="wrap reveal">
-            <h2 className="section-h">Keep reading</h2>
+            <h2 className="section-h">{t.insightsPage.keep}</h2>
             {others.map((o) => (
-              <a key={o.slug} href={`/insights/${o.slug}`} className="ins-row">
+              <a key={o.slug} href={withLang(`/insights/${o.slug}`)} className="ins-row">
                 <span className="art-tag">{o.tag}</span>
                 <h2>{o.title}</h2>
                 <p>{o.excerpt}</p>
-                <span className="art-more">Read article</span>
+                <span className="art-more">{t.insights.read}</span>
               </a>
             ))}
           </div>

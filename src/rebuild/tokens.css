@@ -54,7 +54,7 @@
   --r-img: 16px;
 
   /* type */
-  --font-sans: "Instrument Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "Instrument Sans", "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-wordmark: "Young Serif", serif;
 }
 

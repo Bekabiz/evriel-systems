@@ -1,5 +1,4 @@
-/* Dedicated project page. One skeleton for all six projects (plan part 5),
-   each wearing its own color. Content lives in projects.js. */
+/* Dedicated project page, one skeleton for all six projects, localized. */
 
 import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
@@ -19,6 +18,8 @@ import {
 import { Nav, Footer } from "./shell.jsx";
 import { ContactSection } from "./Home.jsx";
 import { PROJECTS, MEDIA, LOGOS } from "./projects.js";
+import { t, withLang } from "./i18n/index.js";
+import { setHead } from "./seo.js";
 import "./tokens.css";
 import "./home.css";
 import "./project.css";
@@ -35,13 +36,18 @@ function Device({ p, children }) {
 
 export default function ProjectPage({ slug }) {
   const p = PROJECTS[slug];
+  const c = t.projects[slug];
   const rootRef = useRef(null);
   useReveal(rootRef);
 
   useEffect(() => {
-    document.title = `${p.name} - Evriel Systems`;
+    setHead({
+      title: t.meta.work.title.replace("{name}", p.name),
+      desc: t.meta.work.desc.replace("{one}", c.one),
+      path: `/work/${slug}`,
+    });
     window.scrollTo(0, 0);
-  }, [p.name]);
+  }, [slug]);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -67,6 +73,7 @@ export default function ProjectPage({ slug }) {
   }, [slug]);
 
   const next = PROJECTS[p.next];
+  const nextC = t.projects[p.next];
   const media = MEDIA[p.slug];
   const dark = p.theme === "ec";
 
@@ -81,24 +88,20 @@ export default function ProjectPage({ slug }) {
                 <BrandMark from={`var(--${p.theme})`} to={`var(--${p.theme}-deep)`} glyph={p.theme} {...(LOGOS[p.slug] || {})} size={52} />
                 <span className="proj-label">{p.name}</span>
               </div>
-              <h1 className="t-hero">{p.tagline}</h1>
-              <p className="proj-one">{p.one}</p>
+              <h1 className="t-hero">{c.tagline}</h1>
+              <p className="proj-one">{c.one}</p>
               {p.live && (
                 <a href={p.live} target="_blank" rel="noreferrer" className="proj-live">
-                  Visit {p.live.replace("https://", "")}
+                  {t.project.visit} {p.live.replace("https://", "")}
                 </a>
               )}
               <div className={`proj-stage${p.device === "phone" ? " proj-stage-phone" : ""}`}>
                 <Bezel dark={dark}>
                   <Device p={p}>
                     {media.video ? (
-                      <DemoMedia
-                        video={media.video}
-                        poster={media.poster}
-                        alt={`${p.name} demo video`}
-                      />
+                      <DemoMedia video={media.video} poster={media.poster} alt={`${p.name} demo`} />
                     ) : (
-                      <Slot>Screen recording of the live site, captured once it is back up</Slot>
+                      <Slot>{t.project.pending}</Slot>
                     )}
                   </Device>
                 </Bezel>
@@ -109,17 +112,17 @@ export default function ProjectPage({ slug }) {
 
         <section className="proj-wanted">
           <div className="wrap reveal">
-            <h2 className="section-h">What the client wanted</h2>
-            <p className="proj-wanted-p">{p.wanted}</p>
+            <h2 className="section-h">{t.project.wanted}</h2>
+            <p className="proj-wanted-p">{c.wanted}</p>
           </div>
         </section>
 
         <section className="proj-solution">
           <div className="wrap reveal">
-            <h2 className="section-h">The solution we gave</h2>
+            <h2 className="section-h">{t.project.solution}</h2>
             <div className="feat-grid">
-              {p.features.map((f) => {
-                const shot = media.featureShots[f.t];
+              {c.features.map((f, i) => {
+                const shot = media.featureShots[p.features[i] ? p.features[i].t : ""];
                 return (
                   <div key={f.t} className="feat">
                     <h3>{f.t}</h3>
@@ -127,11 +130,7 @@ export default function ProjectPage({ slug }) {
                     {shot && (
                       <div className={`feat-slot${shot.phone ? " is-phone" : ""}`}>
                         {shot.video ? (
-                          <DemoMedia
-                            video={shot.video}
-                            poster={shot.poster}
-                            alt={`${p.name}: ${f.t}`}
-                          />
+                          <DemoMedia video={shot.video} poster={shot.poster} alt={`${p.name}: ${f.t}`} />
                         ) : (
                           <img src={shot.poster || shot.src} alt={`${p.name}: ${f.t}`} loading="lazy" />
                         )}
@@ -147,11 +146,8 @@ export default function ProjectPage({ slug }) {
         {media.shots.length > 0 && (
         <section className="proj-gallery band">
           <div className="wrap reveal">
-            <h2 className="section-h">The screens</h2>
-            <p className="section-sub">
-              Screens from the system. No client data ever appears here: what
-              you see is the interface with sample records.
-            </p>
+            <h2 className="section-h">{t.project.screens}</h2>
+            <p className="section-sub">{t.project.screensSub}</p>
             <div className="gal-grid">
               {media.shots.map((s) => (
                 <figure key={s.f} className={`gal-slot${s.phone ? " is-phone" : ""}`}>
@@ -167,12 +163,12 @@ export default function ProjectPage({ slug }) {
         {p.results.length > 0 && (
           <section className="proj-results">
             <div className="wrap reveal">
-              <h2 className="section-h">The results</h2>
+              <h2 className="section-h">{t.project.results}</h2>
               <div className="numbers proj-numbers">
-                {p.results.map((r) => (
+                {p.results.map((r, i) => (
                   <div key={r.s} className="n">
-                    <b>{r.b}</b>
-                    <span>{r.s}</span>
+                    <b>{i === 2 ? t.rooms.inv.minutes : r.b}</b>
+                    <span>{(c.results && c.results[i]) || r.s}</span>
                   </div>
                 ))}
               </div>
@@ -180,27 +176,25 @@ export default function ProjectPage({ slug }) {
           </section>
         )}
 
-        {p.how && (
+        {c.how && (
           <section className="proj-how">
             <div className="wrap reveal">
-              <h2 className="section-h">How it works</h2>
-              <p className="proj-how-p">{p.how}</p>
+              <h2 className="section-h">{t.project.how}</h2>
+              <p className="proj-how-p">{c.how}</p>
             </div>
           </section>
         )}
 
         <div className="wrap reveal">
-          <p className="proj-byline">
-            Designed and built by Bereket Bizuayehu Teshome, Evriel Systems.
-          </p>
+          <p className="proj-byline">{t.project.byline}</p>
         </div>
 
         <section className="proj-next">
           <div className="wrap reveal">
-            <a href={`/work/${next.slug}`} className="next-card">
-              <span className="next-label">Next project</span>
+            <a href={withLang(`/work/${next.slug}`)} className="next-card">
+              <span className="next-label">{t.project.next}</span>
               <span className="next-name">{next.name}</span>
-              <span className="next-one">{next.one}</span>
+              <span className="next-one">{nextC.one}</span>
             </a>
           </div>
         </section>

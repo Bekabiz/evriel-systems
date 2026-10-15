@@ -4,12 +4,13 @@ import Home from "./rebuild/Home.jsx";
 import ProjectPage from "./rebuild/ProjectPage.jsx";
 import { InsightsPage, ArticlePage } from "./rebuild/Insights.jsx";
 import { PROJECTS } from "./rebuild/projects.js";
+import { stripLang } from "./rebuild/i18n/index.js";
 import IntakeForm from "./IntakeForm.jsx";
 
-/* Path-based routing. Real URLs per the rebuild plan sitemap (part 3).
-   /intake keeps working exactly as before; it gets restyled in phase 4. */
+/* Path-based routing with language prefixes: /, /it, /el, /es carry the
+   identical site. /intake keeps working exactly as before. */
 function route() {
-  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  const path = stripLang(window.location.pathname).replace(/\/+$/, "") || "/";
   const search = new URLSearchParams(window.location.search);
 
   if (path.startsWith("/intake") || search.has("intake")) return <IntakeForm />;

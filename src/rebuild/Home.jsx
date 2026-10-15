@@ -1,6 +1,4 @@
-/* The new evrielsystems.com home page. White system, color rooms, and the
-   content depth of the original site. Screens are honest labeled slots until
-   the real captures land (plan part 6). */
+/* The evrielsystems.com home page, identical in four languages. */
 
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
@@ -20,7 +18,9 @@ import {
 } from "./kit.jsx";
 import { Nav, Footer } from "./shell.jsx";
 import { PROJECTS, MEDIA, LOGOS } from "./projects.js";
-import { SVCS, INDS, TRUST, NEXT_STEPS, ARTS } from "../content.js";
+import { ARTS } from "../content.js";
+import { t, lang, withLang } from "./i18n/index.js";
+import { setHead } from "./seo.js";
 import "./tokens.css";
 import "./home.css";
 
@@ -32,16 +32,13 @@ function Hero() {
       <div className="wrap">
         <div className="hero-field">
           <h1 className="t-hero hero-load hl-1">
-            We build the systems{" "}
+            {t.hero.h1a}{" "}
             <br />
-            real companies run on.
+            {t.hero.h1b}
           </h1>
-          <p className="hero-load hl-2">
-            Inventory for a retail group, task tracking for building sites,
-            attendance for a workforce. Real software, shown working below.
-          </p>
+          <p className="hero-load hl-2">{t.hero.sub}</p>
           <div className="hero-load hl-3">
-            <Cta href="#work">See the work</Cta>
+            <Cta href="#work">{t.hero.cta}</Cta>
           </div>
           <div className="hero-devices hero-load hl-4" aria-hidden="true">
             <div className="hero-laptop">
@@ -103,7 +100,7 @@ function Integrations() {
   return (
     <section className="tools">
       <div className="wrap reveal">
-        <h2 className="section-h tools-h">We connect the tools you already use</h2>
+        <h2 className="section-h tools-h">{t.tools.h}</h2>
       </div>
       <div className="reveal">
         <ToolRow tools={TOOLS_A} />
@@ -117,15 +114,15 @@ function Opener() {
   return (
     <section className="opener" id="work">
       <div className="wrap reveal">
-        <p>Systems in daily use in three countries.</p>
+        <p>{t.opener}</p>
       </div>
     </section>
   );
 }
 
-function FeatureChips({ items, tone }) {
+function FeatureChips({ items }) {
   return (
-    <div className={`fchips fchips-${tone}`}>
+    <div className="fchips">
       {items.map((f) => (
         <span key={f}>{f}</span>
       ))}
@@ -134,6 +131,7 @@ function FeatureChips({ items, tone }) {
 }
 
 function InventorySection() {
+  const c = t.rooms.inv;
   return (
     <section className="room-section">
       <div className="wrap">
@@ -143,21 +141,14 @@ function InventorySection() {
               <BrandMark from="var(--inv)" to="var(--inv-deep)" glyph="inv" />
               <span className="label">Evriel Inventory</span>
             </div>
-            <h2 className="t-card">Inventory that runs three stores.</h2>
-            <p className="room-sub">
-              One system for stock, orders, transfers and invoices, built for a
-              three-store Hondos Center group in Greece, the biggest name in
-              Greek cosmetics retail.
-            </p>
-            <FeatureChips
-              tone="inv"
-              items={["Live stock", "Orders", "Store transfers", "Fast invoice entry"]}
-            />
-            <Cta href="/work/evriel-inventory">View project</Cta>
+            <h2 className="t-card">{c.h}</h2>
+            <p className="room-sub">{c.sub}</p>
+            <FeatureChips items={c.chips} />
+            <Cta href={withLang("/work/evriel-inventory")}>{t.rooms.view}</Cta>
             <div className="numbers">
-              <div className="n"><b>39,000+</b><span>products tracked</span></div>
-              <div className="n"><b>3</b><span>stores connected</span></div>
-              <div className="n"><b>40 to 5 min</b><span>invoice entry time</span></div>
+              <div className="n"><b>39,000+</b><span>{c.numbers[0]}</span></div>
+              <div className="n"><b>3</b><span>{c.numbers[1]}</span></div>
+              <div className="n"><b>{c.minutes}</b><span>{c.numbers[2]}</span></div>
             </div>
           </div>
           <div className="room-stage parallax">
@@ -167,7 +158,7 @@ function InventorySection() {
                 <DemoMedia
                   video={MEDIA["evriel-inventory"].video}
                   poster={MEDIA["evriel-inventory"].poster}
-                  alt="Evriel Inventory demo: dashboard, products, invoices and orders"
+                  alt="Evriel Inventory demo"
                 />
               </LaptopFrame>
             </Bezel>
@@ -179,6 +170,7 @@ function InventorySection() {
 }
 
 function AGSection() {
+  const c = t.rooms.ag;
   return (
     <section className="room-section">
       <div className="wrap">
@@ -186,31 +178,24 @@ function AGSection() {
           <div className="room-stage room-stage-phone parallax">
             <div className="glow glow-ag" />
             <Bezel>
-              <PhoneFrame bezel="var(--ag-deep)">
+              <PhoneFrame bezel="var(--charcoal)">
                 <DemoMedia
                   video={MEDIA["ag-project-monitor"].video}
                   poster={MEDIA["ag-project-monitor"].poster}
-                  alt="AG Project Monitor demo: a voice note becomes a task"
+                  alt="AG Project Monitor demo"
                 />
               </PhoneFrame>
             </Bezel>
           </div>
           <div className="room-copy">
             <div className="room-id">
-              <BrandMark from="var(--ag)" to="var(--ag-grad-b)" glyph="ag" />
+              <BrandMark from="var(--ag)" to="var(--ag-deep)" glyph="ag" />
               <span className="label">AG Project Monitor</span>
             </div>
-            <h2 className="t-card">Tasks that start as a voice note.</h2>
-            <p className="room-sub">
-              A site engineer speaks into a phone. The system transcribes the
-              note, writes the task, attaches the photos and notifies the right
-              people. The whole project lives on one timeline.
-            </p>
-            <FeatureChips
-              tone="ag"
-              items={["Voice transcription", "Site photos", "Project timeline", "AI reports"]}
-            />
-            <Cta href="/work/ag-project-monitor">View project</Cta>
+            <h2 className="t-card">{c.h}</h2>
+            <p className="room-sub">{c.sub}</p>
+            <FeatureChips items={c.chips} />
+            <Cta href={withLang("/work/ag-project-monitor")}>{t.rooms.view}</Cta>
           </div>
         </div>
       </div>
@@ -219,6 +204,7 @@ function AGSection() {
 }
 
 function DevelopECSection() {
+  const c = t.rooms.ec;
   return (
     <section className="room-section">
       <div className="wrap">
@@ -227,16 +213,12 @@ function DevelopECSection() {
             <BrandMark from="var(--ec)" to="var(--ec-deep)" glyph="ec" {...LOGOS["develop-ec"]} />
             <span className="label">Develop EC</span>
           </div>
-          <h2 className="t-card">From design to construction.</h2>
-          <p className="room-sub">
-            The public site of a Greek property developer. Full-screen
-            photography of the built work, calm type, and a site that stays
-            out of the buildings' way.
-          </p>
+          <h2 className="t-card">{c.h}</h2>
+          <p className="room-sub">{c.sub}</p>
           <div className="room-dark-actions">
-            <Cta href="/work/develop-ec" className="cta-on-dark">View project</Cta>
+            <Cta href={withLang("/work/develop-ec")} className="cta-on-dark">{t.rooms.view}</Cta>
             <a href="https://developec.gr" target="_blank" rel="noreferrer" className="ec-live-link">
-              Visit developec.gr
+              {c.visit}
             </a>
           </div>
           <div className="room-stage parallax">
@@ -247,10 +229,10 @@ function DevelopECSection() {
                   <DemoMedia
                     video={MEDIA["develop-ec"].video}
                     poster={MEDIA["develop-ec"].poster}
-                    alt="A scroll through the live developec.gr site"
+                    alt="developec.gr live"
                   />
                 ) : (
-                  <Slot>Screen recording of developec.gr, captured once the live site is back up</Slot>
+                  <Slot>{t.project.pending}</Slot>
                 )}
               </BrowserFrame>
             </Bezel>
@@ -267,14 +249,15 @@ function ProjectsGrid() {
   return (
     <section className="grid-section">
       <div className="wrap reveal">
-        <h2 className="section-h">And three more.</h2>
+        <h2 className="section-h">{t.grid.h}</h2>
         <div className="proj-grid">
           {GRID_KEYS.map((key, i) => {
             const p = PROJECTS[key];
+            const c = t.projects[key];
             return (
               <a
                 key={key}
-                href={`/work/${p.slug}`}
+                href={withLang(`/work/${p.slug}`)}
                 className={`proj-tile tile-${p.theme}`}
                 style={{ transitionDelay: `${i * 70}ms` }}
               >
@@ -289,14 +272,14 @@ function ProjectsGrid() {
                   size={52}
                 />
                 <h3>{p.name}</h3>
-                <p>{p.one}</p>
+                <p>{c.one}</p>
                 <ul className="tile-feats">
-                  {p.features.slice(0, 3).map((f) => (
+                  {c.features.slice(0, 3).map((f) => (
                     <li key={f.t}>{f.t}</li>
                   ))}
                 </ul>
-                <span className={`tile-link tile-link-${p.theme}`}>
-                  View project <span aria-hidden="true">&#8599;</span>
+                <span className="tile-link">
+                  {t.rooms.view} <span aria-hidden="true">&#8599;</span>
                 </span>
               </a>
             );
@@ -311,13 +294,10 @@ function Services() {
   return (
     <section className="services" id="services">
       <div className="wrap reveal">
-        <h2 className="section-h">What we do</h2>
-        <p className="section-sub">
-          Four kinds of work, one approach: understand the operation first,
-          then build the system around it.
-        </p>
+        <h2 className="section-h">{t.services.h}</h2>
+        <p className="section-sub">{t.services.sub}</p>
         <div className="svc-grid">
-          {SVCS.map((s) => (
+          {t.services.items.map((s) => (
             <div key={s.t} className="svc">
               <h3>{s.t}</h3>
               <p>{s.d}</p>
@@ -326,7 +306,7 @@ function Services() {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-              <div className="svc-flow" aria-label={`Flow: ${s.flow.join(", then ")}`}>
+              <div className="svc-flow" aria-label={s.flow.join(", ")}>
                 {s.flow.map((step) => (
                   <span key={step}>{step}</span>
                 ))}
@@ -343,14 +323,11 @@ function Industries() {
   return (
     <section className="industries">
       <div className="wrap reveal">
-        <h2 className="section-h">Where we work</h2>
-        <p className="section-sub">
-          The tools change per industry. The problems rarely do: disconnected
-          information, repetitive work, slow decisions.
-        </p>
+        <h2 className="section-h">{t.industries.h}</h2>
+        <p className="section-sub">{t.industries.sub}</p>
         <div className="ind-chips">
-          {INDS.map((i) => (
-            <span key={i.short} title={i.desc}>{i.short}</span>
+          {t.industries.chips.map((i) => (
+            <span key={i}>{i}</span>
           ))}
         </div>
       </div>
@@ -358,22 +335,15 @@ function Industries() {
   );
 }
 
-const STEPS = [
-  { t: "Understand", d: "We sit with your team and learn how the work actually flows: objectives, bottlenecks and the workarounds nobody wrote down." },
-  { t: "Build and show", d: "You see the system early and often, not only at the end. Feedback lands while it is still cheap to act on." },
-  { t: "Hand over", d: "Training, documentation and a clean handover to your people. The system belongs to you, not to us." },
-  { t: "Stay close", d: "We keep improving performance, usability and automation as the system grows with your operation." },
-];
-
 function Process() {
   return (
     <section className="process" id="process">
       <div className="wrap reveal">
         <div className="process-inner">
-          <h2 className="section-h">How we work</h2>
+          <h2 className="section-h">{t.process.h}</h2>
           <div className="steps-line" aria-hidden="true"><span /></div>
           <div className="steps">
-            {STEPS.map((s) => (
+            {t.process.steps.map((s) => (
               <div key={s.t} className="step">
                 <h3>{s.t}</h3>
                 <p>{s.d}</p>
@@ -392,34 +362,22 @@ function About() {
       <div className="wrap reveal">
         <div className="about-panel">
           <div>
-            <h2 className="section-h">About Evriel</h2>
+            <h2 className="section-h">{t.about.h}</h2>
             <div className="about-body">
-              <p className="about-lead">
-                No two organizations operate the same way, which is why
-                effective systems must be built around real operational needs
-                rather than one-size-fits-all technology.
-              </p>
-              <p>
-                Evriel Systems was founded by Bereket Bizuayehu Teshome and was
-                shaped by his work across business, marketing, European
-                projects and digital transformation in four countries. One
-                challenge kept repeating everywhere: organizations struggle to
-                turn new technology into practical business value.
-              </p>
-              <p>
-                Every system on this page is in real use today. That is the
-                whole argument: if they run these operations, they can build
-                yours.
-              </p>
+              <p className="about-lead">{t.about.lead}</p>
+              <p>{t.about.p1}</p>
+              <p>{t.about.p2}</p>
             </div>
             <div className="about-countries">
-              <span>Poland</span><span>Spain</span><span>Italy</span><span>Greece</span>
+              {t.about.countries.map((c) => (
+                <span key={c}>{c}</span>
+              ))}
             </div>
           </div>
           <div className="about-stats">
-            <div className="about-stat"><b data-count="6"></b><span>systems in production</span></div>
-            <div className="about-stat"><b data-count="3"></b><span>countries using them daily</span></div>
-            <div className="about-stat"><b data-count="39,000" data-suffix="+"></b><span>products tracked by one of them</span></div>
+            <div className="about-stat"><b data-count="6"></b><span>{t.about.stats[0]}</span></div>
+            <div className="about-stat"><b data-count="3"></b><span>{t.about.stats[1]}</span></div>
+            <div className="about-stat"><b data-count="39,000" data-suffix="+"></b><span>{t.about.stats[2]}</span></div>
           </div>
         </div>
       </div>
@@ -427,22 +385,30 @@ function About() {
   );
 }
 
+export function localizedArticle(slug) {
+  const base = ARTS.find((a) => a.slug === slug);
+  if (!base) return null;
+  if (lang === "en" || !t.articles) return base;
+  const tr = t.articles[slug];
+  return tr ? { ...base, ...tr } : base;
+}
+
 function Insights() {
-  const latest = ARTS.slice(0, 3);
+  const latest = ARTS.slice(0, 3).map((a) => localizedArticle(a.slug));
   return (
     <section className="insights" id="insights">
       <div className="wrap reveal">
         <div className="insights-head">
-          <h2 className="section-h">Insights</h2>
-          <a href="/insights" className="text-link">All articles</a>
+          <h2 className="section-h">{t.insights.h}</h2>
+          <a href={withLang("/insights")} className="text-link">{t.insights.all}</a>
         </div>
         <div className="art-grid">
           {latest.map((a) => (
-            <a key={a.slug} href={`/insights/${a.slug}`} className="art-card">
+            <a key={a.slug} href={withLang(`/insights/${a.slug}`)} className="art-card">
               <span className="art-tag">{a.tag}</span>
               <h3>{a.title}</h3>
               <p>{a.excerpt}</p>
-              <span className="art-more">Read article</span>
+              <span className="art-more">{t.insights.read}</span>
             </a>
           ))}
         </div>
@@ -455,10 +421,10 @@ function Trust() {
   return (
     <section className="trust">
       <div className="wrap reveal">
-        <h2 className="section-h">Your data remains yours</h2>
-        <p className="section-sub">{TRUST.p}</p>
+        <h2 className="section-h">{t.trust.h}</h2>
+        <p className="section-sub">{t.trust.p}</p>
         <div className="trust-grid">
-          {TRUST.cards.map((c) => (
+          {t.trust.cards.map((c) => (
             <div key={c.t} className="trust-item">
               <h3>{c.t}</h3>
               <p>{c.d}</p>
@@ -489,7 +455,7 @@ export function ContactSection() {
           company: form.company,
           email: form.email,
           phone: "",
-          language: "",
+          language: lang,
           industry: "",
           interests: [],
           challenge: form.challenge,
@@ -506,55 +472,49 @@ export function ContactSection() {
     <section className="contact" id="contact">
       <div className="wrap reveal">
         <div className="contact-inner">
-        <h2 className="section-h">Start a project</h2>
+        <h2 className="section-h">{t.contact.h}</h2>
         <p className="contact-sub">
-          Tell us what you are building, or write directly to{" "}
+          {t.contact.sub1}{" "}
           <a href="mailto:contact@evrielsystems.com" className="text-link">
             contact@evrielsystems.com
           </a>
-          . We personally read every inquiry.
+          {t.contact.sub2}
         </p>
         <div className="contact-grid">
           <div>
             {status === "ok" ? (
-              <p className="form-ok">
-                Thank you. Your message is in, and we reply within 24 hours.
-              </p>
+              <p className="form-ok">{t.contact.ok}</p>
             ) : (
               <form className="contact-form" onSubmit={submit}>
                 <div className="form-row">
                   <div className="field">
-                    <label htmlFor="cf-name">Name</label>
+                    <label htmlFor="cf-name">{t.contact.name}</label>
                     <input id="cf-name" required value={form.name} onChange={set("name")} autoComplete="name" />
                   </div>
                   <div className="field">
-                    <label htmlFor="cf-email">Email</label>
+                    <label htmlFor="cf-email">{t.contact.email}</label>
                     <input id="cf-email" type="email" required value={form.email} onChange={set("email")} autoComplete="email" />
                   </div>
                 </div>
                 <div className="field">
-                  <label htmlFor="cf-company">Company <span className="opt">optional</span></label>
+                  <label htmlFor="cf-company">{t.contact.company} <span className="opt">{t.contact.optional}</span></label>
                   <input id="cf-company" value={form.company} onChange={set("company")} autoComplete="organization" />
                 </div>
                 <div className="field">
-                  <label htmlFor="cf-msg">Tell us about the work</label>
+                  <label htmlFor="cf-msg">{t.contact.msg}</label>
                   <textarea id="cf-msg" rows={5} required value={form.challenge} onChange={set("challenge")} />
                 </div>
-                {status === "error" && (
-                  <p className="form-err">
-                    That did not go through. Please try again, or email contact@evrielsystems.com.
-                  </p>
-                )}
-                <button type="submit" className="btn btn-ink" disabled={status === "sending"}>
-                  {status === "sending" ? "Sending..." : "Send message"}
+                {status === "error" && <p className="form-err">{t.contact.err}</p>}
+                <button type="submit" className="btn" disabled={status === "sending"}>
+                  {status === "sending" ? t.contact.sending : t.contact.send}
                 </button>
               </form>
             )}
           </div>
           <aside className="next-steps">
-            <h3>What happens next</h3>
+            <h3>{t.contact.nextH}</h3>
             <ol>
-              {NEXT_STEPS.map((s) => (
+              {t.contact.next.map((s) => (
                 <li key={s.t}>
                   <b>{s.t}</b>
                   <span>{s.d}</span>
@@ -572,6 +532,10 @@ export function ContactSection() {
 export default function Home() {
   const rootRef = useRef(null);
   useReveal(rootRef);
+
+  useEffect(() => {
+    setHead({ title: t.meta.home.title, desc: t.meta.home.desc, path: "/" });
+  }, []);
 
   useEffect(() => {
     const root = rootRef.current;
