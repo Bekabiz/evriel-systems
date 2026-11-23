@@ -53,6 +53,7 @@ export default {
   services: {
     h: "Qué hacemos",
     sub: "Cuatro tipos de trabajo, un solo enfoque: primero entender la operación, después construir el sistema a su alrededor.",
+    proof: "En uso hoy",
     items: [
       {
         t: "Automatización con IA",

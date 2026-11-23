@@ -53,6 +53,7 @@ export default {
   services: {
     h: "Cosa facciamo",
     sub: "Quattro tipi di lavoro, un solo approccio: prima capire l'operatività, poi costruire il sistema intorno.",
+    proof: "In uso oggi",
     items: [
       {
         t: "Automazione AI",

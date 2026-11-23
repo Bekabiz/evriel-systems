@@ -201,24 +201,28 @@ export function Burger({ open, onClick }) {
   );
 }
 
-/* App-icon marks: each project gets its own simple geometric glyph on its
-   gradient tile. Bereket asked for real logo marks, not letter monograms. */
+/* Product marks: one idea per product, drawn bold enough to read as a logo
+   and not as a library icon. The g-* classes let each mark move once when
+   its exhibit comes alive (see showroom.css).
+   inv: stock blocks, one landing on the pile.
+   ag:  the voice note every task starts from.
+   di:  the D of DomainIntel with the dot of a domain as its eye.
+   ck:  the C of ClockET is the clock, its hand passes through the opening. */
 const GLYPHS = {
   inv: (
-    <g>
-      <rect x="4" y="4" width="7" height="7" rx="2" />
-      <rect x="13.4" y="4" width="7" height="7" rx="2" />
-      <rect x="4" y="13.4" width="7" height="7" rx="2" />
-      <rect x="13.4" y="13.4" width="7" height="7" rx="2" fill="currentColor" stroke="none" />
+    <g fill="currentColor" stroke="none">
+      <rect className="g-inv-a" x="3.5" y="12.7" width="8" height="8" rx="2.3" opacity="0.62" />
+      <rect className="g-inv-b" x="12.5" y="12.7" width="8" height="8" rx="2.3" opacity="0.62" />
+      <rect className="g-inv-c" x="8" y="3.3" width="8" height="8" rx="2.3" />
     </g>
   ),
   ag: (
-    <g strokeLinecap="round">
-      <path d="M5 10.2 V13.8" />
-      <path d="M8.5 7.6 V16.4" />
-      <path d="M12 5.4 V18.6" />
-      <path d="M15.5 7.6 V16.4" />
-      <path d="M19 10.2 V13.8" />
+    <g strokeLinecap="round" strokeWidth="2.6">
+      <path className="g-ag g-ag-1" d="M4.4 10.1 V13.9" />
+      <path className="g-ag g-ag-2" d="M8.2 7.1 V16.9" />
+      <path className="g-ag g-ag-3" d="M12 4.5 V19.5" />
+      <path className="g-ag g-ag-4" d="M15.8 7.1 V16.9" />
+      <path className="g-ag g-ag-5" d="M19.6 10.1 V13.9" />
     </g>
   ),
   ec: (
@@ -234,16 +238,16 @@ const GLYPHS = {
     </g>
   ),
   di: (
-    <g>
-      <circle cx="12" cy="12" r="8.4" />
-      <circle cx="12" cy="12" r="4.4" />
-      <circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none" />
+    <g strokeWidth="2.6" strokeLinejoin="round">
+      <path d="M6.3 4.6 H11.2 A7.4 7.4 0 0 1 11.2 19.4 H6.3 Z" />
+      <circle className="g-di-dot" cx="12" cy="12" r="2.35" fill="currentColor" stroke="none" />
     </g>
   ),
   ck: (
-    <g strokeLinecap="round">
-      <circle cx="12" cy="12" r="8.4" />
-      <path d="M12 7.4 V12 L15.3 13.9" />
+    <g strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.99 16.68 A7.6 7.6 0 1 1 17.99 7.32" />
+      <path d="M12 12 V8.3" />
+      <path className="g-ck-hand" d="M12 12 H19.7" />
     </g>
   ),
 };
@@ -280,12 +284,7 @@ export function BrandMark({ from, to, glyph, src, framed, size = 44 }) {
         <rect x="1" y="1" width="46" height="46" rx="12.5" fill={`url(#s${uid})`} />
         <rect x="1.6" y="1.6" width="44.8" height="44.8" rx="12"
           fill="none" stroke="#fff" strokeOpacity="0.22" strokeWidth="1.1" />
-        {/* soft glyph shadow, then the glyph */}
-        <g transform="translate(12.5, 13.3) scale(0.96)" stroke="#000" opacity="0.18"
-          fill="none" strokeWidth="2.1" color="#000">
-          {g}
-        </g>
-        <g transform="translate(12.5, 12.5) scale(0.96)" stroke="#fff"
+        <g className="mark-glyph" transform="translate(12.5, 12.5) scale(0.96)" stroke="#fff"
           fill="none" strokeWidth="2.1" color="#fff">
           {g}
         </g>

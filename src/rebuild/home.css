@@ -151,26 +151,10 @@
   line-height: 1.04; text-align: center; max-width: 24ch; margin: 0 auto;
 }
 
-/* ---------- product rooms ---------- */
-.room-section { padding: 40px 0; }
-.room {
-  border-radius: var(--r-card-lg); padding: clamp(40px, 5.5vw, 64px);
-  display: grid; grid-template-columns: 1.02fr 0.98fr; gap: 56px; align-items: center;
-}
-.room-inv { background: var(--inv-wash); }
-.room-ag { background: var(--ag-wash); }
-
+/* ---------- product identity, numbers and device frames ---------- */
 .room-id { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
 .room-id .label, .proj-label { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink) !important; }
-.room-sub { color: var(--body-gray); margin-top: 18px; max-width: 44ch; font-size: 17px; line-height: 1.45; }
-.room .cta, .room-dark-actions { margin-top: 30px; }
-
-.fchips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
-.fchips span {
-  font-size: 13.5px; font-weight: 500; padding: 7px 14px; border-radius: 999px;
-  background: rgba(255, 255, 255, 0.85); color: var(--ink);
-}
-
+.room-id-center { justify-content: center; }
 .numbers { display: flex; gap: 40px; margin-top: 40px; }
 .numbers .n b {
   display: block; font-size: 28px; font-weight: 600; letter-spacing: -0.02em;
@@ -178,11 +162,7 @@
 }
 .numbers .n span { font-size: 13.5px; color: var(--body-gray); }
 
-.room-stage { position: relative; }
 .glow { position: absolute; inset: 2% -4%; border-radius: 50%; filter: blur(38px); pointer-events: none; }
-.glow-inv { background: radial-gradient(closest-side, rgba(30, 78, 121, 0.16), transparent 72%); }
-.glow-ag { background: radial-gradient(closest-side, rgba(70, 98, 127, 0.16), transparent 72%); }
-.glow-ec { background: radial-gradient(closest-side, rgba(184, 115, 51, 0.18), transparent 72%); }
 
 /* device tray */
 .bezel {
@@ -208,8 +188,6 @@
 .laptop-base { height: 12px; background: linear-gradient(#e4e4e8, #c9c9cf); border-radius: 0 0 12px 12px; }
 .slot-note { font-size: 13px; color: var(--body-gray); text-align: center; padding: 0 16px; }
 
-.room-stage-phone { display: flex; justify-content: center; }
-.room-stage-phone .bezel { width: fit-content; }
 /* titanium-style phone: metal edge, thin bezel, island, side keys */
 .phone {
   position: relative; width: min(240px, 60vw); aspect-ratio: 9 / 19.2;
@@ -238,23 +216,6 @@
   display: block; cursor: pointer; border-radius: inherit; background: var(--cloud);
 }
 
-/* the one dark room: Develop EC on the charcoal surface */
-.room-dark {
-  background: var(--ec-room); border-radius: var(--r-card-lg); color: #fff;
-  padding: clamp(40px, 5.5vw, 72px); text-align: center;
-}
-.room-id-center { justify-content: center; }
-.room-dark .label { color: #fff !important; }
-.room-dark .room-sub { color: #A6ABB3; margin-left: auto; margin-right: auto; }
-.room-dark-actions { display: flex; align-items: center; justify-content: center; gap: 28px; }
-.ec-live-link {
-  color: var(--ec-on-dark); text-decoration: none; font-weight: 500;
-  border-bottom: 1.5px solid rgba(209, 154, 95, 0.4);
-  transition: border-color 0.2s ease;
-}
-.ec-live-link:hover { border-color: var(--ec-on-dark); }
-.room-dark .room-stage { margin-top: 52px; max-width: 860px; margin-left: auto; margin-right: auto; }
-
 .browser { border-radius: 16px; overflow: hidden; }
 .browser-bar { background: #2A2C30; height: 44px; display: flex; align-items: center; justify-content: center; }
 .browser-url {
@@ -263,61 +224,8 @@
 }
 .browser-panel { background: var(--cloud); aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; }
 
-/* ---------- other projects grid ---------- */
-.grid-section { padding: 80px 0 40px; }
-.proj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
-.proj-tile {
-  display: flex; flex-direction: column; align-items: flex-start;
-  border-radius: var(--r-card-lg); padding: 28px 28px 30px; text-decoration: none;
-  transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.5s cubic-bezier(0.32, 0.72, 0, 1);
-}
-.proj-tile:hover { transform: translateY(-4px); box-shadow: var(--shadow-card); }
-.tile-tt { background: var(--tt-wash); }
-.tile-di { background: var(--di-wash); }
-.tile-ck { background: var(--ck-wash); }
-.tile-shot {
-  display: block; width: 100%; aspect-ratio: 16 / 10; border-radius: var(--r-img);
-  overflow: hidden; margin-bottom: 22px; box-shadow: var(--shadow-float);
-}
-.tile-shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
-.proj-tile h3 {
-  font-size: clamp(24px, 2.4vw, 30px); letter-spacing: -0.03em; color: var(--ink);
-  margin-top: 20px;
-}
-.proj-tile > p { font-size: 15px; color: var(--body-gray); margin-top: 10px; }
-.tile-feats { list-style: none; margin-top: 16px; flex-grow: 1; }
-.tile-feats li {
-  font-size: 14.5px; color: var(--ink); font-weight: 500;
-  padding: 5px 0 5px 12px; border-left: 2px solid rgba(34, 35, 38, 0.16); margin-top: 6px;
-}
-.tile-link { font-size: 15px; font-weight: 500; margin-top: 24px; color: var(--ink); }
-
-/* ---------- services: cloud feature cards ---------- */
+/* ---------- services ---------- */
 .services { padding: 80px 0; }
-.svc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 48px; }
-.svc { border-radius: var(--r-card); padding: 32px; background: var(--cloud); }
-.svc h3 { font-size: clamp(24px, 2.6vw, 32px); letter-spacing: -0.03em; line-height: 1.04; }
-.svc > p { font-size: 16px; color: var(--body-gray); margin-top: 10px; }
-.svc-list { list-style: none; margin-top: 20px; columns: 2; column-gap: 24px; }
-.svc-list li { font-size: 14.5px; color: var(--body-gray); padding: 4px 0; break-inside: avoid; }
-.svc-flow { display: flex; align-items: center; flex-wrap: wrap; margin-top: 22px; }
-.svc-flow span {
-  font-size: 13px; font-weight: 500; color: var(--ink);
-  background: #fff; border-radius: 999px; padding: 6px 13px;
-  display: inline-flex; align-items: center;
-}
-/* the flow lights up step by step, so the cards never feel frozen */
-@media (prefers-reduced-motion: no-preference) {
-  .svc-flow span { animation: flow-step 7.2s ease-in-out infinite; }
-  .svc-flow span:nth-child(1) { animation-delay: 0s; }
-  .svc-flow span:nth-child(2) { animation-delay: 1.8s; }
-  .svc-flow span:nth-child(3) { animation-delay: 3.6s; }
-  .svc-flow span:nth-child(4) { animation-delay: 5.4s; }
-  @keyframes flow-step {
-    0%, 20%, 100% { background: #fff; color: var(--ink); }
-    6%, 14% { background: var(--teal-deep); color: #F2F7F5; }
-  }
-}
 
 /* pointer tilt: cards get gentle 3D life under the cursor */
 .tilt {
@@ -325,12 +233,6 @@
   will-change: transform;
   transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.svc-flow span + span { margin-left: 22px; position: relative; }
-.svc-flow span + span::before {
-  content: ""; position: absolute; left: -18px; top: 50%;
-  width: 14px; height: 1.5px; background: rgba(34, 35, 38, 0.2);
-}
-
 /* ---------- industries ---------- */
 .industries { padding: 0 0 80px; }
 .ind-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 36px; }
@@ -341,20 +243,7 @@
 
 /* ---------- process: one wide cloud panel ---------- */
 .process { padding: 0 0 80px; }
-.process .wrap > .reveal, .process-panel { border-radius: var(--r-card-lg); }
 .process-inner { background: var(--cloud); border-radius: var(--r-card-lg); padding: clamp(36px, 5vw, 56px); }
-.steps-line { height: 2px; margin: 44px 0 36px; overflow: hidden; }
-.steps-line span {
-  display: block; height: 2px; background: rgba(34, 35, 38, 0.16);
-  transform: scaleX(0); transform-origin: left;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .reveal.in .steps-line span { transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s; }
-}
-.reveal.in .steps-line span, html:not(.js) .steps-line span { transform: scaleX(1); }
-.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 36px; }
-.step h3 { font-size: 19px; letter-spacing: -0.01em; }
-.step p { font-size: 15px; color: var(--body-gray); margin-top: 8px; }
 
 /* ---------- about: the one dark editorial moment ---------- */
 .about { padding: 80px 0; }
@@ -476,32 +365,19 @@
 @media (max-width: 899px) {
   .nav-links, .nav-side { display: none; }
   .burger { display: block; margin-left: auto; }
-  .room { grid-template-columns: 1fr; gap: 44px; }
-  .room-flip .room-stage { order: 2; }
-  .proj-grid { grid-template-columns: 1fr; }
-  .svc-grid { grid-template-columns: 1fr; }
   .art-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr; gap: 40px; }
-  .hero-phone { width: 128px; right: 0; }
 }
 
 @media (max-width: 767px) {
   .navwrap { top: 8px; }
   .hero-field { padding-top: 120px; }
   .hero-field h1 br { display: none; }
-  .room-section { padding: 28px 0; }
-  .grid-section { padding: 64px 0 28px; }
   .services, .about { padding: 64px 0; }
-  .stackrow { padding: 64px 0 0; }
   .opener { padding: 72px 0 16px; }
   .industries, .process, .insights, .trust, .contact { padding: 0 0 64px; }
   .numbers { flex-wrap: wrap; gap: 24px; }
-  .steps-line { display: none; }
-  .steps { grid-template-columns: 1fr; gap: 26px; margin-top: 36px; }
   .form-row { grid-template-columns: 1fr; }
-  .room-dark-actions { flex-direction: column; gap: 20px; }
-  .svc-list { columns: 1; }
   .phone { width: min(200px, 58vw); }
   .trust-grid { grid-template-columns: 1fr; gap: 24px; }
-  .hero-phone { display: none; }
 }

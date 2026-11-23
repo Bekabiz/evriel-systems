@@ -6,18 +6,15 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   useReveal,
   Cta,
-  BrandMark,
-  Bezel,
   LaptopFrame,
-  PhoneFrame,
-  BrowserFrame,
   DemoMedia,
-  Slot,
   initTilt,
   initCounters,
 } from "./kit.jsx";
 import { Nav, Footer } from "./shell.jsx";
-import { PROJECTS, MEDIA, LOGOS } from "./projects.js";
+import Showroom from "./Showroom.jsx";
+import ServicesFlow from "./ServicesFlow.jsx";
+import { MEDIA } from "./projects.js";
 import { ARTS } from "../content.js";
 import { t, lang, withLang } from "./i18n/index.js";
 import { setHead } from "./seo.js";
@@ -110,215 +107,6 @@ function Integrations() {
   );
 }
 
-function Opener() {
-  return (
-    <section className="opener" id="work">
-      <div className="wrap reveal">
-        <p>{t.opener}</p>
-      </div>
-    </section>
-  );
-}
-
-function FeatureChips({ items }) {
-  return (
-    <div className="fchips">
-      {items.map((f) => (
-        <span key={f}>{f}</span>
-      ))}
-    </div>
-  );
-}
-
-function InventorySection() {
-  const c = t.rooms.inv;
-  return (
-    <section className="room-section">
-      <div className="wrap">
-        <div className="room room-inv reveal">
-          <div className="room-copy">
-            <div className="room-id">
-              <BrandMark from="var(--inv)" to="var(--inv-deep)" glyph="inv" />
-              <span className="label">Evriel Inventory</span>
-            </div>
-            <h2 className="t-card">{c.h}</h2>
-            <p className="room-sub">{c.sub}</p>
-            <FeatureChips items={c.chips} />
-            <Cta href={withLang("/work/evriel-inventory")}>{t.rooms.view}</Cta>
-            <div className="numbers">
-              <div className="n"><b>39,000+</b><span>{c.numbers[0]}</span></div>
-              <div className="n"><b>3</b><span>{c.numbers[1]}</span></div>
-              <div className="n"><b>{c.minutes}</b><span>{c.numbers[2]}</span></div>
-            </div>
-          </div>
-          <div className="room-stage parallax">
-            <div className="glow glow-inv" />
-            <Bezel>
-              <LaptopFrame bezel="var(--charcoal)">
-                <DemoMedia
-                  video={MEDIA["evriel-inventory"].video}
-                  poster={MEDIA["evriel-inventory"].poster}
-                  alt="Evriel Inventory demo"
-                />
-              </LaptopFrame>
-            </Bezel>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function AGSection() {
-  const c = t.rooms.ag;
-  return (
-    <section className="room-section">
-      <div className="wrap">
-        <div className="room room-ag room-flip reveal">
-          <div className="room-stage room-stage-phone parallax">
-            <div className="glow glow-ag" />
-            <Bezel>
-              <PhoneFrame bezel="var(--charcoal)">
-                <DemoMedia
-                  video={MEDIA["ag-project-monitor"].video}
-                  poster={MEDIA["ag-project-monitor"].poster}
-                  alt="AG Project Monitor demo"
-                />
-              </PhoneFrame>
-            </Bezel>
-          </div>
-          <div className="room-copy">
-            <div className="room-id">
-              <BrandMark from="var(--ag)" to="var(--ag-deep)" glyph="ag" />
-              <span className="label">AG Project Monitor</span>
-            </div>
-            <h2 className="t-card">{c.h}</h2>
-            <p className="room-sub">{c.sub}</p>
-            <FeatureChips items={c.chips} />
-            <Cta href={withLang("/work/ag-project-monitor")}>{t.rooms.view}</Cta>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function DevelopECSection() {
-  const c = t.rooms.ec;
-  return (
-    <section className="room-section">
-      <div className="wrap">
-        <div className="room-dark reveal">
-          <div className="room-id room-id-center">
-            <BrandMark from="var(--ec)" to="var(--ec-deep)" glyph="ec" {...LOGOS["develop-ec"]} />
-            <span className="label">Develop EC</span>
-          </div>
-          <h2 className="t-card">{c.h}</h2>
-          <p className="room-sub">{c.sub}</p>
-          <div className="room-dark-actions">
-            <Cta href={withLang("/work/develop-ec")} className="cta-on-dark">{t.rooms.view}</Cta>
-            <a href="https://developec.gr" target="_blank" rel="noreferrer" className="ec-live-link">
-              {c.visit}
-            </a>
-          </div>
-          <div className="room-stage parallax">
-            <div className="glow glow-ec" />
-            <Bezel dark>
-              <BrowserFrame url="developec.gr">
-                {MEDIA["develop-ec"].video ? (
-                  <DemoMedia
-                    video={MEDIA["develop-ec"].video}
-                    poster={MEDIA["develop-ec"].poster}
-                    alt="developec.gr live"
-                  />
-                ) : (
-                  <Slot>{t.project.pending}</Slot>
-                )}
-              </BrowserFrame>
-            </Bezel>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-const GRID_KEYS = ["tasktock", "domainintel", "clocket"];
-
-function ProjectsGrid() {
-  return (
-    <section className="grid-section">
-      <div className="wrap reveal">
-        <h2 className="section-h">{t.grid.h}</h2>
-        <div className="proj-grid">
-          {GRID_KEYS.map((key, i) => {
-            const p = PROJECTS[key];
-            const c = t.projects[key];
-            return (
-              <a
-                key={key}
-                href={withLang(`/work/${p.slug}`)}
-                className={`proj-tile tile-${p.theme}`}
-                style={{ transitionDelay: `${i * 70}ms` }}
-              >
-                <span className={`tile-shot${MEDIA[key].phone ? " tile-shot-phone" : ""}`}>
-                  <img src={MEDIA[key].poster} alt={`${p.name} screen`} loading="lazy" />
-                </span>
-                <BrandMark
-                  from={`var(--${p.theme})`}
-                  to={`var(--${p.theme}-deep)`}
-                  glyph={p.theme}
-                  {...(LOGOS[p.slug] || {})}
-                  size={52}
-                />
-                <h3>{p.name}</h3>
-                <p>{c.one}</p>
-                <ul className="tile-feats">
-                  {c.features.slice(0, 3).map((f) => (
-                    <li key={f.t}>{f.t}</li>
-                  ))}
-                </ul>
-                <span className="tile-link">
-                  {t.rooms.view} <span aria-hidden="true">&#8599;</span>
-                </span>
-              </a>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Services() {
-  return (
-    <section className="services" id="services">
-      <div className="wrap reveal">
-        <h2 className="section-h">{t.services.h}</h2>
-        <p className="section-sub">{t.services.sub}</p>
-        <div className="svc-grid">
-          {t.services.items.map((s) => (
-            <div key={s.t} className="svc">
-              <h3>{s.t}</h3>
-              <p>{s.d}</p>
-              <ul className="svc-list">
-                {s.a.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-              <div className="svc-flow" aria-label={s.flow.join(", ")}>
-                {s.flow.map((step) => (
-                  <span key={step}>{step}</span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function Industries() {
   return (
     <section className="industries">
@@ -335,16 +123,57 @@ function Industries() {
   );
 }
 
+/* How we work. The rail fills as the section is scrolled, and each step
+   switches on when the fill reaches its node. It is measured from the
+   panel itself on every scroll, so it stays right while media above it
+   is still loading. Without script or with reduced motion every step
+   simply stays on. */
 function Process() {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const steps = Array.from(el.querySelectorAll(".pr-step"));
+    const set = (p) => {
+      const q = p * steps.length;
+      steps.forEach((s, i) => {
+        const f = Math.max(0, Math.min(1, (q - i - 0.15) / 0.85));
+        s.style.setProperty("--f", f.toFixed(3));
+        s.classList.toggle("is-on", q > i + 0.15);
+      });
+    };
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      set(Math.max(0, Math.min(1, (vh * 0.88 - r.top) / (r.height + vh * 0.08))));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(measure); };
+    measure();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+      set(1);
+    };
+  }, []);
+
   return (
     <section className="process" id="process">
       <div className="wrap reveal">
         <div className="process-inner">
           <h2 className="section-h">{t.process.h}</h2>
-          <div className="steps-line" aria-hidden="true"><span /></div>
-          <div className="steps">
+          <div className="pr" ref={ref}>
             {t.process.steps.map((s) => (
-              <div key={s.t} className="step">
+              <div key={s.t} className="pr-step is-on">
+                <div className="pr-rail" aria-hidden="true">
+                  <span className="pr-node" />
+                  <span className="pr-seg"><i /></span>
+                </div>
                 <h3>{s.t}</h3>
                 <p>{s.d}</p>
               </div>
@@ -539,7 +368,7 @@ export default function Home() {
 
   useEffect(() => {
     const root = rootRef.current;
-    const cleanTilt = initTilt(root, ".svc, .proj-tile, .feat, .art-card, .about-stat, .trust-item");
+    const cleanTilt = initTilt(root, ".art-card, .about-stat, .trust-item");
     const cleanCount = initCounters(root);
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let ctx;
@@ -579,13 +408,9 @@ export default function Home() {
       <main>
         <Hero />
         <Integrations />
-        <Services />
+        <ServicesFlow />
         <About />
-        <Opener />
-        <InventorySection />
-        <AGSection />
-        <DevelopECSection />
-        <ProjectsGrid />
+        <Showroom />
         <Industries />
         <Process />
         <Insights />
