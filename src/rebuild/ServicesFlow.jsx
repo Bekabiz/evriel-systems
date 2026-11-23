@@ -6,8 +6,8 @@
    the left side, and stands still under reduced motion. */
 
 import React, { useEffect, useRef, useState } from "react";
-import { BrandMark } from "./kit.jsx";
-import { PROJECTS, MEDIA, LOGOS, SERVICE_PROOF } from "./projects.js";
+import { ProjectMark } from "./kit.jsx";
+import { PROJECTS, MEDIA, SERVICE_PROOF } from "./projects.js";
 import { t, withLang } from "./i18n/index.js";
 import "./flow.css";
 
@@ -156,10 +156,7 @@ export default function ServicesFlow() {
               <span className="sf-proof-copy">
                 <span className="sf-proof-k">{t.services.proof}</span>
                 <span className="sf-proof-n">
-                  <BrandMark
-                    from={`var(--${pp.theme})`} to={`var(--${pp.theme}-deep)`}
-                    glyph={pp.theme} {...(LOGOS[proof.slug] || {})} size={24}
-                  />
+                  <ProjectMark slug={proof.slug} size={22} tone="white" />
                   <span>{pp.name}</span>
                 </span>
                 <span className="sf-proof-f">{proofTitle}</span>

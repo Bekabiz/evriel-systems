@@ -5,8 +5,8 @@
    plays, and nothing downloads until its exhibit is close. */
 
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Cta, BrandMark, Bezel, LaptopFrame, PhoneFrame, BrowserFrame } from "./kit.jsx";
-import { PROJECTS, MEDIA, LOGOS, SHOWROOM, PROJECT_ORDER } from "./projects.js";
+import { Cta, ProjectMark, ProjectLogo, Bezel, LaptopFrame, PhoneFrame, BrowserFrame } from "./kit.jsx";
+import { PROJECTS, MEDIA, SHOWROOM, PROJECT_ORDER } from "./projects.js";
 import { t, withLang } from "./i18n/index.js";
 import "./showroom.css";
 
@@ -22,19 +22,6 @@ export function reelFor(slug) {
   return PROJECTS[slug].features
     .map((f, i) => ({ key: f.t, shot: shots[f.t], t: copy[i].t, d: copy[i].d }))
     .filter((item) => item.shot);
-}
-
-function Mark({ slug, size }) {
-  const p = PROJECTS[slug];
-  return (
-    <BrandMark
-      from={`var(--${p.theme})`}
-      to={`var(--${p.theme}-deep)`}
-      glyph={p.theme}
-      {...(LOGOS[slug] || {})}
-      size={size}
-    />
-  );
 }
 
 function Frame({ device, url, children }) {
@@ -228,8 +215,7 @@ function Exhibit({ slug, live, near, entered }) {
   const head = (
     <>
       <div className="x-id">
-        <Mark slug={slug} size={56} />
-        <span className="x-name">{p.name}</span>
+        <ProjectLogo slug={slug} size={40} tone={cfg.dark ? "white" : "color"} />
       </div>
       <h3 className="x-h">{c.tagline}</h3>
       <p className="x-sub">{c.one}</p>
@@ -315,7 +301,7 @@ function Dock({ live }) {
             aria-label={PROJECTS[slug].name}
             aria-current={live === slug ? "true" : undefined}
           >
-            <Mark slug={slug} size={34} />
+            <ProjectMark slug={slug} size={26} />
             <span className="dock-name">{PROJECTS[slug].name}</span>
           </a>
         ))}
