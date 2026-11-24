@@ -57,6 +57,7 @@ export default {
   services: {
     h: "What we do",
     sub: "Four kinds of work, one approach: understand the operation first, then build the system around it.",
+    proof: "In use today",
     items: [
       {
         t: "AI Automation",

@@ -2,6 +2,7 @@
    device frames in double-bezel trays, and the per-project brand marks. */
 
 import React, { useEffect, useRef } from "react";
+import { PROJECTS, LOGOS } from "./projects.js";
 
 /* Adds .in once when an element with .reveal enters the viewport. */
 export function useReveal(rootRef) {
@@ -201,95 +202,94 @@ export function Burger({ open, onClick }) {
   );
 }
 
-/* App-icon marks: each project gets its own simple geometric glyph on its
-   gradient tile. Bereket asked for real logo marks, not letter monograms. */
-const GLYPHS = {
+/* Product logos. Each is flat, one colour and built from a single idea,
+   the way the Evriel E is: heavy geometry, square cuts, no gloss.
+   inv: a stock box seen from its corner, one face per store.
+   ag:  voice bars standing under one roof, which also draws the A.
+   tt:  the T and dot of the live TaskTock mark, redrawn flat.
+   di:  a D whose stem stands apart, with the dot of a domain as its eye.
+   ck:  the C is the clock, and the hands say nine sharp.
+   The g-* classes let each logo move once when its exhibit comes alive
+   (see showroom.css). Standalone files live in public/brand. */
+const MARKS = {
   inv: (
-    <g>
-      <rect x="4" y="4" width="7" height="7" rx="2" />
-      <rect x="13.4" y="4" width="7" height="7" rx="2" />
-      <rect x="4" y="13.4" width="7" height="7" rx="2" />
-      <rect x="13.4" y="13.4" width="7" height="7" rx="2" fill="currentColor" stroke="none" />
+    <g stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
+      <path className="g-inv-c" d="M24 5.6 L38.6 14 L24 22.4 L9.4 14 Z" />
+      <path className="g-inv-a" d="M7.8 17.2 L22.3 25.6 V42.4 L7.8 34 Z" />
+      <path className="g-inv-b" d="M40.2 17.2 L25.7 25.6 V42.4 L40.2 34 Z" opacity="0.55" />
     </g>
   ),
   ag: (
-    <g strokeLinecap="round">
-      <path d="M5 10.2 V13.8" />
-      <path d="M8.5 7.6 V16.4" />
-      <path d="M12 5.4 V18.6" />
-      <path d="M15.5 7.6 V16.4" />
-      <path d="M19 10.2 V13.8" />
-    </g>
-  ),
-  ec: (
-    <g strokeLinecap="round">
-      <path d="M6.2 19 V11.6 A5.8 5.8 0 0 1 17.8 11.6 V19" />
-      <path d="M3.8 19 H20.2" />
+    <g stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round">
+      <path className="g-ag g-ag-1" d="M6.4 27.2 L11 21.9 V41.4 H6.4 Z" />
+      <path className="g-ag g-ag-2" d="M14 18.4 L18.6 13.1 V41.4 H14 Z" />
+      <path className="g-ag g-ag-3" d="M21.7 9.6 L24 7 L26.3 9.6 V28.6 H21.7 Z" />
+      <path className="g-ag g-ag-4" d="M29.4 13.1 L34 18.4 V41.4 H29.4 Z" />
+      <path className="g-ag g-ag-5" d="M37 21.9 L41.6 27.2 V41.4 H37 Z" />
     </g>
   ),
   tt: (
-    <g strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="8.4" />
-      <path d="M8.6 12.3 l2.3 2.3 L15.6 9.5" />
+    <g>
+      <path d="M6.5 13 H32.5 V20.6 H6.5 Z" />
+      <path className="g-tt-stem" d="M15.6 23.4 H23.4 V42 H15.6 Z" />
+      <circle className="g-tt-dot" cx="39.2" cy="10.6" r="4.8" fill="#4FBFA8" />
     </g>
   ),
   di: (
     <g>
-      <circle cx="12" cy="12" r="8.4" />
-      <circle cx="12" cy="12" r="4.4" />
-      <circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none" />
+      <path d="M7 7 H14.2 V41 H7 Z" />
+      <path d="M17.6 7 H23 A17 17 0 0 1 23 41 H17.6 V33.8 H23 A9.8 9.8 0 0 0 23 14.2 H17.6 Z" />
+      <circle className="g-di-dot" cx="23.6" cy="24" r="4.3" />
     </g>
   ),
   ck: (
-    <g strokeLinecap="round">
-      <circle cx="12" cy="12" r="8.4" />
-      <path d="M12 7.4 V12 L15.3 13.9" />
+    <g fill="none" stroke="currentColor">
+      <path d="M36.2 13.4 A16 16 0 1 0 36.2 34.6" strokeWidth="6.6" />
+      <path className="g-ck-hand" d="M24 14.8 V24 H16.2" strokeWidth="4.6" />
     </g>
   ),
 };
 
-export function BrandMark({ from, to, glyph, src, framed, size = 44 }) {
-  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
-  if (src) {
+/* tone: "color" is the logo in its own colour, "white" is for dark
+   surfaces, "tile" is the app-icon form (white logo on a flat tile). */
+export function ProjectMark({ slug, size = 44, tone = "color" }) {
+  const p = PROJECTS[slug];
+  const file = LOGOS[slug];
+  if (file) {
     return (
-      <span
-        className={`mark mark-img${framed ? " mark-framed" : ""}`}
-        aria-hidden="true"
-        style={{ width: size, height: size, borderRadius: size * 0.26 }}
-      >
-        <img src={src} alt="" />
+      <span className={`mark mark-img mark-${tone}`} aria-hidden="true" style={{ width: size, height: size }}>
+        <img src={file.src} alt="" />
       </span>
     );
   }
-  const g = GLYPHS[glyph] || GLYPHS.tt;
+  const tile = tone === "tile";
+  const inner = tile ? Math.round(size * 0.62) : size;
   return (
-    <span className="mark" aria-hidden="true" style={{ width: size, height: size }}>
-      <svg viewBox="0 0 48 48" width={size} height={size}>
-        <defs>
-          <linearGradient id={`b${uid}`} x1="0" y1="0" x2="0.25" y2="1">
-            <stop offset="0" stopColor={from} />
-            <stop offset="1" stopColor={to} />
-          </linearGradient>
-          <radialGradient id={`s${uid}`} cx="0.3" cy="0.08" r="1.1">
-            <stop offset="0" stopColor="#fff" stopOpacity="0.38" />
-            <stop offset="0.45" stopColor="#fff" stopOpacity="0.08" />
-            <stop offset="1" stopColor="#fff" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-        <rect x="1" y="1" width="46" height="46" rx="12.5" fill={`url(#b${uid})`} />
-        <rect x="1" y="1" width="46" height="46" rx="12.5" fill={`url(#s${uid})`} />
-        <rect x="1.6" y="1.6" width="44.8" height="44.8" rx="12"
-          fill="none" stroke="#fff" strokeOpacity="0.22" strokeWidth="1.1" />
-        {/* soft glyph shadow, then the glyph */}
-        <g transform="translate(12.5, 13.3) scale(0.96)" stroke="#000" opacity="0.18"
-          fill="none" strokeWidth="2.1" color="#000">
-          {g}
-        </g>
-        <g transform="translate(12.5, 12.5) scale(0.96)" stroke="#fff"
-          fill="none" strokeWidth="2.1" color="#fff">
-          {g}
-        </g>
+    <span
+      className={`mark mark-${tone}`}
+      aria-hidden="true"
+      style={{
+        width: size, height: size,
+        color: tone === "color" ? `var(--${p.theme})` : "#fff",
+        ...(tile ? { background: `var(--${p.theme})`, borderRadius: size * 0.24 } : {}),
+      }}
+    >
+      <svg viewBox="0 0 48 48" width={inner} height={inner} fill="currentColor">
+        {MARKS[p.theme]}
       </svg>
+    </span>
+  );
+}
+
+/* The full logo: mark plus the name set in two weights. */
+export function ProjectLogo({ slug, size = 40, tone = "color", className = "" }) {
+  const [a, b] = PROJECTS[slug].wordmark;
+  return (
+    <span className={`plogo ${className}`}>
+      <ProjectMark slug={slug} size={size} tone={tone} />
+      <span className="plogo-wm" style={{ fontSize: Math.round(size * 0.56) }}>
+        <b>{a}</b>{b}
+      </span>
     </span>
   );
 }

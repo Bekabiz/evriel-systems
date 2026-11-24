@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   useReveal,
   Cta,
-  BrandMark,
+  ProjectLogo,
   Bezel,
   LaptopFrame,
   PhoneFrame,
@@ -17,7 +17,7 @@ import {
 } from "./kit.jsx";
 import { Nav, Footer } from "./shell.jsx";
 import { ContactSection } from "./Home.jsx";
-import { PROJECTS, MEDIA, LOGOS } from "./projects.js";
+import { PROJECTS, MEDIA } from "./projects.js";
 import { t, withLang } from "./i18n/index.js";
 import { setHead } from "./seo.js";
 import "./tokens.css";
@@ -85,8 +85,7 @@ export default function ProjectPage({ slug }) {
           <div className="wrap">
             <div className="proj-field">
               <div className="room-id room-id-center">
-                <BrandMark from={`var(--${p.theme})`} to={`var(--${p.theme}-deep)`} glyph={p.theme} {...(LOGOS[p.slug] || {})} size={52} />
-                <span className="proj-label">{p.name}</span>
+                <ProjectLogo slug={p.slug} size={44} tone={dark ? "white" : "color"} />
               </div>
               <h1 className="t-hero">{c.tagline}</h1>
               <p className="proj-one">{c.one}</p>

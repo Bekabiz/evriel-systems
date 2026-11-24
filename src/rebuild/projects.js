@@ -7,6 +7,7 @@ export const PROJECTS = {
   "evriel-inventory": {
     slug: "evriel-inventory",
     name: "Evriel Inventory",
+    wordmark: ["Evriel", " Inventory"],
     initials: "EI",
     theme: "inv",
     tagline: "Inventory that runs three stores.",
@@ -46,6 +47,7 @@ export const PROJECTS = {
   "ag-project-monitor": {
     slug: "ag-project-monitor",
     name: "AG Project Monitor",
+    wordmark: ["AG", " Project Monitor"],
     initials: "AG",
     theme: "ag",
     tagline: "Tasks that start as a voice note.",
@@ -85,6 +87,7 @@ export const PROJECTS = {
   "develop-ec": {
     slug: "develop-ec",
     name: "Develop EC",
+    wordmark: ["Develop", " EC"],
     initials: "EC",
     theme: "ec",
     tagline: "From design to construction.",
@@ -116,6 +119,7 @@ export const PROJECTS = {
   tasktock: {
     slug: "tasktock",
     name: "TaskTock",
+    wordmark: ["Task", "Tock"],
     initials: "TT",
     theme: "tt",
     tagline: "Tasks that follow you into Telegram.",
@@ -147,6 +151,7 @@ export const PROJECTS = {
   domainintel: {
     slug: "domainintel",
     name: "DomainIntel",
+    wordmark: ["Domain", "Intel"],
     initials: "DI",
     theme: "di",
     tagline: "Buy, review or avoid.",
@@ -190,6 +195,7 @@ export const PROJECTS = {
   clocket: {
     slug: "clocket",
     name: "ClockET",
+    wordmark: ["Clock", "ET"],
     initials: "CK",
     theme: "ck",
     tagline: "Attendance you can trust.",
@@ -323,12 +329,39 @@ export const MEDIA = {
   },
 };
 
-/* Real product logos, pulled from the products own live sites. */
+/* Develop EC is a client, so it keeps its own real logo file. The five
+   Evriel products get logos drawn in kit.jsx, and the same logos sit
+   inside their captured screens (captures-src) and in public/brand. */
 export const LOGOS = {
-  tasktock: { src: "/brand/tasktock.svg" },
-  clocket: { src: "/brand/clocket.png", framed: true },
-  "develop-ec": { src: "/brand/develop-ec.png", framed: true },
+  "develop-ec": { src: "/brand/develop-ec.png" },
 };
+
+/* Showroom staging. Every exhibit names the devices it puts on the floor.
+   A slot without items plays the whole reel; items index into the reel
+   (the features that have a captured clip, in feature order). */
+export const SHOWROOM = {
+  "evriel-inventory": { layout: "split", slots: [{ device: "laptop" }] },
+  "ag-project-monitor": { layout: "split", flip: true, slots: [{ device: "phone" }] },
+  "develop-ec": { layout: "stack", dark: true, slots: [{ device: "browser" }] },
+  tasktock: {
+    layout: "duo",
+    slots: [{ device: "phone", items: [0] }, { device: "phone", items: [1] }],
+  },
+  domainintel: { layout: "stack", slots: [{ device: "laptop" }] },
+  clocket: {
+    layout: "combo", flip: true,
+    slots: [{ device: "laptop", items: [2, 3] }, { device: "phone", items: [0, 1] }],
+  },
+};
+
+/* Each service on the home page points at one place it already runs:
+   the project and the index of the feature whose clip proves it. */
+export const SERVICE_PROOF = [
+  { slug: "ag-project-monitor", feature: 0 },
+  { slug: "clocket", feature: 3 },
+  { slug: "domainintel", feature: 2 },
+  { slug: "evriel-inventory", feature: 3 },
+];
 
 export const PROJECT_ORDER = [
   "evriel-inventory",
