@@ -305,6 +305,8 @@
 .contact-form { max-width: 560px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .field { margin-bottom: 18px; }
+/* a field for scripts only: off the page, out of the tab order, hidden from screen readers */
+.field-trap { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
 .field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
 .field .opt { color: var(--body-gray); font-weight: 400; }
 .field input, .field textarea {

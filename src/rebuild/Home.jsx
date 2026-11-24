@@ -267,15 +267,38 @@ function Trust() {
 
 export function ContactSection() {
   const [status, setStatus] = useState("idle");
-  const [form, setForm] = useState({ name: "", email: "", company: "", challenge: "" });
+  const [form, setForm] = useState({ name: "", email: "", company: "", challenge: "", website: "" });
+  const token = useRef(null);
 
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+
+  /* Bot protection (see api/_guard.js). The form asks the server for a
+     signed token the first time someone touches it and sends it back
+     with the message. The "website" field is a trap no person can see. */
+  const getToken = () => {
+    if (!token.current) {
+      token.current = fetch("/api/contact")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((tk) => (tk ? { ...tk, at: Date.now() } : null))
+        .catch(() => null);
+    }
+    return token.current;
+  };
 
   const submit = async (e) => {
     e.preventDefault();
     if (status === "sending") return;
     setStatus("sending");
     try {
+      let tk = await getToken();
+      /* a token is good for a few hours: take a new one if it failed to
+         arrive or the page sat open too long */
+      if (!tk || Date.now() - tk.at > 5 * 60 * 60 * 1000) { token.current = null; tk = await getToken(); }
+      if (!tk) throw new Error("no token");
+      /* the server ignores anything sent within three seconds of the
+         token, so a token taken just now is given time to age */
+      const wait = 3400 - (Date.now() - tk.at);
+      if (wait > 0) await new Promise((r) => setTimeout(r, wait));
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -283,16 +306,16 @@ export function ContactSection() {
           name: form.name,
           company: form.company,
           email: form.email,
-          phone: "",
           language: lang,
-          industry: "",
-          interests: [],
           challenge: form.challenge,
+          website: form.website,
+          token: { t: tk.t, s: tk.s },
         }),
       });
       if (!res.ok) throw new Error("send failed");
       setStatus("ok");
     } catch {
+      token.current = null;
       setStatus("error");
     }
   };
@@ -314,24 +337,28 @@ export function ContactSection() {
             {status === "ok" ? (
               <p className="form-ok">{t.contact.ok}</p>
             ) : (
-              <form className="contact-form" onSubmit={submit}>
+              <form className="contact-form" onSubmit={submit} onFocus={getToken}>
                 <div className="form-row">
                   <div className="field">
                     <label htmlFor="cf-name">{t.contact.name}</label>
-                    <input id="cf-name" required value={form.name} onChange={set("name")} autoComplete="name" />
+                    <input id="cf-name" required minLength={2} maxLength={80} value={form.name} onChange={set("name")} autoComplete="name" />
                   </div>
                   <div className="field">
                     <label htmlFor="cf-email">{t.contact.email}</label>
-                    <input id="cf-email" type="email" required value={form.email} onChange={set("email")} autoComplete="email" />
+                    <input id="cf-email" type="email" required maxLength={120} value={form.email} onChange={set("email")} autoComplete="email" />
                   </div>
                 </div>
                 <div className="field">
                   <label htmlFor="cf-company">{t.contact.company} <span className="opt">{t.contact.optional}</span></label>
-                  <input id="cf-company" value={form.company} onChange={set("company")} autoComplete="organization" />
+                  <input id="cf-company" maxLength={120} value={form.company} onChange={set("company")} autoComplete="organization" />
+                </div>
+                <div className="field-trap" aria-hidden="true">
+                  <label htmlFor="cf-website">Website</label>
+                  <input id="cf-website" name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={set("website")} />
                 </div>
                 <div className="field">
                   <label htmlFor="cf-msg">{t.contact.msg}</label>
-                  <textarea id="cf-msg" rows={5} required value={form.challenge} onChange={set("challenge")} />
+                  <textarea id="cf-msg" rows={5} required minLength={10} maxLength={4000} value={form.challenge} onChange={set("challenge")} />
                 </div>
                 {status === "error" && <p className="form-err">{t.contact.err}</p>}
                 <button type="submit" className="btn" disabled={status === "sending"}>
